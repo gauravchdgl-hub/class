@@ -1,13 +1,8 @@
-<%- include('../partials/header', { title: 'My MCQs' }) %>
-<div class="nav-tabs">
-  <a href="/student/dashboard">Dashboard</a>
-  <a href="/student/mcq/plans">MCQ Plans</a>
-  <a class="active" href="/student/mcq/my">My MCQs</a>
-  <a href="/student/results">Results</a>
-</div>
-<h1>My MCQ Plans</h1>
-<table class="card">
-  <tr><th>Plan</th><th>Subject</th><th>Remaining</th><th>Expires</th><th>Action</th></tr>
+<%- include('../partials/portal_top', { title: 'My MCQs', active: 'my-mcq', crumb: 'Student Portal / My MCQs' }) %>
+<div class="page-title"><div><h2>My MCQ Plans</h2></div><a class="btn btn-primary" href="/student/mcq/plans">Buy More MCQs</a></div>
+<div class="card">
+<div class="table-wrap"><table class="table">
+  <tr><th>Plan</th><th>Subject</th><th>Remaining</th><th>Expires</th><th></th></tr>
   <% plans.forEach(p => { %>
     <tr>
       <td><%= p.plan_name %></td>
@@ -16,13 +11,14 @@
       <td><%= new Date(p.expires_at).toLocaleDateString() %></td>
       <td>
         <% if (p.remaining_mcqs > 0) { %>
-          <a class="btn outline" href="/student/mcq/practice/<%= p.id %>">Practice</a>
+          <a class="btn btn-secondary" href="/student/mcq/practice/<%= p.id %>">Practise</a>
         <% } else { %>
-          <a class="btn outline" href="/student/mcq/result/<%= p.id %>">View Result</a>
+          <a class="btn btn-outline" href="/student/mcq/result/<%= p.id %>">View Result</a>
         <% } %>
       </td>
     </tr>
   <% }) %>
-  <% if (!plans.length) { %><tr><td colspan="5" class="muted">No plans yet.</td></tr><% } %>
-</table>
-<%- include('../partials/footer') %>
+  <% if (!plans.length) { %><tr><td colspan="5" class="empty">No plans yet.</td></tr><% } %>
+</table></div>
+</div>
+<%- include('../partials/portal_bottom') %>

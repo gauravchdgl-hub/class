@@ -1,24 +1,22 @@
-<%- include('../partials/header', { title: 'Settings' }) %>
-<%- include('../partials/admin_nav') %>
+<%- include('../partials/portal_top', { title: 'Settings', active: 'settings', crumb: 'Admin / Settings' }) %>
 <div class="grid grid-2">
   <% if (currentUser.role === 'admin') { %>
-  <div class="card">
+  <div class="card card-pad">
     <h3>Site Logo</h3>
-    <% if (logoUrl) { %><p><img src="<%= logoUrl %>" alt="Logo" style="max-height:60px;"></p><% } %>
+    <% if (logoUrl) { %><p><img src="<%= logoUrl %>" alt="Logo" style="max-height:60px;border-radius:10px;"></p><% } %>
     <form method="post" action="/admin/settings/logo" enctype="multipart/form-data">
-      <label>Upload New Logo</label>
-      <input type="file" name="logo" accept="image/*" required>
-      <button class="btn" type="submit">Update Logo</button>
+      <div class="field"><label>Upload New Logo</label><input type="file" name="logo" accept="image/*" required></div>
+      <button class="btn btn-primary" style="margin-top:14px;" type="submit">Update Logo</button>
     </form>
   </div>
   <% } %>
-  <div class="card">
+  <div class="card card-pad">
     <h3>Change Password</h3>
     <form method="post" action="/admin/settings/password">
-      <label>Current Password</label><input type="password" name="current_password" required>
-      <label>New Password</label><input type="password" name="new_password" required minlength="6">
-      <button class="btn" type="submit">Change Password</button>
+      <div class="field"><label>Current Password</label><input type="password" name="current_password" required></div>
+      <div class="field" style="margin-top:10px;"><label>New Password</label><input type="password" name="new_password" required minlength="6"></div>
+      <button class="btn btn-primary" style="margin-top:14px;" type="submit">Change Password</button>
     </form>
   </div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

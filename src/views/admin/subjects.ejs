@@ -1,20 +1,19 @@
-<%- include('../partials/header', { title: 'Subjects' }) %>
-<%- include('../partials/admin_nav') %>
+<%- include('../partials/portal_top', { title: 'Subjects', active: 'subjects', crumb: 'Admin / Subjects' }) %>
 <div class="grid grid-2">
-  <div class="card">
+  <div class="card card-pad">
     <h3>Add Subject</h3>
     <form method="post" action="/admin/subjects">
-      <label>Name</label><input type="text" name="name" required>
-      <label>Year</label>
-      <select name="year"><option>Year 11</option><option>Year 12</option></select>
-      <button class="btn" type="submit">Add</button>
+      <div class="field"><label>Name</label><input type="text" name="name" required></div>
+      <div class="field" style="margin-top:10px;"><label>Year</label>
+        <select name="year"><option>Year 11</option><option>Year 12</option></select></div>
+      <button class="btn btn-primary" style="margin-top:14px;" type="submit">Add</button>
     </form>
   </div>
-  <div class="card">
+  <div class="card card-pad">
     <h3>All Subjects</h3>
-    <table><tr><th>Name</th><th>Year</th></tr>
+    <div class="table-wrap"><table class="table"><tr><th>Name</th><th>Year</th></tr>
       <% subjects.forEach(s => { %><tr><td><%= s.name %></td><td><%= s.year %></td></tr><% }) %>
-    </table>
+    </table></div>
   </div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

@@ -1,35 +1,40 @@
-<%- include('../partials/header', { title: 'Practice Papers' }) %>
-<h1>Year 11–12 Practice Papers</h1>
-<form method="get" class="card grid grid-3">
-  <div>
-    <label>Year</label>
-    <select name="year">
-      <option value="">All</option>
-      <option value="Year 11" <%= selectedYear==='Year 11'?'selected':'' %>>Year 11</option>
-      <option value="Year 12" <%= selectedYear==='Year 12'?'selected':'' %>>Year 12</option>
-    </select>
+<%- include('../partials/public_top', { title: 'Practice Papers' }) %>
+<section class="public-section">
+  <div class="page-title">
+    <div><h2>Year 11–12 Practice Papers</h2><p>Complete exam papers with MCQ, written and essay questions.</p></div>
   </div>
-  <div>
-    <label>Subject</label>
-    <select name="subject_id">
-      <option value="">All</option>
-      <% subjects.forEach(s => { %>
-        <option value="<%= s.id %>" <%= String(selectedSubject)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option>
-      <% }) %>
-    </select>
-  </div>
-  <div style="display:flex;align-items:flex-end;"><button class="btn" type="submit">Filter</button></div>
-</form>
-
-<div class="grid grid-3">
-  <% papers.forEach(p => { %>
-    <div class="card">
-      <h3><%= p.title %></h3>
-      <p class="muted"><%= p.year %> · <%= p.subject_name %></p>
-      <p><strong>A$<%= p.price.toFixed(2) %></strong></p>
-      <a class="btn" href="/papers/<%= p.id %>">View & Buy</a>
+  <form method="get" class="card card-pad form-grid" style="margin-bottom:20px;">
+    <div class="field">
+      <label>Year</label>
+      <select name="year">
+        <option value="">All</option>
+        <option value="Year 11" <%= selectedYear==='Year 11'?'selected':'' %>>Year 11</option>
+        <option value="Year 12" <%= selectedYear==='Year 12'?'selected':'' %>>Year 12</option>
+      </select>
     </div>
-  <% }) %>
-  <% if (!papers.length) { %><p class="muted">No papers found.</p><% } %>
-</div>
-<%- include('../partials/footer') %>
+    <div class="field">
+      <label>Subject</label>
+      <select name="subject_id">
+        <option value="">All</option>
+        <% subjects.forEach(s => { %>
+          <option value="<%= s.id %>" <%= String(selectedSubject)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="full"><button class="btn btn-primary" type="submit">Filter</button></div>
+  </form>
+
+  <div class="grid grid-3">
+    <% papers.forEach(p => { %>
+      <div class="card paper-card">
+        <span class="chip chip-blue"><%= p.year %></span>
+        <h3><%= p.subject_name %></h3>
+        <p class="muted"><%= p.title %></p>
+        <div class="paper-price">A$<%= p.price.toFixed(2) %></div>
+        <a class="btn btn-primary" href="/papers/<%= p.id %>">View & Buy</a>
+      </div>
+    <% }) %>
+    <% if (!papers.length) { %><p class="muted">No papers found.</p><% } %>
+  </div>
+</section>
+<%- include('../partials/public_bottom') %>

@@ -1,15 +1,38 @@
-<%- include('../partials/header', { title: 'Create Account' }) %>
-<div class="card" style="max-width:420px;margin:0 auto;">
-  <h2>Create New Account</h2>
-  <form method="post" action="/register">
-    <label>Name</label>
-    <input type="text" name="name" required>
-    <label>Email</label>
-    <input type="email" name="email" required>
-    <label>Password</label>
-    <input type="password" name="password" required>
-    <button class="btn" type="submit">Create Account</button>
-  </form>
-  <p class="muted">Already have an account? <a href="/login">Login</a></p>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account | AUS Academy</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/components.css">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-side">
+      <div class="brand-mark">A</div>
+      <h2>Create your student account.</h2>
+      <p>Sign up free and get 50 MCQs instantly — no plan purchase needed to start practising.</p>
+      <div class="checklist">
+        <div class="check"><span class="tick">✓</span>50 free MCQs on signup</div>
+        <div class="check"><span class="tick">✓</span>Buy more MCQs or full exam papers anytime</div>
+      </div>
+      <div class="role-pill">Student Signup</div>
+    </div>
+    <div class="login-form">
+      <h3>Create New Account</h3>
+      <% if (error && error.length) { %><div class="alert" style="margin-bottom:12px;"><%= error[0] %></div><% } %>
+      <form method="post" action="/register">
+        <div class="field"><label>Name</label><input type="text" name="name" required></div>
+        <div class="field" style="margin-top:12px"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field" style="margin-top:12px"><label>Password</label><input type="password" name="password" required></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:18px" type="submit">Create Account</button>
+      </form>
+      <p class="auth-note">Already have an account? <a href="/login" style="color:var(--blue);font-weight:800">Login</a></p>
+    </div>
+  </div>
 </div>
-<%- include('../partials/footer') %>
+<script src="/assets/app.js"></script>
+</body>
+</html>

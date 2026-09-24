@@ -1,14 +1,41 @@
-<%- include('../partials/header', { title: 'Login' }) %>
-<div class="card" style="max-width:420px;margin:0 auto;">
-  <h2>Student Login</h2>
-  <form method="post" action="/login">
-    <label>Email</label>
-    <input type="email" name="email" required>
-    <label>Password</label>
-    <input type="password" name="password" required>
-    <button class="btn" type="submit">Login</button>
-  </form>
-  <p class="muted">No account? <a href="/register">Create New Account</a></p>
-  <p class="muted">Admin demo login: admin@ausacademy.com / admin123</p>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Login | AUS Academy</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/components.css">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-side">
+      <div class="brand-mark">A</div>
+      <h2>Welcome back, student.</h2>
+      <p>Australian Year 11–12 learning, portal MCQs and complete online practice exams.</p>
+      <div class="checklist">
+        <div class="check"><span class="tick">✓</span>MCQ practice with instant results</div>
+        <div class="check"><span class="tick">✓</span>Full exam papers with teacher feedback</div>
+        <div class="check"><span class="tick">✓</span>50 free MCQs on signup</div>
+      </div>
+      <div class="role-pill">Student Portal</div>
+    </div>
+    <div class="login-form">
+      <h3>Student Sign In</h3>
+      <p class="muted">Login to your student portal.</p>
+      <% if (success && success.length) { %><div class="alert" style="background:#e9fbf4;color:#08784f;margin-bottom:12px;"><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="alert" style="margin-bottom:12px;"><%= error[0] %></div><% } %>
+      <form method="post" action="/login">
+        <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field" style="margin-top:12px"><label>Password</label><input type="password" name="password" required></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:18px" type="submit">Login</button>
+      </form>
+      <p class="auth-note">New student? <a href="/register" style="color:var(--blue);font-weight:800">Create account</a></p>
+      <p class="auth-note">Teacher or Admin? <a href="/staff-login" style="color:var(--blue);font-weight:800">Staff login here</a></p>
+    </div>
+  </div>
 </div>
-<%- include('../partials/footer') %>
+<script src="/assets/app.js"></script>
+</body>
+</html>

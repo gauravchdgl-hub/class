@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %> | AUS Academy</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/components.css">
+</head>
+<body data-role="<%= currentUser.role === 'student' ? 'portal' : 'admin' %>">
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <% if (typeof siteLogo !== 'undefined' && siteLogo) { %>
+      <img src="<%= siteLogo %>" alt="Logo" style="width:42px;height:42px;border-radius:13px;object-fit:cover;">
+    <% } else { %><div class="brand-mark">A</div><% } %>
+    <div><h1>AUS Academy</h1><span><%= currentUser.role === 'student' ? 'Year 11–12 Online Learning' : (currentUser.role === 'admin' ? 'Admin Panel' : 'Teacher Panel') %></span></div>
+  </div>
+
+  <% if (currentUser.role === 'student') { %>
+    <div class="nav-section">Student Portal</div>
+    <nav class="nav">
+      <a href="/student/dashboard" class="<%= active==='dashboard'?'active':'' %>"><span class="ico">⌂</span>Dashboard</a>
+      <a href="/student/mcq/plans" class="<%= active==='mcq-plans'?'active':'' %>"><span class="ico">✓</span>MCQ Plans</a>
+      <a href="/student/mcq/my" class="<%= active==='my-mcq'?'active':'' %>"><span class="ico">▦</span>My MCQs</a>
+      <a href="/student/dashboard" class="<%= active==='exams'?'active':'' %>"><span class="ico">◫</span>Assigned Exams</a>
+      <a href="/student/results" class="<%= active==='results'?'active':'' %>"><span class="ico">▥</span>Results & Feedback</a>
+    </nav>
+  <% } else { %>
+    <div class="nav-section">Manage Platform</div>
+    <nav class="nav">
+      <a href="/admin/dashboard" class="<%= active==='dashboard'?'active':'' %>"><span class="ico">⌂</span>Dashboard</a>
+      <a href="/admin/subjects" class="<%= active==='subjects'?'active':'' %>"><span class="ico">▦</span>Subjects / Year 11–12</a>
+      <a href="/admin/mcq-plans" class="<%= active==='mcq-plans'?'active':'' %>"><span class="ico">$</span>MCQ Plans</a>
+      <a href="/admin/mcqs" class="<%= active==='mcq-bank'?'active':'' %>"><span class="ico">✓</span>MCQ Question Bank</a>
+      <a href="/admin/papers" class="<%= active==='papers'?'active':'' %>"><span class="ico">□</span>Full Exam Papers</a>
+      <a href="/admin/assign" class="<%= active==='assign'?'active':'' %>"><span class="ico">↗</span>Assign / Activate</a>
+      <a href="/admin/submissions" class="<%= active==='submissions'?'active':'' %>"><span class="ico">◫</span>Submissions & Review</a>
+      <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/teachers" class="<%= active==='teachers'?'active':'' %>"><span class="ico">●</span>Teachers</a>
+      <% } %>
+      <a href="/admin/settings" class="<%= active==='settings'?'active':'' %>"><span class="ico">⚙</span>Settings</a>
+    </nav>
+  <% } %>
+
+  <div class="nav-section">Account</div>
+  <nav class="nav"><a href="/logout"><span class="ico">⇥</span>Logout</a></nav>
+  <div class="sidebar-footer"><%= currentUser.role === 'student' ? 'MCQ plans and assigned exam papers appear here after activation.' : 'Create content, activate students, assign papers and publish feedback.' %></div>
+</aside>
+<div class="mobile-overlay"></div>
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left"><button class="menu-btn">☰</button><div class="crumb"><%= crumb %></div></div>
+    <div class="actions">
+      <span class="chip <%= currentUser.role==='student' ? 'chip-green' : 'chip-purple' %>">● <%= currentUser.role==='student' ? 'Active Student' : (currentUser.role==='admin' ? 'Admin' : 'Teacher') %></span>
+      <span class="tag"><%= currentUser.name %></span>
+    </div>
+  </header>
+  <section class="content">
+    <% if (success && success.length) { %><div class="alert" style="background:#e9fbf4;color:#08784f;margin-bottom:14px;"><%= success[0] %></div><% } %>
+    <% if (error && error.length) { %><div class="alert" style="background:#fff0f0;color:#bd2d2d;margin-bottom:14px;"><%= error[0] %></div><% } %>

@@ -1,12 +1,13 @@
-<%- include('../partials/header', { title: 'MCQ Result' }) %>
-<div class="card">
+<%- include('../partials/portal_top', { title: 'MCQ Result', active: 'my-mcq', crumb: 'Student Portal / MCQ / Result' }) %>
+<div class="card card-pad" style="max-width:480px;margin:0 auto;text-align:center;">
   <h2>Instant Result</h2>
-  <div class="progressbar"><%= score %>%</div>
-  <table>
-    <tr><td>Total Questions</td><td><%= total %></td></tr>
-    <tr><td>Correct Answers</td><td><%= correct %></td></tr>
-    <tr><td>Wrong Answers</td><td><%= wrong %></td></tr>
-  </table>
-  <a class="btn" href="/student/mcq/my">Back to My MCQs</a>
+  <div class="progress" style="height:22px;margin:18px 0;"><span style="width:<%= score %>%"></span></div>
+  <div style="font-size:40px;font-weight:900;color:var(--green);"><%= score %>%</div>
+  <div class="grid grid-3" style="margin-top:20px;">
+    <div class="stat card"><div class="label">Total</div><div class="value"><%= total %></div></div>
+    <div class="stat card"><div class="label">Correct</div><div class="value" style="color:var(--green);"><%= correct %></div></div>
+    <div class="stat card"><div class="label">Wrong</div><div class="value" style="color:var(--red);"><%= wrong %></div></div>
+  </div>
+  <a class="btn btn-primary" style="margin-top:20px;" href="/student/mcq/my">Back to My MCQs</a>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

@@ -1,26 +1,20 @@
-<%- include('../partials/header', { title: 'My Results' }) %>
-<div class="nav-tabs">
-  <a href="/student/dashboard">Dashboard</a>
-  <a href="/student/mcq/plans">MCQ Plans</a>
-  <a href="/student/mcq/my">My MCQs</a>
-  <a class="active" href="/student/results">Results</a>
-</div>
-<h1>My Results</h1>
+<%- include('../partials/portal_top', { title: 'My Results', active: 'results', crumb: 'Student Portal / Results & Feedback' }) %>
+<div class="page-title"><div><h2>My Results</h2></div></div>
 <% results.forEach(r => { %>
-  <div class="card">
-    <h3><%= r.title %> <span class="badge <%= r.status %>"><%= r.status %></span></h3>
+  <div class="card card-pad" style="margin-bottom:16px;">
+    <div class="section-title"><h3><%= r.title %></h3><span class="chip chip-<%= r.status==='published'?'green':'orange' %>"><%= r.status %></span></div>
     <% if (r.status === 'published') { %>
-      <table>
+      <div class="table-wrap"><table class="table">
         <tr><th></th><th>Score</th><th>%</th></tr>
         <tr><td>MCQ (<%= r.mcq_total %>)</td><td><%= r.mcq_score %> / <%= r.mcq_total %></td><td><%= r.mcq_total ? Math.round(r.mcq_score/r.mcq_total*100) : 0 %>%</td></tr>
         <tr><td>Written (<%= r.written_total %>)</td><td><%= r.written_score %> / <%= r.written_total %></td><td><%= r.written_total ? Math.round(r.written_score/r.written_total*100) : 0 %>%</td></tr>
         <tr><td>Essay (<%= r.essay_total %>)</td><td><%= r.essay_score %> / <%= r.essay_total %></td><td><%= r.essay_total ? Math.round(r.essay_score/r.essay_total*100) : 0 %>%</td></tr>
         <tr><th>Total</th><th><%= r.total_score %> / <%= r.total_marks %></th><th><%= r.total_marks ? Math.round(r.total_score/r.total_marks*100) : 0 %>%</th></tr>
-      </table>
+      </table></div>
     <% } else { %>
       <p class="muted">Result pending — teacher review in progress.</p>
     <% } %>
   </div>
 <% }) %>
-<% if (!results.length) { %><p class="muted">No submissions yet.</p><% } %>
-<%- include('../partials/footer') %>
+<% if (!results.length) { %><div class="card empty">No submissions yet.</div><% } %>
+<%- include('../partials/portal_bottom') %>

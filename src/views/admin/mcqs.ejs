@@ -1,31 +1,26 @@
-<%- include('../partials/header', { title: 'MCQ Bank' }) %>
-<%- include('../partials/admin_nav') %>
-<div class="card">
+<%- include('../partials/portal_top', { title: 'MCQ Bank', active: 'mcq-bank', crumb: 'Admin / MCQ Question Bank' }) %>
+<div class="card card-pad">
   <h3>Add MCQ (add as many as you want)</h3>
-  <form method="post" action="/admin/mcqs">
-    <div class="grid grid-2">
-      <div><label>Subject</label>
-        <select name="subject_id" required><% subjects.forEach(s=>{ %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %></select>
-      </div>
-      <div><label>Year</label><select name="year"><option>Year 11</option><option>Year 12</option></select></div>
+  <form method="post" action="/admin/mcqs" class="form-grid">
+    <div class="field"><label>Subject</label>
+      <select name="subject_id" required><% subjects.forEach(s=>{ %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %></select>
     </div>
-    <label>Topic</label><input type="text" name="topic">
-    <label>Question</label><textarea name="question" required></textarea>
-    <div class="grid grid-2">
-      <div><label>Option A</label><input name="option_a" required></div>
-      <div><label>Option B</label><input name="option_b" required></div>
-      <div><label>Option C</label><input name="option_c" required></div>
-      <div><label>Option D</label><input name="option_d" required></div>
-    </div>
-    <label>Correct Option</label>
-    <select name="correct_option"><option>A</option><option>B</option><option>C</option><option>D</option></select>
-    <button class="btn" type="submit">Add MCQ</button>
+    <div class="field"><label>Year</label><select name="year"><option>Year 11</option><option>Year 12</option></select></div>
+    <div class="field full"><label>Topic</label><input type="text" name="topic"></div>
+    <div class="field full"><label>Question</label><textarea name="question" required></textarea></div>
+    <div class="field"><label>Option A</label><input name="option_a" required></div>
+    <div class="field"><label>Option B</label><input name="option_b" required></div>
+    <div class="field"><label>Option C</label><input name="option_c" required></div>
+    <div class="field"><label>Option D</label><input name="option_d" required></div>
+    <div class="field"><label>Correct Option</label>
+      <select name="correct_option"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+    <div class="full"><button class="btn btn-primary" type="submit">Add MCQ</button></div>
   </form>
 </div>
-<div class="card">
+<div class="card card-pad" style="margin-top:18px;">
   <h3>Recent MCQs</h3>
-  <table><tr><th>Subject</th><th>Question</th><th>Correct</th></tr>
+  <div class="table-wrap"><table class="table"><tr><th>Subject</th><th>Question</th><th>Correct</th></tr>
     <% mcqs.forEach(m => { %><tr><td><%= m.subject_name %></td><td><%= m.question %></td><td><%= m.correct_option %></td></tr><% }) %>
-  </table>
+  </table></div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

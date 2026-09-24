@@ -1,30 +1,24 @@
-<%- include('../partials/header', { title: 'MCQ Plans' }) %>
-<div class="nav-tabs">
-  <a href="/student/dashboard">Dashboard</a>
-  <a class="active" href="/student/mcq/plans">MCQ Plans</a>
-  <a href="/student/mcq/my">My MCQs</a>
-  <a href="/student/results">Results</a>
-</div>
-<h1>Choose MCQ Plan</h1>
+<%- include('../partials/portal_top', { title: 'MCQ Plans', active: 'mcq-plans', crumb: 'Student Portal / MCQ Plans' }) %>
+<div class="page-title"><div><h2>Choose an MCQ Plan</h2><p>Pick a subject and year, then pay securely with Stripe.</p></div></div>
 <div class="grid grid-3">
   <% plans.forEach(p => { %>
-    <div class="card">
+    <div class="card card-pad">
+      <span class="chip chip-blue"><%= p.mcq_count %> MCQs</span>
       <h3><%= p.name %></h3>
-      <p><%= p.mcq_count %> MCQs</p>
-      <p><strong>A$<%= p.price.toFixed(2) %></strong> · Valid <%= p.validity_days %> days</p>
+      <div class="price"><%= p.price > 0 ? 'A$' + p.price.toFixed(2) : 'Free' %></div>
+      <p class="muted">Valid <%= p.validity_days %> days</p>
       <form method="post" action="/student/mcq/plans/<%= p.id %>/buy">
-        <label>Subject</label>
-        <select name="subject_id" required>
-          <% subjects.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %>
-        </select>
-        <label>Year</label>
-        <select name="year" required>
-          <option>Year 11</option>
-          <option>Year 12</option>
-        </select>
-        <button class="btn green" type="submit"><%= p.price > 0 ? 'Pay with Card (Stripe)' : 'Activate Free' %></button>
+        <div class="field"><label>Subject</label>
+          <select name="subject_id" required>
+            <% subjects.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %>
+          </select>
+        </div>
+        <div class="field" style="margin-top:10px;"><label>Year</label>
+          <select name="year" required><option>Year 11</option><option>Year 12</option></select>
+        </div>
+        <button class="btn btn-success" style="width:100%;margin-top:14px;" type="submit"><%= p.price > 0 ? 'Pay with Card (Stripe)' : 'Activate Free' %></button>
       </form>
     </div>
   <% }) %>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

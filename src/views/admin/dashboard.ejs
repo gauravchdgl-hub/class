@@ -1,10 +1,9 @@
-<%- include('../partials/header', { title: 'Admin Dashboard' }) %>
-<%- include('../partials/admin_nav') %>
-<h1>Admin Dashboard</h1>
-<div class="grid grid-3">
-  <div class="card"><h2><%= stats.students %></h2><p>Students</p></div>
-  <div class="card"><h2><%= stats.papers %></h2><p>Exam Papers</p></div>
-  <div class="card"><h2><%= stats.plans %></h2><p>MCQ Plans</p></div>
-  <div class="card"><h2><%= stats.pending %></h2><p>Pending Reviews</p></div>
+<%- include('../partials/portal_top', { title: 'Dashboard', active: 'dashboard', crumb: 'Admin / Dashboard' }) %>
+<div class="page-title"><div><h2>Admin Dashboard</h2><p>Overview of students, papers and pending work.</p></div></div>
+<div class="grid grid-4">
+  <div class="card stat"><div class="label">Students</div><div class="value"><%= stats.students %></div></div>
+  <div class="card stat"><div class="label">Exam Papers</div><div class="value"><%= stats.papers %></div></div>
+  <div class="card stat"><div class="label">MCQ Plans</div><div class="value"><%= stats.plans %></div></div>
+  <div class="card stat"><div class="label">Pending Reviews</div><div class="value"><%= stats.pending %></div><div class="hint"><a href="/admin/submissions">Review now →</a></div></div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

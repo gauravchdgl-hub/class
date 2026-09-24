@@ -1,0 +1,29 @@
+<%- include('../partials/portal_top', { title: 'Assign / Activate', active: 'assign', crumb: 'Admin / Assign / Activate' }) %>
+<div class="page-title"><div><h2>Assign Paper to Student</h2><p>Give an existing student direct access to a paper — no website purchase needed.</p></div></div>
+
+<div class="card card-pad">
+  <div class="checklist" style="margin-bottom:18px;">
+    <div class="check"><span class="tick">1</span>Pick the student (they must already have an account)</div>
+    <div class="check"><span class="tick">2</span>Pick the exam paper</div>
+    <div class="check"><span class="tick">3</span>Assign — it appears instantly in their Student Portal</div>
+  </div>
+  <form method="post" action="/admin/assign" class="form-grid">
+    <div class="field"><label>Student</label>
+      <select name="user_id" required>
+        <option value="">Select student...</option>
+        <% students.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> — <%= s.email %></option><% }) %>
+      </select>
+    </div>
+    <div class="field"><label>Paper</label>
+      <select name="paper_id" required>
+        <option value="">Select paper...</option>
+        <% papers.forEach(p => { %><option value="<%= p.id %>"><%= p.title %> (<%= p.year %> · <%= p.subject_name %>)</option><% }) %>
+      </select>
+    </div>
+    <div class="field full"><label>Email Message (optional)</label>
+      <textarea name="message" rows="4">Your practice paper has been assigned. Please login to your student portal to begin.</textarea></div>
+    <div class="full"><button class="btn btn-success" type="submit">Activate + Assign + Email</button></div>
+  </form>
+  <% if (!students.length) { %><p class="muted" style="margin-top:10px;">No student accounts yet — they need to sign up first.</p><% } %>
+</div>
+<%- include('../partials/portal_bottom') %>

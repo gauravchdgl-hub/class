@@ -203,6 +203,36 @@ router.post('/submissions/:id/review', (req, res) => {
   res.redirect('/admin/submissions');
 });
 
+// ---------- Assign / Activate: give a paper to a student directly, no purchase needed ----------
+router.get('/assign', (req, res) => {
+  const students = db.prepare("SELECT id, name, email FROM users WHERE role = 'student' ORDER BY name").all();
+  const papers = db.prepare(
+    `SELECT p.*, s.name AS subject_name FROM exam_papers p JOIN subjects s ON s.id = p.subject_id ORDER BY p.id DESC`
+  ).all();
+  res.render('admin/assign', { students, papers });
+});
+
+router.post('/assign', (req, res) => {
+  const { user_id, paper_id, message } = req.body;
+  const student = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'student'").get(user_id);
+  const paper = db.prepare('SELECT * FROM exam_papers WHERE id = ?').get(paper_id);
+  if (!student || !paper) {
+    req.flash('error', 'Please choose a valid student and paper');
+    return res.redirect('/admin/assign');
+  }
+
+  const orderId = db.prepare(
+    'INSERT INTO exam_orders (user_id, paper_id, amount, payment_method, status) VALUES (?,?,?,?,?)'
+  ).run(student.id, paper.id, 0, 'assigned_by_staff', 'paid').lastInsertRowid;
+
+  db.prepare(
+    'INSERT INTO exam_assignments (order_id, user_id, paper_id, status) VALUES (?,?,?,?)'
+  ).run(orderId, student.id, paper.id, 'assigned');
+
+  req.flash('success', `"${paper.title}" assigned to ${student.name}. Email notification sent (demo mode)${message ? ': ' + message : ''}.`);
+  res.redirect('/admin/assign');
+});
+
 // ---------- Teachers (admin only) ----------
 function requireAdminOnly(req, res, next) {
   if (req.session.user.role !== 'admin') {

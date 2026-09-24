@@ -1,24 +1,23 @@
-<%- include('../partials/header', { title: 'MCQ Plans' }) %>
-<%- include('../partials/admin_nav') %>
+<%- include('../partials/portal_top', { title: 'MCQ Plans', active: 'mcq-plans', crumb: 'Admin / MCQ Plans' }) %>
 <div class="grid grid-2">
-  <div class="card">
+  <div class="card card-pad">
     <h3>Create MCQ Plan</h3>
     <p class="muted">Set any MCQ count you want — no fixed limit.</p>
     <form method="post" action="/admin/mcq-plans">
-      <label>Plan Name</label><input type="text" name="name" required>
-      <label>Number of MCQs</label><input type="number" name="mcq_count" min="1" required>
-      <label>Price (A$)</label><input type="number" step="0.01" name="price" required>
-      <label>Validity (days)</label><input type="number" name="validity_days" value="30" required>
-      <button class="btn" type="submit">Create Plan</button>
+      <div class="field"><label>Plan Name</label><input type="text" name="name" required></div>
+      <div class="field" style="margin-top:10px;"><label>Number of MCQs</label><input type="number" name="mcq_count" min="1" required></div>
+      <div class="field" style="margin-top:10px;"><label>Price (A$)</label><input type="number" step="0.01" name="price" required></div>
+      <div class="field" style="margin-top:10px;"><label>Validity (days)</label><input type="number" name="validity_days" value="30" required></div>
+      <button class="btn btn-primary" style="margin-top:14px;" type="submit">Create Plan</button>
     </form>
   </div>
-  <div class="card">
+  <div class="card card-pad">
     <h3>Existing Plans</h3>
-    <table><tr><th>Name</th><th>MCQs</th><th>Price</th><th>Validity</th></tr>
+    <div class="table-wrap"><table class="table"><tr><th>Name</th><th>MCQs</th><th>Price</th><th>Validity</th></tr>
       <% plans.forEach(p => { %>
         <tr><td><%= p.name %></td><td><%= p.mcq_count %></td><td>A$<%= p.price.toFixed(2) %></td><td><%= p.validity_days %>d</td></tr>
       <% }) %>
-    </table>
+    </table></div>
   </div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

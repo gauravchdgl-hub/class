@@ -1,21 +1,21 @@
-<%- include('../partials/header', { title: assignment.title }) %>
-<div class="card">
+<%- include('../partials/portal_top', { title: assignment.title, active: 'exams', crumb: 'Student Portal / Assigned Exams' }) %>
+<div class="card card-pad" style="max-width:600px;margin:0 auto;">
+  <span class="chip chip-<%= assignment.status==='assigned'?'orange':(assignment.status==='reviewed'?'green':'blue') %>"><%= assignment.status %></span>
   <h2><%= assignment.title %></h2>
-  <p>Status: <span class="badge <%= assignment.status %>"><%= assignment.status %></span></p>
-  <p>Duration: <%= assignment.duration_minutes %> minutes</p>
+  <p class="muted">Duration: <%= assignment.duration_minutes %> minutes</p>
 
   <% if (!submission) { %>
     <form method="post" action="/student/exams/<%= assignment.id %>/start">
-      <button class="btn red" type="submit">Start Exam</button>
+      <button class="btn btn-success" style="width:100%;" type="submit">Start Exam</button>
     </form>
   <% } else if (submission.status === 'in_progress') { %>
-    <a class="btn red" href="/student/exams/<%= assignment.id %>/take">Continue Exam</a>
+    <a class="btn btn-success" style="width:100%;display:block;text-align:center;" href="/student/exams/<%= assignment.id %>/take">Continue Exam</a>
   <% } else if (submission.status === 'pending_review') { %>
-    <p class="muted">MCQs auto-checked (internal). Written and essay answers pending teacher review. You'll be notified once the final result is published.</p>
-    <p>MCQ Score: <%= submission.mcq_score %> / <%= submission.mcq_total %></p>
+    <div class="alert">MCQs auto-checked (internal). Written and essay answers are pending teacher review. You'll be notified once the final result is published.</div>
+    <p style="margin-top:12px;">MCQ Score: <strong><%= submission.mcq_score %> / <%= submission.mcq_total %></strong></p>
   <% } else if (submission.status === 'published') { %>
     <p>Your result has been published.</p>
-    <a class="btn green" href="/student/results">View Result</a>
+    <a class="btn btn-success" href="/student/results">View Result</a>
   <% } %>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

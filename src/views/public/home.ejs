@@ -1,28 +1,46 @@
-<%- include('../partials/header', { title: 'AUS Academy - Year 11-12 Exam Papers' }) %>
-
-<div class="card" style="background:linear-gradient(90deg,#0b3d91,#1a5cc4);color:#fff;">
-  <h1>Year 11–12 Practice Papers</h1>
-  <p>Complete exam papers for Australian students. 20 MCQs · 4 Short Answer Questions · 1 Essay Question.</p>
-  <a class="btn red" href="/papers">Browse Papers</a>
-</div>
-
-<h2>Featured Papers</h2>
-<div class="grid grid-3">
-  <% papers.forEach(p => { %>
-    <div class="card">
-      <h3><%= p.title %></h3>
-      <p class="muted"><%= p.year %> · <%= p.subject_name %></p>
-      <p><strong>A$<%= p.price.toFixed(2) %></strong></p>
-      <a class="btn" href="/papers/<%= p.id %>">View Paper</a>
+<%- include('../partials/public_top', { title: 'Home' }) %>
+<section class="public-hero">
+  <div class="inner">
+    <span class="chip" style="background:rgba(255,255,255,.14);color:#fff">Australia • Year 11–12</span>
+    <h1>Learn. Practise. Take Exams. Improve.</h1>
+    <p>A modern education platform for Australian Year 11–12 students: portal MCQ plans and complete online practice papers with teacher-marked written & essay feedback.</p>
+    <div class="actions">
+      <a class="btn" style="background:#fff;color:#16459d" href="/papers">Browse Full Papers</a>
+      <a class="btn" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)" href="/register">Student Signup</a>
     </div>
-  <% }) %>
-  <% if (!papers.length) { %><p class="muted">No papers published yet.</p><% } %>
-</div>
+  </div>
+</section>
 
-<div class="card">
-  <h3>Two Products</h3>
-  <p>1) <strong>MCQ Plans</strong> — buy inside the Student Portal for unlimited practice MCQs.</p>
-  <p>2) <strong>Full Exam Papers</strong> — buy from this website: MCQs + Written + Essay, marked by our teachers.</p>
-</div>
+<section class="public-section">
+  <div class="grid grid-2">
+    <div class="card card-pad">
+      <span class="chip chip-purple">Student Portal</span>
+      <h2>MCQ Plans</h2>
+      <p>Students buy an MCQ plan inside the portal, then practise by subject and year. Results are instant. Every new signup gets 50 free MCQs.</p>
+      <a class="btn btn-primary" href="/login">Open Portal</a>
+    </div>
+    <div class="card card-pad">
+      <span class="chip chip-blue">Public Website</span>
+      <h2>Full Exam Papers</h2>
+      <p>Students buy a complete paper with MCQs, written questions and an essay, then take the timed exam in the portal. MCQs auto-score; written & essay are teacher-reviewed.</p>
+      <a class="btn btn-primary" href="/papers">Browse Papers</a>
+    </div>
+  </div>
+</section>
 
-<%- include('../partials/footer') %>
+<section class="public-section" style="padding-top:0;">
+  <div class="section-title"><h3>Featured Papers</h3><a href="/papers" class="btn btn-outline">View all</a></div>
+  <div class="grid grid-3">
+    <% papers.forEach(p => { %>
+      <div class="card paper-card">
+        <span class="chip chip-blue"><%= p.year %></span>
+        <h3><%= p.subject_name %></h3>
+        <p class="muted"><%= p.title %></p>
+        <div class="paper-price">A$<%= p.price.toFixed(2) %></div>
+        <a class="btn btn-primary" href="/papers/<%= p.id %>">View Paper</a>
+      </div>
+    <% }) %>
+    <% if (!papers.length) { %><p class="muted">No papers published yet.</p><% } %>
+  </div>
+</section>
+<%- include('../partials/public_bottom') %>

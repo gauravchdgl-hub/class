@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher / Admin Login | AUS Academy</title>
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/assets/components.css">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-side" style="background:linear-gradient(160deg,#1d0b3a,#6d28d9);">
+      <div class="brand-mark">A</div>
+      <h2>Teacher & Admin Portal.</h2>
+      <p>Create papers, manage the MCQ bank, assign exams to students and review written & essay answers.</p>
+      <div class="checklist">
+        <div class="check"><span class="tick">✓</span>Unlimited MCQ / written / essay questions per paper</div>
+        <div class="check"><span class="tick">✓</span>Assign papers to students directly</div>
+        <div class="check"><span class="tick">✓</span>Review & publish results with feedback</div>
+      </div>
+      <div class="role-pill">Admin / Teacher Panel</div>
+    </div>
+    <div class="login-form">
+      <h3>Staff Sign In</h3>
+      <p class="muted">For Admin and Teacher accounts only.</p>
+      <% if (success && success.length) { %><div class="alert" style="background:#e9fbf4;color:#08784f;margin-bottom:12px;"><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="alert" style="margin-bottom:12px;"><%= error[0] %></div><% } %>
+      <form method="post" action="/staff-login">
+        <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field" style="margin-top:12px"><label>Password</label><input type="password" name="password" required></div>
+        <button class="btn btn-dark" style="width:100%;margin-top:18px" type="submit">Login</button>
+      </form>
+      <p class="auth-note">Student? <a href="/login" style="color:var(--blue);font-weight:800">Student login here</a></p>
+    </div>
+  </div>
+</div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

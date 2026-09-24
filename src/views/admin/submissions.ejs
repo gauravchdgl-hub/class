@@ -1,22 +1,23 @@
-<%- include('../partials/header', { title: 'Submissions' }) %>
-<%- include('../partials/admin_nav') %>
-<h1>Student Submissions</h1>
-<table class="card">
-  <tr><th>Student</th><th>Paper</th><th>Status</th><th>Action</th></tr>
+<%- include('../partials/portal_top', { title: 'Submissions', active: 'submissions', crumb: 'Admin / Submissions & Review' }) %>
+<div class="page-title"><div><h2>Student Submissions</h2></div></div>
+<div class="card">
+<div class="table-wrap"><table class="table">
+  <tr><th>Student</th><th>Paper</th><th>Status</th><th></th></tr>
   <% submissions.forEach(s => { %>
     <tr>
       <td><%= s.student_name %><br><span class="muted"><%= s.email %></span></td>
       <td><%= s.title %></td>
-      <td><span class="badge <%= s.status %>"><%= s.status %></span></td>
+      <td><span class="chip chip-<%= s.status==='published'?'green':(s.status==='pending_review'?'orange':'blue') %>"><%= s.status %></span></td>
       <td>
         <% if (s.status === 'pending_review') { %>
-          <a class="btn red" href="/admin/submissions/<%= s.id %>/review">Review</a>
+          <a class="btn btn-danger" href="/admin/submissions/<%= s.id %>/review">Review</a>
         <% } else if (s.status === 'published') { %>
-          <a class="btn outline" href="/admin/submissions/<%= s.id %>/review">View</a>
+          <a class="btn btn-outline" href="/admin/submissions/<%= s.id %>/review">View</a>
         <% } %>
       </td>
     </tr>
   <% }) %>
   <% if (!submissions.length) { %><tr><td colspan="4" class="muted">No submissions yet.</td></tr><% } %>
-</table>
-<%- include('../partials/footer') %>
+</table></div>
+</div>
+<%- include('../partials/portal_bottom') %>

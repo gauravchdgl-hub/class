@@ -13,9 +13,29 @@ router.post('/login', (req, res) => {
     req.flash('error', 'Invalid email or password');
     return res.redirect('/login');
   }
+  if (user.role === 'admin' || user.role === 'teacher') {
+    req.flash('error', 'Please use the Staff Login page for Teacher/Admin accounts');
+    return res.redirect('/staff-login');
+  }
   req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
-  if (user.role === 'admin' || user.role === 'teacher') return res.redirect('/admin/dashboard');
   res.redirect('/student/dashboard');
+});
+
+router.get('/staff-login', (req, res) => res.render('public/staff_login'));
+
+router.post('/staff-login', (req, res) => {
+  const { email, password } = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    req.flash('error', 'Invalid email or password');
+    return res.redirect('/staff-login');
+  }
+  if (user.role !== 'admin' && user.role !== 'teacher') {
+    req.flash('error', 'Please use the Student Login page for student accounts');
+    return res.redirect('/login');
+  }
+  req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
+  res.redirect('/admin/dashboard');
 });
 
 router.get('/register', (req, res) => res.render('public/register'));

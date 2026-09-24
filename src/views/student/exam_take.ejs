@@ -1,38 +1,43 @@
-<%- include('../partials/header', { title: assignment.title }) %>
+<%- include('../partials/portal_top', { title: assignment.title, active: 'exams', crumb: 'Student Portal / Exam' }) %>
 <%- include('../partials/content_protection') %>
-<h1><%= assignment.title %></h1>
-<form method="post" action="/student/exams/<%= assignment.id %>/submit" class="protected-content">
+<div class="exam-shell">
+  <div class="exam-top">
+    <h2><%= assignment.title %></h2>
+    <span class="timer" data-timer="<%= assignment.duration_minutes * 60 %>">00:00:00</span>
+  </div>
+  <form method="post" action="/student/exams/<%= assignment.id %>/submit" class="protected-content">
 
-  <div class="section-title">Section A — Multiple Choice Questions (<%= mcqs.length %>)</div>
-  <% mcqs.forEach((q, i) => { %>
-    <div class="question-block">
-      <p><strong>Question <%= i+1 %> of <%= mcqs.length %></strong></p>
-      <p><%= q.question %></p>
-      <label><input type="radio" name="mcq_<%= q.id %>" value="A" required> A. <%= q.option_a %></label>
-      <label><input type="radio" name="mcq_<%= q.id %>" value="B"> B. <%= q.option_b %></label>
-      <label><input type="radio" name="mcq_<%= q.id %>" value="C"> C. <%= q.option_c %></label>
-      <label><input type="radio" name="mcq_<%= q.id %>" value="D"> D. <%= q.option_d %></label>
-    </div>
-  <% }) %>
+    <div class="section-title"><h3>Section A — Multiple Choice Questions (<%= mcqs.length %>)</h3></div>
+    <% mcqs.forEach((q, i) => { %>
+      <div class="card question-card" style="margin-bottom:14px;">
+        <p class="muted">Question <%= i+1 %> of <%= mcqs.length %></p>
+        <p><%= q.question %></p>
+        <label class="option"><input type="radio" name="mcq_<%= q.id %>" value="A" required> A. <%= q.option_a %></label>
+        <label class="option"><input type="radio" name="mcq_<%= q.id %>" value="B"> B. <%= q.option_b %></label>
+        <label class="option"><input type="radio" name="mcq_<%= q.id %>" value="C"> C. <%= q.option_c %></label>
+        <label class="option"><input type="radio" name="mcq_<%= q.id %>" value="D"> D. <%= q.option_d %></label>
+      </div>
+    <% }) %>
 
-  <div class="section-title">Section B — Written Questions (<%= written.length %>)</div>
-  <% written.forEach((q, i) => { %>
-    <div class="question-block">
-      <p><strong>Question <%= mcqs.length + i + 1 %></strong> (<%= q.marks %> marks)</p>
-      <p><%= q.question %></p>
-      <textarea name="written_<%= q.id %>" rows="5" placeholder="Type your answer here... (word limit: <%= q.word_limit || 500 %>)"></textarea>
-    </div>
-  <% }) %>
+    <div class="section-title"><h3>Section B — Written Questions (<%= written.length %>)</h3></div>
+    <% written.forEach((q, i) => { %>
+      <div class="card question-card" style="margin-bottom:14px;">
+        <p class="muted">Question <%= mcqs.length + i + 1 %> · <%= q.marks %> marks</p>
+        <p><%= q.question %></p>
+        <textarea class="answer-box" name="written_<%= q.id %>" placeholder="Type your answer here... (word limit: <%= q.word_limit || 500 %>)"></textarea>
+      </div>
+    <% }) %>
 
-  <div class="section-title">Section C — Essay Question(s) (<%= essays.length %>)</div>
-  <% essays.forEach((q, i) => { %>
-    <div class="question-block">
-      <p><strong>Question <%= mcqs.length + written.length + i + 1 %></strong> (<%= q.marks %> marks)</p>
-      <p><%= q.question %></p>
-      <textarea name="essay_<%= q.id %>" rows="8" placeholder="Type your answer here... (word limit: <%= q.word_limit || 1000 %>)"></textarea>
-    </div>
-  <% }) %>
+    <div class="section-title"><h3>Section C — Essay Question(s) (<%= essays.length %>)</h3></div>
+    <% essays.forEach((q, i) => { %>
+      <div class="card question-card" style="margin-bottom:14px;">
+        <p class="muted">Question <%= mcqs.length + written.length + i + 1 %> · <%= q.marks %> marks</p>
+        <p><%= q.question %></p>
+        <textarea class="answer-box" style="min-height:220px;" name="essay_<%= q.id %>" placeholder="Type your answer here... (word limit: <%= q.word_limit || 1000 %>)"></textarea>
+      </div>
+    <% }) %>
 
-  <button class="btn red" type="submit">Submit Exam</button>
-</form>
-<%- include('../partials/footer') %>
+    <button class="btn btn-success" style="width:100%;padding:16px;" type="submit">Submit Exam</button>
+  </form>
+</div>
+<%- include('../partials/portal_bottom') %>

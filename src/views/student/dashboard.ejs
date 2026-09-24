@@ -1,34 +1,37 @@
-<%- include('../partials/header', { title: 'Student Dashboard' }) %>
-<div class="nav-tabs">
-  <a class="active" href="/student/dashboard">Dashboard</a>
-  <a href="/student/mcq/plans">MCQ Plans</a>
-  <a href="/student/mcq/my">My MCQs</a>
-  <a href="/student/results">Results</a>
-</div>
-<h1>Welcome, <%= currentUser.name %></h1>
-
-<h2>My MCQ Plans</h2>
-<div class="grid grid-3">
-  <% plans.forEach(p => { %>
-    <div class="card">
-      <h3><%= p.plan_name %></h3>
-      <p>Remaining MCQs: <strong><%= p.remaining_mcqs %></strong></p>
-      <a class="btn" href="/student/mcq/practice/<%= p.id %>">Practice</a>
-    </div>
-  <% }) %>
-  <% if (!plans.length) { %><p class="muted">No MCQ plan yet. <a href="/student/mcq/plans">Buy one</a>.</p><% } %>
+<%- include('../partials/portal_top', { title: 'Dashboard', active: 'dashboard', crumb: 'Student Portal / Dashboard' }) %>
+<div class="page-title">
+  <div><h2>Welcome back, <%= currentUser.name %> 👋</h2><p>Your MCQ practice and assigned exam papers in one place.</p></div>
 </div>
 
-<h2>Assigned Exam Papers</h2>
-<table class="card">
-  <tr><th>Paper</th><th>Status</th><th>Action</th></tr>
-  <% assignments.forEach(a => { %>
-    <tr>
-      <td><%= a.title %></td>
-      <td><span class="badge <%= a.status %>"><%= a.status %></span></td>
-      <td><a class="btn outline" href="/student/exams/<%= a.id %>">Open</a></td>
-    </tr>
-  <% }) %>
-  <% if (!assignments.length) { %><tr><td colspan="3" class="muted">No exam papers assigned yet. <a href="/papers">Buy one from the website</a>.</td></tr><% } %>
-</table>
-<%- include('../partials/footer') %>
+<div class="grid grid-4">
+  <div class="card stat"><div class="label">MCQ Plans</div><div class="value"><%= plans.length %></div><div class="hint"><%= plans.reduce((a,p)=>a+p.remaining_mcqs,0) %> MCQs remaining</div></div>
+  <div class="card stat"><div class="label">Assigned Exams</div><div class="value"><%= assignments.length %></div><div class="hint"><%= assignments.filter(a=>a.status==='assigned').length %> not started</div></div>
+  <div class="card stat"><div class="label">Submitted</div><div class="value"><%= assignments.filter(a=>a.status==='submitted').length %></div><div class="hint">pending review</div></div>
+  <div class="card stat"><div class="label">Reviewed</div><div class="value"><%= assignments.filter(a=>a.status==='reviewed').length %></div><div class="hint">results published</div></div>
+</div>
+
+<div class="grid grid-2" style="margin-top:18px">
+  <div class="card card-pad">
+    <div class="section-title"><h3>My MCQ Plans</h3><a href="/student/mcq/plans" class="btn btn-outline">Buy more</a></div>
+    <div class="table-wrap"><table class="table">
+      <tr><th>Plan</th><th>Remaining</th><th></th></tr>
+      <% plans.forEach(p => { %>
+        <tr><td><%= p.plan_name %></td><td><%= p.remaining_mcqs %></td>
+          <td><a class="btn btn-secondary" href="/student/mcq/practice/<%= p.id %>">Practise</a></td></tr>
+      <% }) %>
+      <% if (!plans.length) { %><tr><td colspan="3" class="muted">No MCQ plan yet.</td></tr><% } %>
+    </table></div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-title"><h3>Assigned Exam Papers</h3></div>
+    <div class="table-wrap"><table class="table">
+      <tr><th>Paper</th><th>Status</th><th></th></tr>
+      <% assignments.forEach(a => { %>
+        <tr><td><%= a.title %></td><td><span class="chip chip-<%= a.status==='assigned'?'orange':(a.status==='reviewed'?'green':'blue') %>"><%= a.status %></span></td>
+          <td><a class="btn btn-secondary" href="/student/exams/<%= a.id %>">Open</a></td></tr>
+      <% }) %>
+      <% if (!assignments.length) { %><tr><td colspan="3" class="muted">No exam papers assigned yet.</td></tr><% } %>
+    </table></div>
+  </div>
+</div>
+<%- include('../partials/portal_bottom') %>

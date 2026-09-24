@@ -1,15 +1,17 @@
-<%- include('../partials/header', { title: 'Practice MCQs' }) %>
+<%- include('../partials/portal_top', { title: 'Practice MCQs', active: 'my-mcq', crumb: 'Student Portal / MCQ / Practice' }) %>
 <%- include('../partials/content_protection') %>
-<div class="card protected-content">
-  <p class="muted">Question <%= totalAttempted + 1 %> of <%= totalAllowed %></p>
-  <h2><%= mcq.question %></h2>
-  <form method="post" action="/student/mcq/practice/<%= plan.id %>/answer">
-    <input type="hidden" name="mcq_id" value="<%= mcq.id %>">
-    <label><input type="radio" name="selected_option" value="A" required> A. <%= mcq.option_a %></label>
-    <label><input type="radio" name="selected_option" value="B"> B. <%= mcq.option_b %></label>
-    <label><input type="radio" name="selected_option" value="C"> C. <%= mcq.option_c %></label>
-    <label><input type="radio" name="selected_option" value="D"> D. <%= mcq.option_d %></label>
-    <button class="btn" type="submit">Next</button>
-  </form>
+<div class="exam-shell">
+  <div class="card question-card protected-content">
+    <p class="muted">Question <%= totalAttempted + 1 %> of <%= totalAllowed %></p>
+    <h2><%= mcq.question %></h2>
+    <form method="post" action="/student/mcq/practice/<%= plan.id %>/answer">
+      <input type="hidden" name="mcq_id" value="<%= mcq.id %>">
+      <label class="option"><input type="radio" name="selected_option" value="A" required> A. <%= mcq.option_a %></label>
+      <label class="option"><input type="radio" name="selected_option" value="B"> B. <%= mcq.option_b %></label>
+      <label class="option"><input type="radio" name="selected_option" value="C"> C. <%= mcq.option_c %></label>
+      <label class="option"><input type="radio" name="selected_option" value="D"> D. <%= mcq.option_d %></label>
+      <button class="btn btn-primary" style="margin-top:16px;" type="submit">Next</button>
+    </form>
+  </div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>

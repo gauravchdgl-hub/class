@@ -1,30 +1,29 @@
-<%- include('../partials/header', { title: 'Teachers' }) %>
-<%- include('../partials/admin_nav') %>
+<%- include('../partials/portal_top', { title: 'Teachers', active: 'teachers', crumb: 'Admin / Teachers' }) %>
 <div class="grid grid-2">
-  <div class="card">
+  <div class="card card-pad">
     <h3>Add Teacher</h3>
     <form method="post" action="/admin/teachers">
-      <label>Name</label><input type="text" name="name" required>
-      <label>Email</label><input type="email" name="email" required>
-      <label>Password</label><input type="password" name="password" required>
-      <button class="btn" type="submit">Create Teacher Login</button>
+      <div class="field"><label>Name</label><input type="text" name="name" required></div>
+      <div class="field" style="margin-top:10px;"><label>Email</label><input type="email" name="email" required></div>
+      <div class="field" style="margin-top:10px;"><label>Password</label><input type="password" name="password" required></div>
+      <button class="btn btn-primary" style="margin-top:14px;" type="submit">Create Teacher Login</button>
     </form>
   </div>
-  <div class="card">
+  <div class="card card-pad">
     <h3>All Teachers</h3>
-    <table><tr><th>Name</th><th>Email</th><th></th></tr>
+    <div class="table-wrap"><table class="table"><tr><th>Name</th><th>Email</th><th></th></tr>
       <% teachers.forEach(t => { %>
         <tr>
           <td><%= t.name %></td><td><%= t.email %></td>
           <td>
             <form method="post" action="/admin/teachers/<%= t.id %>/delete" style="margin:0;">
-              <button class="btn red" type="submit" style="padding:4px 10px;">Remove</button>
+              <button class="btn btn-danger" type="submit" style="padding:6px 12px;">Remove</button>
             </form>
           </td>
         </tr>
       <% }) %>
       <% if (!teachers.length) { %><tr><td colspan="3" class="muted">No teachers yet.</td></tr><% } %>
-    </table>
+    </table></div>
   </div>
 </div>
-<%- include('../partials/footer') %>
+<%- include('../partials/portal_bottom') %>
