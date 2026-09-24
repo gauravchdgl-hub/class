@@ -19,7 +19,6 @@
   "homepage": "https://github.com/gauravchdgl-hub/class#readme",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^13.0.3",
     "connect-flash": "^0.1.1",
     "dotenv": "^18.0.3",
     "ejs": "^6.0.1",
