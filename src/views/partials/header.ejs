@@ -8,15 +8,20 @@
 </head>
 <body>
 <header class="topbar">
-  <div><span class="brand">🎓 AUS Academy</span> <span style="font-size:12px;">Year 11–12 Australian Curriculum</span></div>
+  <div>
+    <% if (typeof siteLogo !== 'undefined' && siteLogo) { %>
+      <img src="<%= siteLogo %>" alt="Logo" style="height:32px;vertical-align:middle;margin-right:8px;">
+    <% } else { %><span class="brand">🎓 AUS Academy</span><% } %>
+    <span style="font-size:12px;">Year 11–12 Australian Curriculum</span>
+  </div>
   <nav>
     <a href="/">Home</a>
     <a href="/papers">Practice Papers</a>
     <% if (currentUser && currentUser.role === 'student') { %>
       <a href="/student/dashboard">Student Portal</a>
       <a href="/logout">Logout (<%= currentUser.name %>)</a>
-    <% } else if (currentUser && currentUser.role === 'admin') { %>
-      <a href="/admin/dashboard">Admin Panel</a>
+    <% } else if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher')) { %>
+      <a href="/admin/dashboard"><%= currentUser.role === 'admin' ? 'Admin Panel' : 'Teacher Panel' %></a>
       <a href="/logout">Logout (<%= currentUser.name %>)</a>
     <% } else { %>
       <a href="/login">Login</a>

@@ -25,10 +25,17 @@ function seed() {
   const planCount = db.prepare('SELECT COUNT(*) c FROM mcq_plans').get().c;
   if (planCount === 0) {
     const insPlan = db.prepare('INSERT INTO mcq_plans (name, mcq_count, price, validity_days) VALUES (?,?,?,?)');
+    insPlan.run('Free Plan', 50, 0, 36500);
     insPlan.run('Basic Plan', 100, 50, 30);
     insPlan.run('Standard Plan', 200, 100, 60);
     insPlan.run('Premium Plan', 500, 200, 90);
-    console.log('MCQ plans seeded');
+    console.log('MCQ plans seeded (Free Plan auto-granted to every new student)');
+  }
+
+  const settingsCount = db.prepare('SELECT COUNT(*) c FROM site_settings').get().c;
+  if (settingsCount === 0) {
+    db.prepare('INSERT INTO site_settings (key, value) VALUES (?,?)').run('logo_url', '');
+    console.log('Site settings seeded');
   }
 
   const paperCount = db.prepare('SELECT COUNT(*) c FROM exam_papers').get().c;

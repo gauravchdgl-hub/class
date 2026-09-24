@@ -1,11 +1,17 @@
--- Users (students + admins/teachers)
+-- Users (students + teachers + admin)
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
-  role TEXT NOT NULL DEFAULT 'student', -- student | admin
+  role TEXT NOT NULL DEFAULT 'student', -- student | teacher | admin
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Site-wide settings (logo, etc.) as simple key/value pairs
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
 );
 
 CREATE TABLE IF NOT EXISTS subjects (
@@ -48,6 +54,7 @@ CREATE TABLE IF NOT EXISTS student_mcq_plans (
   remaining_mcqs INTEGER NOT NULL,
   purchased_at TEXT DEFAULT CURRENT_TIMESTAMP,
   expires_at TEXT,
+  stripe_session_id TEXT,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (plan_id) REFERENCES mcq_plans(id)
 );

@@ -14,7 +14,7 @@ router.post('/login', (req, res) => {
     return res.redirect('/login');
   }
   req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
-  if (user.role === 'admin') return res.redirect('/admin/dashboard');
+  if (user.role === 'admin' || user.role === 'teacher') return res.redirect('/admin/dashboard');
   res.redirect('/student/dashboard');
 });
 
@@ -30,8 +30,18 @@ router.post('/register', (req, res) => {
   const hash = bcrypt.hashSync(password, 8);
   const id = db.prepare('INSERT INTO users (name, email, password, role) VALUES (?,?,?,?)')
     .run(name, email, hash, 'student').lastInsertRowid;
+
+  const freePlan = db.prepare("SELECT * FROM mcq_plans WHERE name = 'Free Plan'").get();
+  if (freePlan) {
+    const expiresAt = new Date(Date.now() + freePlan.validity_days * 86400000).toISOString();
+    db.prepare(
+      `INSERT INTO student_mcq_plans (user_id, plan_id, subject_id, year, remaining_mcqs, expires_at)
+       VALUES (?,?,NULL,NULL,?,?)`
+    ).run(id, freePlan.id, freePlan.mcq_count, expiresAt);
+  }
+
   req.session.user = { id, name, email, role: 'student' };
-  req.flash('success', 'Account created successfully');
+  req.flash('success', `Account created! You got ${freePlan ? freePlan.mcq_count : 0} free MCQs to start practicing.`);
   res.redirect('/student/dashboard');
 });
 

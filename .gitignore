@@ -2,3 +2,5 @@ node_modules/
 src/db/data.sqlite
 src/db/data.sqlite-*
 .env
+src/public/uploads/*
+!src/public/uploads/.gitkeep

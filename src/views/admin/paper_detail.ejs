@@ -1,4 +1,5 @@
 <%- include('../partials/header', { title: paper.title }) %>
+<%- include('../partials/admin_nav') %>
 <h1><%= paper.title %> <span class="muted">(<%= paper.year %> · <%= paper.subject_name %>)</span></h1>
 <% if (!paper.is_published) { %>
   <form method="post" action="/admin/papers/<%= paper.id %>/publish"><button class="btn green" type="submit">Publish on Website</button></form>

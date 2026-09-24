@@ -1,9 +1,20 @@
 const express = require('express');
+const path = require('path');
+const multer = require('multer');
+const bcrypt = require('bcryptjs');
 const db = require('../db');
-const { requireRole } = require('../middleware/auth');
+const { requireStaff } = require('../middleware/auth');
 
 const router = express.Router();
-router.use(requireRole('admin'));
+router.use(requireStaff);
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: path.join(__dirname, '../public/uploads'),
+    filename: (req, file, cb) => cb(null, `logo${path.extname(file.originalname)}`),
+  }),
+  limits: { fileSize: 2 * 1024 * 1024 },
+});
 
 router.get('/dashboard', (req, res) => {
   const stats = {
@@ -12,7 +23,7 @@ router.get('/dashboard', (req, res) => {
     plans: db.prepare('SELECT COUNT(*) c FROM mcq_plans').get().c,
     pending: db.prepare("SELECT COUNT(*) c FROM exam_submissions WHERE status='pending_review'").get().c,
   };
-  res.render('admin/dashboard', { stats });
+  res.render('admin/dashboard', { stats, isAdmin: req.session.user.role === 'admin' });
 });
 
 // ---------- Subjects ----------
@@ -190,6 +201,66 @@ router.post('/submissions/:id/review', (req, res) => {
 
   req.flash('success', 'Result published. Student can now view feedback.');
   res.redirect('/admin/submissions');
+});
+
+// ---------- Teachers (admin only) ----------
+function requireAdminOnly(req, res, next) {
+  if (req.session.user.role !== 'admin') {
+    req.flash('error', 'Only admin can do this');
+    return res.redirect('/admin/dashboard');
+  }
+  next();
+}
+
+router.get('/teachers', requireAdminOnly, (req, res) => {
+  const teachers = db.prepare("SELECT * FROM users WHERE role = 'teacher' ORDER BY id DESC").all();
+  res.render('admin/teachers', { teachers });
+});
+
+router.post('/teachers', requireAdminOnly, (req, res) => {
+  const { name, email, password } = req.body;
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  if (existing) {
+    req.flash('error', 'An account with this email already exists');
+    return res.redirect('/admin/teachers');
+  }
+  const hash = bcrypt.hashSync(password, 8);
+  db.prepare('INSERT INTO users (name, email, password, role) VALUES (?,?,?,?)').run(name, email, hash, 'teacher');
+  req.flash('success', 'Teacher account created');
+  res.redirect('/admin/teachers');
+});
+
+router.post('/teachers/:id/delete', requireAdminOnly, (req, res) => {
+  db.prepare("DELETE FROM users WHERE id = ? AND role = 'teacher'").run(req.params.id);
+  req.flash('success', 'Teacher account removed');
+  res.redirect('/admin/teachers');
+});
+
+// ---------- Settings (logo = admin only, password = any staff) ----------
+router.get('/settings', (req, res) => {
+  const logo = db.prepare("SELECT value FROM site_settings WHERE key = 'logo_url'").get();
+  res.render('admin/settings', { logoUrl: logo ? logo.value : '' });
+});
+
+router.post('/settings/logo', requireAdminOnly, upload.single('logo'), (req, res) => {
+  if (req.file) {
+    db.prepare("UPDATE site_settings SET value = ? WHERE key = 'logo_url'").run(`/uploads/${req.file.filename}`);
+    req.flash('success', 'Logo updated');
+  }
+  res.redirect('/admin/settings');
+});
+
+router.post('/settings/password', (req, res) => {
+  const { current_password, new_password } = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!bcrypt.compareSync(current_password, user.password)) {
+    req.flash('error', 'Current password is incorrect');
+    return res.redirect('/admin/settings');
+  }
+  const hash = bcrypt.hashSync(new_password, 8);
+  db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, user.id);
+  req.flash('success', 'Password changed successfully');
+  res.redirect('/admin/settings');
 });
 
 module.exports = router;

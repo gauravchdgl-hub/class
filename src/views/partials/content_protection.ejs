@@ -1,0 +1,26 @@
+<style>
+  .protected-content { user-select: none; -webkit-user-select: none; }
+  .watermark-layer {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    overflow: hidden; opacity: 0.08;
+    display: flex; flex-wrap: wrap; align-content: space-around; justify-content: space-around;
+  }
+  .watermark-layer span {
+    transform: rotate(-30deg); font-size: 14px; font-weight: 700; color: #000; margin: 40px; white-space: nowrap;
+  }
+</style>
+<div class="watermark-layer">
+  <% for (let i = 0; i < 30; i++) { %>
+    <span><%= currentUser ? currentUser.name + ' · ' + currentUser.email : 'AUS Academy' %></span>
+  <% } %>
+</div>
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('copy', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'PrintScreen' || (e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) || e.key === 'F12') {
+      e.preventDefault();
+    }
+  });
+</script>
+<!-- Note: these are best-effort deterrents only. No web page can fully block OS-level screenshots. -->

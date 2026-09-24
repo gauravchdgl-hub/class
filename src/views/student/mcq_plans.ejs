@@ -22,7 +22,7 @@
           <option>Year 11</option>
           <option>Year 12</option>
         </select>
-        <button class="btn green" type="submit">Buy Plan</button>
+        <button class="btn green" type="submit"><%= p.price > 0 ? 'Pay with Card (Stripe)' : 'Activate Free' %></button>
       </form>
     </div>
   <% }) %>

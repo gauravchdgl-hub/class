@@ -5,6 +5,7 @@ const path = require('path');
 const flash = require('connect-flash');
 
 require('./db/seed');
+const db = require('./db');
 
 const publicRoutes = require('./routes/public');
 const authRoutes = require('./routes/auth');
@@ -31,6 +32,8 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
+  const logo = db.prepare("SELECT value FROM site_settings WHERE key = 'logo_url'").get();
+  res.locals.siteLogo = logo ? logo.value : '';
   next();
 });
 

@@ -16,4 +16,12 @@ function requireRole(role) {
   };
 }
 
-module.exports = { requireLogin, requireRole };
+function requireStaff(req, res, next) {
+  if (!req.session.user || !['admin', 'teacher'].includes(req.session.user.role)) {
+    req.flash('error', 'Access denied');
+    return res.redirect('/login');
+  }
+  next();
+}
+
+module.exports = { requireLogin, requireRole, requireStaff };

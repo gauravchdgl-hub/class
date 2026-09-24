@@ -1,6 +1,7 @@
 <%- include('../partials/header', { title: assignment.title }) %>
+<%- include('../partials/content_protection') %>
 <h1><%= assignment.title %></h1>
-<form method="post" action="/student/exams/<%= assignment.id %>/submit">
+<form method="post" action="/student/exams/<%= assignment.id %>/submit" class="protected-content">
 
   <div class="section-title">Section A — Multiple Choice Questions (<%= mcqs.length %>)</div>
   <% mcqs.forEach((q, i) => { %>

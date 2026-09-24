@@ -11,7 +11,7 @@
   <% plans.forEach(p => { %>
     <tr>
       <td><%= p.plan_name %></td>
-      <td><%= p.subject_name %> (<%= p.year %>)</td>
+      <td><%= p.subject_name ? p.subject_name + ' (' + p.year + ')' : 'All Subjects' %></td>
       <td><%= p.remaining_mcqs %> / <%= p.mcq_count %></td>
       <td><%= new Date(p.expires_at).toLocaleDateString() %></td>
       <td>

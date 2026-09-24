@@ -2,8 +2,18 @@ const express = require('express');
 const db = require('../db');
 const { requireLogin } = require('../middleware/auth');
 
+const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
+
 const router = express.Router();
 router.use(requireLogin);
+
+function grantPlan(userId, plan, subjectId, year, stripeSessionId) {
+  const expiresAt = new Date(Date.now() + plan.validity_days * 86400000).toISOString();
+  return db.prepare(
+    `INSERT INTO student_mcq_plans (user_id, plan_id, subject_id, year, remaining_mcqs, expires_at, stripe_session_id)
+     VALUES (?,?,?,?,?,?,?)`
+  ).run(userId, plan.id, subjectId || null, year || null, plan.mcq_count, expiresAt, stripeSessionId || null).lastInsertRowid;
+}
 
 router.get('/dashboard', (req, res) => {
   const uid = req.session.user.id;
@@ -22,21 +32,69 @@ router.get('/dashboard', (req, res) => {
 
 // ---------- MCQ PLANS ----------
 router.get('/mcq/plans', (req, res) => {
-  const plans = db.prepare('SELECT * FROM mcq_plans').all();
+  const plans = db.prepare("SELECT * FROM mcq_plans WHERE name != 'Free Plan'").all();
   const subjects = db.prepare('SELECT * FROM subjects ORDER BY name').all();
   res.render('student/mcq_plans', { plans, subjects });
 });
 
-router.post('/mcq/plans/:id/buy', (req, res) => {
+// Buy an MCQ plan — pays via Stripe Checkout (test mode) when configured,
+// otherwise activates instantly (demo mode, no Stripe keys set).
+router.post('/mcq/plans/:id/buy', async (req, res) => {
   const plan = db.prepare('SELECT * FROM mcq_plans WHERE id = ?').get(req.params.id);
   if (!plan) return res.redirect('/student/mcq/plans');
   const { subject_id, year } = req.body;
-  const expiresAt = new Date(Date.now() + plan.validity_days * 86400000).toISOString();
-  db.prepare(
-    `INSERT INTO student_mcq_plans (user_id, plan_id, subject_id, year, remaining_mcqs, expires_at)
-     VALUES (?,?,?,?,?,?)`
-  ).run(req.session.user.id, plan.id, subject_id, year, plan.mcq_count, expiresAt);
-  req.flash('success', `Plan activated! You now have access to ${plan.mcq_count} MCQs.`);
+
+  if (plan.price <= 0) {
+    grantPlan(req.session.user.id, plan, subject_id, year);
+    req.flash('success', `Plan activated! You now have access to ${plan.mcq_count} MCQs.`);
+    return res.redirect('/student/mcq/my');
+  }
+
+  if (!stripe) {
+    grantPlan(req.session.user.id, plan, subject_id, year);
+    req.flash('success', `Plan activated (demo mode — Stripe not configured). You now have access to ${plan.mcq_count} MCQs.`);
+    return res.redirect('/student/mcq/my');
+  }
+
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    payment_method_types: ['card'],
+    line_items: [{
+      price_data: {
+        currency: 'aud',
+        unit_amount: Math.round(plan.price * 100),
+        product_data: { name: `${plan.name} — ${plan.mcq_count} MCQs` },
+      },
+      quantity: 1,
+    }],
+    metadata: {
+      plan_id: String(plan.id),
+      user_id: String(req.session.user.id),
+      subject_id: subject_id || '',
+      year: year || '',
+    },
+    success_url: `${baseUrl}/student/mcq/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/student/mcq/plans`,
+  });
+  res.redirect(session.url);
+});
+
+router.get('/mcq/checkout/success', async (req, res) => {
+  if (!stripe) return res.redirect('/student/mcq/plans');
+  const { session_id } = req.query;
+  const already = db.prepare('SELECT id FROM student_mcq_plans WHERE stripe_session_id = ?').get(session_id);
+  if (already) return res.redirect('/student/mcq/my');
+
+  const session = await stripe.checkout.sessions.retrieve(session_id);
+  if (session.payment_status !== 'paid') {
+    req.flash('error', 'Payment not completed');
+    return res.redirect('/student/mcq/plans');
+  }
+  const plan = db.prepare('SELECT * FROM mcq_plans WHERE id = ?').get(session.metadata.plan_id);
+  if (!plan) return res.redirect('/student/mcq/plans');
+  grantPlan(session.metadata.user_id, plan, session.metadata.subject_id, session.metadata.year, session_id);
+  req.flash('success', `Payment successful! You now have access to ${plan.mcq_count} MCQs.`);
   res.redirect('/student/mcq/my');
 });
 
@@ -59,8 +117,10 @@ router.get('/mcq/practice/:planId', (req, res) => {
   if (plan.remaining_mcqs <= 0) return res.redirect(`/student/mcq/result/${plan.id}`);
 
   const answeredIds = db.prepare('SELECT mcq_id FROM mcq_attempts WHERE student_plan_id = ?').all(plan.id).map((r) => r.mcq_id);
-  let sql = 'SELECT * FROM mcqs WHERE subject_id = ? AND year = ?';
-  const params = [plan.subject_id, plan.year];
+  let sql = 'SELECT * FROM mcqs WHERE 1=1';
+  const params = [];
+  if (plan.subject_id) { sql += ' AND subject_id = ?'; params.push(plan.subject_id); }
+  if (plan.year) { sql += ' AND year = ?'; params.push(plan.year); }
   if (answeredIds.length) {
     sql += ` AND id NOT IN (${answeredIds.map(() => '?').join(',')})`;
     params.push(...answeredIds);

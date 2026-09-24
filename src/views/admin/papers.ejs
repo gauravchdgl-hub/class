@@ -1,12 +1,5 @@
 <%- include('../partials/header', { title: 'Exam Papers' }) %>
-<div class="nav-tabs">
-  <a href="/admin/dashboard">Dashboard</a>
-  <a href="/admin/subjects">Subjects</a>
-  <a href="/admin/mcq-plans">MCQ Plans</a>
-  <a href="/admin/mcqs">MCQ Bank</a>
-  <a class="active" href="/admin/papers">Exam Papers</a>
-  <a href="/admin/submissions">Submissions</a>
-</div>
+<%- include('../partials/admin_nav') %>
 <a class="btn" href="/admin/papers/new">+ Create Full Exam Paper</a>
 <table class="card" style="margin-top:14px;">
   <tr><th>Title</th><th>Subject</th><th>Price</th><th>Published</th><th></th></tr>

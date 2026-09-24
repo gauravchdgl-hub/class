@@ -1,5 +1,6 @@
 <%- include('../partials/header', { title: 'Practice MCQs' }) %>
-<div class="card">
+<%- include('../partials/content_protection') %>
+<div class="card protected-content">
   <p class="muted">Question <%= totalAttempted + 1 %> of <%= totalAllowed %></p>
   <h2><%= mcq.question %></h2>
   <form method="post" action="/student/mcq/practice/<%= plan.id %>/answer">

@@ -54,8 +54,18 @@ router.post('/papers/:id/buy', (req, res) => {
       .run(name, email, hash, 'student').lastInsertRowid;
     user = { id, name, email, role: 'student' };
     isNew = true;
+
+    const freePlan = db.prepare("SELECT * FROM mcq_plans WHERE name = 'Free Plan'").get();
+    if (freePlan) {
+      const expiresAt = new Date(Date.now() + freePlan.validity_days * 86400000).toISOString();
+      db.prepare(
+        `INSERT INTO student_mcq_plans (user_id, plan_id, subject_id, year, remaining_mcqs, expires_at)
+         VALUES (?,?,NULL,NULL,?,?)`
+      ).run(id, freePlan.id, freePlan.mcq_count, expiresAt);
+    }
+
     // In production this temp password would be emailed to the student.
-    req.flash('success', `Account created. Temporary password: ${randomPassword} (also emailed to you)`);
+    req.flash('success', `Account created. Temporary password: ${randomPassword} (also emailed to you). You also got ${freePlan ? freePlan.mcq_count : 0} free MCQs.`);
   }
 
   const orderId = db.prepare(
