@@ -1,0 +1,35 @@
+<%- include('../partials/header', { title: 'Practice Papers' }) %>
+<h1>Year 11–12 Practice Papers</h1>
+<form method="get" class="card grid grid-3">
+  <div>
+    <label>Year</label>
+    <select name="year">
+      <option value="">All</option>
+      <option value="Year 11" <%= selectedYear==='Year 11'?'selected':'' %>>Year 11</option>
+      <option value="Year 12" <%= selectedYear==='Year 12'?'selected':'' %>>Year 12</option>
+    </select>
+  </div>
+  <div>
+    <label>Subject</label>
+    <select name="subject_id">
+      <option value="">All</option>
+      <% subjects.forEach(s => { %>
+        <option value="<%= s.id %>" <%= String(selectedSubject)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option>
+      <% }) %>
+    </select>
+  </div>
+  <div style="display:flex;align-items:flex-end;"><button class="btn" type="submit">Filter</button></div>
+</form>
+
+<div class="grid grid-3">
+  <% papers.forEach(p => { %>
+    <div class="card">
+      <h3><%= p.title %></h3>
+      <p class="muted"><%= p.year %> · <%= p.subject_name %></p>
+      <p><strong>A$<%= p.price.toFixed(2) %></strong></p>
+      <a class="btn" href="/papers/<%= p.id %>">View & Buy</a>
+    </div>
+  <% }) %>
+  <% if (!papers.length) { %><p class="muted">No papers found.</p><% } %>
+</div>
+<%- include('../partials/footer') %>

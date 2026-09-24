@@ -1,0 +1,12 @@
+<%- include('../partials/header', { title: 'MCQ Result' }) %>
+<div class="card">
+  <h2>Instant Result</h2>
+  <div class="progressbar"><%= score %>%</div>
+  <table>
+    <tr><td>Total Questions</td><td><%= total %></td></tr>
+    <tr><td>Correct Answers</td><td><%= correct %></td></tr>
+    <tr><td>Wrong Answers</td><td><%= wrong %></td></tr>
+  </table>
+  <a class="btn" href="/student/mcq/my">Back to My MCQs</a>
+</div>
+<%- include('../partials/footer') %>

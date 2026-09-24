@@ -1,0 +1,17 @@
+<%- include('../partials/header', { title: 'Admin Dashboard' }) %>
+<div class="nav-tabs">
+  <a class="active" href="/admin/dashboard">Dashboard</a>
+  <a href="/admin/subjects">Subjects</a>
+  <a href="/admin/mcq-plans">MCQ Plans</a>
+  <a href="/admin/mcqs">MCQ Bank</a>
+  <a href="/admin/papers">Exam Papers</a>
+  <a href="/admin/submissions">Submissions</a>
+</div>
+<h1>Admin Dashboard</h1>
+<div class="grid grid-3">
+  <div class="card"><h2><%= stats.students %></h2><p>Students</p></div>
+  <div class="card"><h2><%= stats.papers %></h2><p>Exam Papers</p></div>
+  <div class="card"><h2><%= stats.plans %></h2><p>MCQ Plans</p></div>
+  <div class="card"><h2><%= stats.pending %></h2><p>Pending Reviews</p></div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,28 @@
+<%- include('../partials/header', { title: 'AUS Academy - Year 11-12 Exam Papers' }) %>
+
+<div class="card" style="background:linear-gradient(90deg,#0b3d91,#1a5cc4);color:#fff;">
+  <h1>Year 11–12 Practice Papers</h1>
+  <p>Complete exam papers for Australian students. 20 MCQs · 4 Short Answer Questions · 1 Essay Question.</p>
+  <a class="btn red" href="/papers">Browse Papers</a>
+</div>
+
+<h2>Featured Papers</h2>
+<div class="grid grid-3">
+  <% papers.forEach(p => { %>
+    <div class="card">
+      <h3><%= p.title %></h3>
+      <p class="muted"><%= p.year %> · <%= p.subject_name %></p>
+      <p><strong>A$<%= p.price.toFixed(2) %></strong></p>
+      <a class="btn" href="/papers/<%= p.id %>">View Paper</a>
+    </div>
+  <% }) %>
+  <% if (!papers.length) { %><p class="muted">No papers published yet.</p><% } %>
+</div>
+
+<div class="card">
+  <h3>Two Products</h3>
+  <p>1) <strong>MCQ Plans</strong> — buy inside the Student Portal for unlimited practice MCQs.</p>
+  <p>2) <strong>Full Exam Papers</strong> — buy from this website: MCQs + Written + Essay, marked by our teachers.</p>
+</div>
+
+<%- include('../partials/footer') %>

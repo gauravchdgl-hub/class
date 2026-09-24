@@ -1,0 +1,27 @@
+<%- include('../partials/header', { title: 'Subjects' }) %>
+<div class="nav-tabs">
+  <a href="/admin/dashboard">Dashboard</a>
+  <a class="active" href="/admin/subjects">Subjects</a>
+  <a href="/admin/mcq-plans">MCQ Plans</a>
+  <a href="/admin/mcqs">MCQ Bank</a>
+  <a href="/admin/papers">Exam Papers</a>
+  <a href="/admin/submissions">Submissions</a>
+</div>
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Add Subject</h3>
+    <form method="post" action="/admin/subjects">
+      <label>Name</label><input type="text" name="name" required>
+      <label>Year</label>
+      <select name="year"><option>Year 11</option><option>Year 12</option></select>
+      <button class="btn" type="submit">Add</button>
+    </form>
+  </div>
+  <div class="card">
+    <h3>All Subjects</h3>
+    <table><tr><th>Name</th><th>Year</th></tr>
+      <% subjects.forEach(s => { %><tr><td><%= s.name %></td><td><%= s.year %></td></tr><% }) %>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= typeof title !== 'undefined' ? title : 'AUS Academy' %></title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div><span class="brand">🎓 AUS Academy</span> <span style="font-size:12px;">Year 11–12 Australian Curriculum</span></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/papers">Practice Papers</a>
+    <% if (currentUser && currentUser.role === 'student') { %>
+      <a href="/student/dashboard">Student Portal</a>
+      <a href="/logout">Logout (<%= currentUser.name %>)</a>
+    <% } else if (currentUser && currentUser.role === 'admin') { %>
+      <a href="/admin/dashboard">Admin Panel</a>
+      <a href="/logout">Logout (<%= currentUser.name %>)</a>
+    <% } else { %>
+      <a href="/login">Login</a>
+      <a href="/register">Create Account</a>
+    <% } %>
+  </nav>
+</header>
+<div class="container">
+<% if (success && success.length) { %><div class="flash-success"><%= success[0] %></div><% } %>
+<% if (error && error.length) { %><div class="flash-error"><%= error[0] %></div><% } %>

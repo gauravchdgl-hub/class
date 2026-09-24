@@ -1,0 +1,34 @@
+<%- include('../partials/header', { title: 'Student Dashboard' }) %>
+<div class="nav-tabs">
+  <a class="active" href="/student/dashboard">Dashboard</a>
+  <a href="/student/mcq/plans">MCQ Plans</a>
+  <a href="/student/mcq/my">My MCQs</a>
+  <a href="/student/results">Results</a>
+</div>
+<h1>Welcome, <%= currentUser.name %></h1>
+
+<h2>My MCQ Plans</h2>
+<div class="grid grid-3">
+  <% plans.forEach(p => { %>
+    <div class="card">
+      <h3><%= p.plan_name %></h3>
+      <p>Remaining MCQs: <strong><%= p.remaining_mcqs %></strong></p>
+      <a class="btn" href="/student/mcq/practice/<%= p.id %>">Practice</a>
+    </div>
+  <% }) %>
+  <% if (!plans.length) { %><p class="muted">No MCQ plan yet. <a href="/student/mcq/plans">Buy one</a>.</p><% } %>
+</div>
+
+<h2>Assigned Exam Papers</h2>
+<table class="card">
+  <tr><th>Paper</th><th>Status</th><th>Action</th></tr>
+  <% assignments.forEach(a => { %>
+    <tr>
+      <td><%= a.title %></td>
+      <td><span class="badge <%= a.status %>"><%= a.status %></span></td>
+      <td><a class="btn outline" href="/student/exams/<%= a.id %>">Open</a></td>
+    </tr>
+  <% }) %>
+  <% if (!assignments.length) { %><tr><td colspan="3" class="muted">No exam papers assigned yet. <a href="/papers">Buy one from the website</a>.</td></tr><% } %>
+</table>
+<%- include('../partials/footer') %>

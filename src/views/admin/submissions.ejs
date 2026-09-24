@@ -1,0 +1,29 @@
+<%- include('../partials/header', { title: 'Submissions' }) %>
+<div class="nav-tabs">
+  <a href="/admin/dashboard">Dashboard</a>
+  <a href="/admin/subjects">Subjects</a>
+  <a href="/admin/mcq-plans">MCQ Plans</a>
+  <a href="/admin/mcqs">MCQ Bank</a>
+  <a href="/admin/papers">Exam Papers</a>
+  <a class="active" href="/admin/submissions">Submissions</a>
+</div>
+<h1>Student Submissions</h1>
+<table class="card">
+  <tr><th>Student</th><th>Paper</th><th>Status</th><th>Action</th></tr>
+  <% submissions.forEach(s => { %>
+    <tr>
+      <td><%= s.student_name %><br><span class="muted"><%= s.email %></span></td>
+      <td><%= s.title %></td>
+      <td><span class="badge <%= s.status %>"><%= s.status %></span></td>
+      <td>
+        <% if (s.status === 'pending_review') { %>
+          <a class="btn red" href="/admin/submissions/<%= s.id %>/review">Review</a>
+        <% } else if (s.status === 'published') { %>
+          <a class="btn outline" href="/admin/submissions/<%= s.id %>/review">View</a>
+        <% } %>
+      </td>
+    </tr>
+  <% }) %>
+  <% if (!submissions.length) { %><tr><td colspan="4" class="muted">No submissions yet.</td></tr><% } %>
+</table>
+<%- include('../partials/footer') %>

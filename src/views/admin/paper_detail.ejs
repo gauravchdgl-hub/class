@@ -1,0 +1,52 @@
+<%- include('../partials/header', { title: paper.title }) %>
+<h1><%= paper.title %> <span class="muted">(<%= paper.year %> · <%= paper.subject_name %>)</span></h1>
+<% if (!paper.is_published) { %>
+  <form method="post" action="/admin/papers/<%= paper.id %>/publish"><button class="btn green" type="submit">Publish on Website</button></form>
+<% } else { %><p class="badge published">Published</p><% } %>
+
+<div class="card">
+  <h3>Add Question (add as many MCQ / Written / Essay as you like)</h3>
+  <form method="post" action="/admin/papers/<%= paper.id %>/questions" id="qform">
+    <label>Type</label>
+    <select name="type" id="qtype" onchange="document.getElementById('mcqOpts').style.display=this.value==='mcq'?'block':'none'">
+      <option value="mcq">MCQ</option>
+      <option value="written">Written</option>
+      <option value="essay">Essay</option>
+    </select>
+    <label>Question</label><textarea name="question" required></textarea>
+    <div id="mcqOpts">
+      <div class="grid grid-2">
+        <div><label>Option A</label><input name="option_a"></div>
+        <div><label>Option B</label><input name="option_b"></div>
+        <div><label>Option C</label><input name="option_c"></div>
+        <div><label>Option D</label><input name="option_d"></div>
+      </div>
+      <label>Correct Option</label>
+      <select name="correct_option"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+    </div>
+    <div class="grid grid-2">
+      <div><label>Marks</label><input type="number" name="marks" value="1"></div>
+      <div><label>Word Limit (written/essay)</label><input type="number" name="word_limit" value="500"></div>
+    </div>
+    <button class="btn" type="submit">Add Question</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Questions (<%= questions.length %>)</h3>
+  <table>
+    <tr><th>#</th><th>Type</th><th>Question</th><th>Marks</th><th></th></tr>
+    <% questions.forEach((q,i) => { %>
+      <tr>
+        <td><%= i+1 %></td><td><%= q.type %></td><td><%= q.question %></td><td><%= q.marks %></td>
+        <td>
+          <form method="post" action="/admin/papers/<%= paper.id %>/questions/<%= q.id %>/delete" style="margin:0;">
+            <button class="btn red" type="submit" style="padding:4px 10px;">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!questions.length) { %><tr><td colspan="5" class="muted">No questions yet.</td></tr><% } %>
+  </table>
+</div>
+<%- include('../partials/footer') %>

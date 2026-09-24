@@ -1,0 +1,32 @@
+<%- include('../partials/header', { title: paper.title }) %>
+<div class="grid grid-2">
+  <div class="card">
+    <h2><%= paper.title %></h2>
+    <p class="muted"><%= paper.year %> · <%= paper.subject_name %></p>
+    <ul>
+      <li><%= summary.mcq %> Multiple Choice Questions</li>
+      <li><%= summary.written %> Short Answer Questions</li>
+      <li><%= summary.essay %> Essay Question</li>
+      <li>Duration: <%= paper.duration_minutes %> minutes</li>
+    </ul>
+    <h2>A$<%= paper.price.toFixed(2) %></h2>
+  </div>
+
+  <div class="card">
+    <h3>Checkout & Payment</h3>
+    <form method="post" action="/papers/<%= paper.id %>/buy">
+      <label>Email Address</label>
+      <input type="email" name="email" required <% if (currentUser) { %>value="<%= currentUser.email %>"<% } %>>
+      <label>Student Name</label>
+      <input type="text" name="name" required <% if (currentUser) { %>value="<%= currentUser.name %>"<% } %>>
+      <label>Payment Method</label>
+      <select name="payment_method">
+        <option value="card">Visa/Mastercard</option>
+        <option value="paypal">PayPal</option>
+      </select>
+      <button class="btn red" type="submit">Pay Now (A$<%= paper.price.toFixed(2) %>)</button>
+    </form>
+    <p class="muted">If you don't have an account yet, one will be created automatically and the paper will be assigned to your Student Portal.</p>
+  </div>
+</div>
+<%- include('../partials/footer') %>

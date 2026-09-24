@@ -1,0 +1,35 @@
+<%- include('../partials/header', { title: 'Review Submission' }) %>
+<h1><%= submission.title %></h1>
+<p><%= submission.student_name %> · <%= submission.email %></p>
+<p class="muted">MCQ auto-checked: <%= submission.mcq_score %> / <%= submission.mcq_total %> (<%= mcqCount %> questions)</p>
+
+<form method="post" action="/admin/submissions/<%= submission.id %>/review">
+  <div class="section-title">Written Questions</div>
+  <% written.forEach((a, i) => { %>
+    <div class="question-block">
+      <p><strong>Question <%= i+1 %></strong> (<%= a.marks %> marks)</p>
+      <p><%= a.question %></p>
+      <p><em><%= a.answer_text || '(no answer)' %></em></p>
+      <div class="grid grid-2">
+        <div><label>Marks (out of <%= a.marks %>)</label><input type="number" step="0.5" max="<%= a.marks %>" name="marks_<%= a.id %>" value="<%= a.marks_awarded || '' %>"></div>
+        <div><label>Feedback</label><input name="feedback_<%= a.id %>" value="<%= a.feedback || '' %>"></div>
+      </div>
+    </div>
+  <% }) %>
+
+  <div class="section-title">Essay Question</div>
+  <% essays.forEach((a, i) => { %>
+    <div class="question-block">
+      <p><strong>Question <%= i+1 %></strong> (<%= a.marks %> marks)</p>
+      <p><%= a.question %></p>
+      <p><em><%= a.answer_text || '(no answer)' %></em></p>
+      <div class="grid grid-2">
+        <div><label>Marks (out of <%= a.marks %>)</label><input type="number" step="0.5" max="<%= a.marks %>" name="marks_<%= a.id %>" value="<%= a.marks_awarded || '' %>"></div>
+        <div><label>Feedback</label><input name="feedback_<%= a.id %>" value="<%= a.feedback || '' %>"></div>
+      </div>
+    </div>
+  <% }) %>
+
+  <button class="btn green" type="submit">Save & Publish Result</button>
+</form>
+<%- include('../partials/footer') %>

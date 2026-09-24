@@ -1,0 +1,14 @@
+<%- include('../partials/header', { title: 'New Exam Paper' }) %>
+<div class="card" style="max-width:500px;">
+  <h2>Create Full Exam Paper</h2>
+  <form method="post" action="/admin/papers/new">
+    <label>Title</label><input type="text" name="title" required>
+    <label>Year</label><select name="year"><option>Year 11</option><option>Year 12</option></select>
+    <label>Subject</label>
+    <select name="subject_id" required><% subjects.forEach(s=>{ %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %></select>
+    <label>Price (A$)</label><input type="number" step="0.01" name="price" required>
+    <label>Duration (minutes)</label><input type="number" name="duration_minutes" value="120">
+    <button class="btn" type="submit">Create Paper</button>
+  </form>
+</div>
+<%- include('../partials/footer') %>

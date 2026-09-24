@@ -1,0 +1,14 @@
+<%- include('../partials/header', { title: 'Login' }) %>
+<div class="card" style="max-width:420px;margin:0 auto;">
+  <h2>Student Login</h2>
+  <form method="post" action="/login">
+    <label>Email</label>
+    <input type="email" name="email" required>
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <button class="btn" type="submit">Login</button>
+  </form>
+  <p class="muted">No account? <a href="/register">Create New Account</a></p>
+  <p class="muted">Admin demo login: admin@ausacademy.com / admin123</p>
+</div>
+<%- include('../partials/footer') %>

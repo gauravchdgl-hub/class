@@ -1,0 +1,21 @@
+<%- include('../partials/header', { title: assignment.title }) %>
+<div class="card">
+  <h2><%= assignment.title %></h2>
+  <p>Status: <span class="badge <%= assignment.status %>"><%= assignment.status %></span></p>
+  <p>Duration: <%= assignment.duration_minutes %> minutes</p>
+
+  <% if (!submission) { %>
+    <form method="post" action="/student/exams/<%= assignment.id %>/start">
+      <button class="btn red" type="submit">Start Exam</button>
+    </form>
+  <% } else if (submission.status === 'in_progress') { %>
+    <a class="btn red" href="/student/exams/<%= assignment.id %>/take">Continue Exam</a>
+  <% } else if (submission.status === 'pending_review') { %>
+    <p class="muted">MCQs auto-checked (internal). Written and essay answers pending teacher review. You'll be notified once the final result is published.</p>
+    <p>MCQ Score: <%= submission.mcq_score %> / <%= submission.mcq_total %></p>
+  <% } else if (submission.status === 'published') { %>
+    <p>Your result has been published.</p>
+    <a class="btn green" href="/student/results">View Result</a>
+  <% } %>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,28 @@
+<%- include('../partials/header', { title: 'My MCQs' }) %>
+<div class="nav-tabs">
+  <a href="/student/dashboard">Dashboard</a>
+  <a href="/student/mcq/plans">MCQ Plans</a>
+  <a class="active" href="/student/mcq/my">My MCQs</a>
+  <a href="/student/results">Results</a>
+</div>
+<h1>My MCQ Plans</h1>
+<table class="card">
+  <tr><th>Plan</th><th>Subject</th><th>Remaining</th><th>Expires</th><th>Action</th></tr>
+  <% plans.forEach(p => { %>
+    <tr>
+      <td><%= p.plan_name %></td>
+      <td><%= p.subject_name %> (<%= p.year %>)</td>
+      <td><%= p.remaining_mcqs %> / <%= p.mcq_count %></td>
+      <td><%= new Date(p.expires_at).toLocaleDateString() %></td>
+      <td>
+        <% if (p.remaining_mcqs > 0) { %>
+          <a class="btn outline" href="/student/mcq/practice/<%= p.id %>">Practice</a>
+        <% } else { %>
+          <a class="btn outline" href="/student/mcq/result/<%= p.id %>">View Result</a>
+        <% } %>
+      </td>
+    </tr>
+  <% }) %>
+  <% if (!plans.length) { %><tr><td colspan="5" class="muted">No plans yet.</td></tr><% } %>
+</table>
+<%- include('../partials/footer') %>
