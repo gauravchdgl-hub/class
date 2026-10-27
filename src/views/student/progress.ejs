@@ -1,0 +1,38 @@
+<%- include('../partials/portal_top', { title: 'Progress & Analytics', active: 'progress', crumb: 'Student / Progress & Analytics' }) %>
+<div class="portal-title"><div><h1>Progress & Analytics</h1><p>How you're doing across MCQ practice and full exam papers.</p></div></div>
+
+<div class="grid g4">
+  <div class="card stat"><div class="label">MCQ Purchased</div><strong><%= totalMcqAllowed %></strong><small>Across all plans</small><div class="stat-icon bluebg">✓</div></div>
+  <div class="card stat"><div class="label">MCQ Assigned</div><strong><%= totalMcqAssigned %></strong><small>By your teacher</small><div class="stat-icon purplebg">◇</div></div>
+  <div class="card stat"><div class="label">MCQ Answered</div><strong><%= totalMcqUsed %></strong><small>Completed so far</small><div class="stat-icon greenbg">%</div></div>
+  <div class="card stat"><div class="label">Average Exam Score</div><strong><%= avgScore %>%</strong><small>Published full papers</small><div class="stat-icon orangebg">↗</div></div>
+</div>
+
+<div style="height:15px"></div>
+<div class="grid g2">
+  <div class="card">
+    <div class="panel-head"><div><h3>MCQ Plans</h3><div class="muted">Purchased quota vs assigned by teacher</div></div></div>
+    <div class="list">
+      <% plans.forEach(p => { %>
+        <div class="list-row">
+          <div><b><%= p.plan_name %></b><span><%= p.assigned_mcqs %> assigned of <%= p.mcq_count %> purchased · <%= p.remaining_mcqs %> awaiting assignment</span></div>
+          <div style="width:120px"><div class="progress"><span style="width:<%= p.mcq_count ? Math.round((p.assigned_mcqs / p.mcq_count) * 100) : 0 %>%"></span></div></div>
+        </div>
+      <% }) %>
+      <% if (!plans.length) { %><p class="muted">No MCQ plans yet.</p><% } %>
+    </div>
+  </div>
+  <div class="card">
+    <div class="panel-head"><div><h3>Full Exam History</h3><div class="muted">Published results only</div></div></div>
+    <div class="list">
+      <% examResults.forEach(r => { %>
+        <div class="list-row">
+          <div><b><%= r.title %></b><span><%= r.total_score %>/<%= r.total_marks %></span></div>
+          <span class="pill <%= (r.total_marks ? (r.total_score/r.total_marks*100) : 0) >= 50 ? 'green' : 'red' %>"><%= r.total_marks ? Math.round(r.total_score/r.total_marks*100) : 0 %>%</span>
+        </div>
+      <% }) %>
+      <% if (!examResults.length) { %><p class="muted">No published exam results yet.</p><% } %>
+    </div>
+  </div>
+</div>
+<%- include('../partials/portal_bottom') %>

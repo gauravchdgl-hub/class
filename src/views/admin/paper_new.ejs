@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= paper ? (paper.title || 'Edit Exam Paper') : 'Add Exam Paper' %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  // Declared at top level (not inside the "if (paper)" block below) so it's still in scope
+  // for the <script> at the bottom of the file, which runs on every render of this page.
+  const eq = typeof editingQuestion !== 'undefined' ? editingQuestion : null;
+  const eqType = eq ? eq.type : 'mcq';
+  const eqRubric = (eq && eq.rubricParsed) || [];
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: paper ? 'papers' : 'paper-new' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, exam papers...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full flex-1 space-y-6 pb-28">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <a href="/admin/papers" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition shadow-sm"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+          <div>
+            <% if (paper) { %>
+            <p class="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-0.5">Editing Exam Paper</p>
+            <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight"><%= paper.title %></h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5"><%= paper.year || '' %><%= paper.year && paper.subject_name ? ' · ' : '' %><%= paper.subject_name || '' %></p>
+            <% } else { %>
+            <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight">Add Exam Paper</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Build a full exam paper with MCQ, short answer and long answer sections.</p>
+            <% } %>
+          </div>
+        </div>
+        <nav class="flex text-xs font-semibold text-slate-500 space-x-2 shrink-0">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <a href="/admin/papers" class="hover:text-blue-600 transition">Full Exam Papers</a><span class="text-slate-400">&gt;</span>
+          <span class="text-blue-600 font-bold truncate max-w-[220px]"><%= paper ? paper.title : 'Add' %></span>
+        </nav>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <!-- Basic Information -->
+      <form method="post" action="<%= paper ? ('/admin/papers/' + paperSlug + '/edit') : '/admin/papers/new' %>" class="bg-white rounded-3xl border border-slate-200 card-shadow p-6 sm:p-8 space-y-6">
+        <h2 class="font-bold text-base text-[#091e42] flex items-center space-x-2"><i class="fa-solid fa-circle-info text-blue-600"></i><span>Basic Information</span></h2>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-800">Exam Paper Title <span class="text-red-500">*</span></label>
+          <input type="text" name="title" value="<%= paper ? paper.title : '' %>" required placeholder="e.g. Chemistry Year 12 — Term 2 Exam" class="form-input">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Subject <span class="text-red-500">*</span></label>
+            <select name="subject_id" required class="form-input custom-select text-xs font-semibold">
+              <option value="" disabled <%= !paper ? 'selected' : '' %>>Select subject</option>
+              <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= paper && paper.subject_id===s.id?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Year Level</label>
+            <select name="year" class="form-input custom-select text-xs font-semibold">
+              <option value="">Select year level</option>
+              <option value="Year 11" <%= paper && paper.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option value="Year 12" <%= paper && paper.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Class</label>
+            <input type="text" name="class_name" value="<%= paper ? (paper.class_name||'') : '' %>" placeholder="e.g. 12A" class="form-input">
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Exam Type</label>
+            <select name="exam_type_id" class="form-input custom-select text-xs font-semibold">
+              <option value="">Select exam type</option>
+              <% examTypes.forEach(t => { %><option value="<%= t.id %>" <%= paper && paper.exam_type_id===t.id?'selected':'' %>><%= t.name %></option><% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Module</label>
+            <select name="module_id" class="form-input custom-select text-xs font-semibold">
+              <option value="">Select module</option>
+              <% modules.forEach(m => { %><option value="<%= m.id %>" <%= paper && paper.module_id===m.id?'selected':'' %>><%= m.title %></option><% }) %>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Topic</label>
+            <select name="topic_id" class="form-input custom-select text-xs font-semibold">
+              <option value="">Select topic</option>
+              <% topics.forEach(t => { %><option value="<%= t.id %>" <%= paper && paper.topic_id===t.id?'selected':'' %>><%= t.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Duration (minutes)</label>
+            <input type="number" name="duration_minutes" value="<%= paper ? paper.duration_minutes : 120 %>" class="form-input">
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">Price (A$)</label>
+            <input type="number" step="0.01" name="price" value="<%= paper ? paper.price : 0 %>" class="form-input">
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-800">Instructions (shown to students)</label>
+          <textarea name="description" rows="3" class="form-input resize-y" placeholder="e.g. Answer all questions. Calculators are not permitted in Section A."><%= paper ? (paper.description||'') : '' %></textarea>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-800">Cover Image URL (optional)</label>
+          <input type="text" name="cover_image_url" value="<%= paper ? (paper.cover_image_url||'') : '' %>" placeholder="https://..." class="form-input">
+        </div>
+
+        <!-- Additional Settings -->
+        <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-5">
+          <h3 class="font-bold text-xs text-slate-800 flex items-center space-x-2"><i class="fa-solid fa-sliders text-blue-600"></i><span>Additional Settings</span></h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">Passing Marks</label>
+              <input type="number" name="passing_marks" value="<%= paper && paper.passing_marks!=null ? paper.passing_marks : '' %>" class="form-input">
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">Available From</label>
+              <input type="datetime-local" name="available_from" value="<%= paper ? (paper.available_from||'') : '' %>" class="form-input">
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">Available Until</label>
+              <input type="datetime-local" name="available_until" value="<%= paper ? (paper.available_until||'') : '' %>" class="form-input">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <label class="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-3">
+              <span class="text-xs font-bold text-slate-800">Show Model Answers</span>
+              <div class="toggle relative"><input type="checkbox" name="show_model_answers" <%= (!paper || paper.show_model_answers) ? 'checked' : '' %> class="sr-only peer"><div class="w-10 h-5 bg-slate-300 rounded-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></div>
+            </label>
+            <label class="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-3">
+              <span class="text-xs font-bold text-slate-800">Allow Calculator</span>
+              <div class="toggle relative"><input type="checkbox" name="allow_calculator" <%= paper && paper.allow_calculator ? 'checked' : '' %> class="sr-only peer"><div class="w-10 h-5 bg-slate-300 rounded-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></div>
+            </label>
+            <label class="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-3">
+              <span class="text-xs font-bold text-slate-800">Shuffle MCQ Options</span>
+              <div class="toggle relative"><input type="checkbox" name="shuffle_mcq_options" <%= paper && paper.shuffle_mcq_options ? 'checked' : '' %> class="sr-only peer"><div class="w-10 h-5 bg-slate-300 rounded-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+          <a href="/admin/papers" class="px-6 py-3 rounded-xl border border-blue-200 bg-white text-blue-600 font-bold text-xs hover:bg-blue-50 transition shadow-sm">Cancel</a>
+          <button type="submit" class="px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition flex items-center space-x-2">
+            <i class="fa-solid fa-floppy-disk text-xs"></i><span><%= paper ? 'Save Changes' : 'Save as Draft' %></span>
+          </button>
+        </div>
+      </form>
+
+      <% if (paper) { %>
+
+      <!-- WooCommerce link + Publish -->
+      <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-6 flex flex-col md:flex-row md:items-end gap-4 justify-between">
+        <form method="post" action="/admin/papers/<%= paperSlug %>/woo-link" class="flex-1 flex items-end gap-3">
+          <div class="flex-1 space-y-1">
+            <label class="block text-xs font-bold text-slate-800">WooCommerce Product ID</label>
+            <input type="text" name="woo_product_id" value="<%= paper.woo_product_id || '' %>" placeholder="e.g. 587" class="form-input">
+          </div>
+          <button class="px-5 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs">Save Link</button>
+        </form>
+        <% if (!paper.is_published) { %>
+          <form method="post" action="/admin/papers/<%= paperSlug %>/publish"><button class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/30">Publish on Website</button></form>
+        <% } else { %><span class="px-4 py-2 rounded-full bg-emerald-50 text-emerald-600 font-bold text-xs h-fit">Published</span><% } %>
+      </div>
+
+      <!-- Add Questions -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 card-shadow p-6 space-y-5">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-base text-[#091e42] flex items-center space-x-2"><i class="fa-solid fa-list-check text-blue-600"></i><span><%= eq ? 'Edit Question' : 'Add Questions' %></span></h2>
+            <% if (eq) { %><a href="/admin/papers/<%= paperSlug %>" class="text-xs font-bold text-slate-500 hover:text-rose-600 transition flex items-center space-x-1"><i class="fa-solid fa-xmark"></i><span>Cancel Edit</span></a><% } %>
+          </div>
+
+          <div class="flex flex-wrap gap-2" id="sectionTabs">
+            <button type="button" onclick="selectType('mcq')" data-type="mcq" class="tab-btn <%= eqType==='mcq'?'active':'' %> px-4 py-2 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 transition">Section A — MCQs</button>
+            <button type="button" onclick="selectType('written')" data-type="written" class="tab-btn <%= eqType==='written'?'active':'' %> px-4 py-2 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 transition">Section B — Short Answer</button>
+            <button type="button" onclick="selectType('essay')" data-type="essay" class="tab-btn <%= eqType==='essay'?'active':'' %> px-4 py-2 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 transition">Section C — Long Answer</button>
+          </div>
+
+          <form method="post" action="<%= eq ? ('/admin/papers/' + paperSlug + '/questions/' + eq.id + '/edit') : ('/admin/papers/' + paperSlug + '/questions') %>" class="space-y-4 bg-slate-50 border border-slate-200 rounded-2xl p-5" id="qform">
+            <input type="hidden" name="type" id="qtype" value="<%= eqType %>">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-800">Question</label>
+              <textarea name="question" required rows="3" class="form-input resize-y" placeholder="Type the question here..."><%= eq ? eq.question : '' %></textarea>
+            </div>
+            <div id="mcqOpts" class="space-y-3 <%= eqType !== 'mcq' ? 'hidden' : '' %>">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="flex items-center space-x-2"><input type="radio" name="correct_option" value="A" <%= (!eq || eq.correct_option==='A') ? 'checked' : '' %>><input name="option_a" placeholder="Option A" value="<%= eq ? (eq.option_a || '') : '' %>" class="form-input"></div>
+                <div class="flex items-center space-x-2"><input type="radio" name="correct_option" value="B" <%= eq && eq.correct_option==='B' ? 'checked' : '' %>><input name="option_b" placeholder="Option B" value="<%= eq ? (eq.option_b || '') : '' %>" class="form-input"></div>
+                <div class="flex items-center space-x-2"><input type="radio" name="correct_option" value="C" <%= eq && eq.correct_option==='C' ? 'checked' : '' %>><input name="option_c" placeholder="Option C" value="<%= eq ? (eq.option_c || '') : '' %>" class="form-input"></div>
+                <div class="flex items-center space-x-2"><input type="radio" name="correct_option" value="D" <%= eq && eq.correct_option==='D' ? 'checked' : '' %>><input name="option_d" placeholder="Option D" value="<%= eq ? (eq.option_d || '') : '' %>" class="form-input"></div>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium">Select the radio button next to the correct option.</p>
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">Explanation (optional)</label>
+                <textarea name="explanation" rows="2" class="form-input resize-y" placeholder="Explain why the correct answer is correct..."><%= eq ? (eq.explanation || '') : '' %></textarea>
+              </div>
+            </div>
+            <div id="wordLimitWrap" class="space-y-4 <%= eqType === 'mcq' ? 'hidden' : '' %>">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">Word Limit</label>
+                <input type="number" name="word_limit" value="<%= eq ? (eq.word_limit || 500) : 500 %>" class="form-input">
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">Model Answer <span class="text-slate-400 font-medium">(optional — your reference while grading)</span></label>
+                <textarea name="model_answer" rows="4" class="form-input resize-y" placeholder="Write what a full-marks answer should cover. This is shown to you (not the student, unless Show Model Answers is on) when you mark their response."><%= eq ? (eq.model_answer || '') : '' %></textarea>
+              </div>
+
+              <!-- Marking Rubric: optional structured criteria, checked off during grading instead of free marks entry -->
+              <div class="space-y-2 bg-white border border-slate-200 rounded-xl p-3.5">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-slate-800">Marking Rubric <span class="text-slate-400 font-medium">(optional)</span></label>
+                  <span id="rubricSum" class="text-[10px] font-bold text-slate-400"></span>
+                </div>
+                <p class="text-[10px] text-slate-400 -mt-1">Break the answer into gradeable points. While grading, you'll check off which ones the student covered instead of guessing a number.</p>
+                <div id="rubricRows" class="space-y-2">
+                  <% eqRubric.forEach(row => { %>
+                  <div class="flex items-center gap-2 rubric-row">
+                    <input name="rubric_text[]" value="<%= row.text %>" placeholder="e.g. Explains militarism as a cause" class="form-input flex-1 text-xs">
+                    <input type="number" name="rubric_marks[]" value="<%= row.marks %>" min="0" class="form-input w-16 text-xs text-center">
+                    <button type="button" onclick="this.closest('.rubric-row').remove(); updateRubricSum();" class="w-7 h-7 rounded bg-rose-50 hover:bg-rose-100 text-rose-500 shrink-0 inline-flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+                  </div>
+                  <% }) %>
+                </div>
+                <button type="button" onclick="addRubricRow()" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center space-x-1"><i class="fa-solid fa-plus text-[10px]"></i><span>Add Rubric Point</span></button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="space-y-1.5 w-32">
+                <label class="block text-xs font-bold text-slate-800">Marks</label>
+                <input type="number" name="marks" id="marksInput" value="<%= eq ? eq.marks : 1 %>" class="form-input">
+              </div>
+              <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition flex items-center space-x-2 self-end">
+                <i class="fa-solid <%= eq ? 'fa-check' : 'fa-plus' %> text-xs"></i><span><%= eq ? 'Save Changes' : 'Add Question' %></span>
+              </button>
+            </div>
+          </form>
+
+          <div class="space-y-2">
+            <h3 class="font-bold text-xs text-slate-600 uppercase tracking-wider">Questions Added (<%= questions.length %>)</h3>
+            <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
+              <% questions.forEach((q, i) => { %>
+                <div class="p-4 flex items-start justify-between gap-3 hover:bg-slate-50 <%= eq && eq.id === q.id ? 'bg-blue-50/60' : '' %>">
+                  <div class="min-w-0">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-2 <%= q.type==='mcq'?'bg-blue-50 text-blue-600':(q.type==='written'?'bg-amber-50 text-amber-600':'bg-purple-50 text-purple-600') %>"><%= q.type %></span>
+                    <span class="text-xs font-bold text-slate-500">Q<%= i+1 %> · <%= q.marks %> mark(s)</span>
+                    <% if (q.rubric) { %><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-600 ml-1"><i class="fa-solid fa-list-check mr-0.5"></i>Rubric</span><% } %>
+                    <p class="text-xs text-slate-800 mt-1 truncate"><%= q.question %></p>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <a href="/admin/papers/<%= paperSlug %>?edit_q=<%= q.id %>" class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></a>
+                    <form method="post" action="/admin/papers/<%= paperSlug %>/questions/<%= q.id %>/delete" onsubmit="return confirm('Delete this question?');">
+                      <button class="w-7 h-7 rounded bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-500 transition inline-flex items-center justify-center"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+              <% if (!questions.length) { %><div class="p-6 text-center text-slate-400 text-xs">No questions yet — add your first one above.</div><% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exam Paper Structure summary -->
+        <div class="space-y-6">
+          <div class="bg-white rounded-3xl border border-slate-200 card-shadow p-6 space-y-4">
+            <h3 class="font-bold text-sm text-[#091e42]">Exam Paper Structure</h3>
+            <% const mcqQ = questions.filter(q=>q.type==='mcq'), writtenQ = questions.filter(q=>q.type==='written'), essayQ = questions.filter(q=>q.type==='essay');
+               const sum = arr => arr.reduce((s,q)=>s+q.marks,0); %>
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between bg-blue-50 rounded-xl px-4 py-3"><span class="font-bold text-blue-700">Section A — MCQs</span><span class="font-bold text-blue-700"><%= mcqQ.length %> Qs / <%= sum(mcqQ) %> marks</span></div>
+              <div class="flex items-center justify-between bg-amber-50 rounded-xl px-4 py-3"><span class="font-bold text-amber-700">Section B — Short Answer</span><span class="font-bold text-amber-700"><%= writtenQ.length %> Qs / <%= sum(writtenQ) %> marks</span></div>
+              <div class="flex items-center justify-between bg-purple-50 rounded-xl px-4 py-3"><span class="font-bold text-purple-700">Section C — Long Answer</span><span class="font-bold text-purple-700"><%= essayQ.length %> Qs / <%= sum(essayQ) %> marks</span></div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">Total</span>
+              <span class="text-sm font-extrabold text-slate-900"><%= questions.length %> Questions / <%= sum(questions) %> Marks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% } %>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  function selectType(type) {
+    document.getElementById('qtype').value = type;
+    document.querySelectorAll('#sectionTabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+    document.getElementById('mcqOpts').classList.toggle('hidden', type !== 'mcq');
+    document.getElementById('wordLimitWrap').classList.toggle('hidden', type === 'mcq');
+  }
+
+  function addRubricRow(text, marks) {
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-2 rubric-row';
+    row.innerHTML = '<input name="rubric_text[]" placeholder="e.g. Explains militarism as a cause" class="form-input flex-1 text-xs">'
+      + '<input type="number" name="rubric_marks[]" value="1" min="0" class="form-input w-16 text-xs text-center">'
+      + '<button type="button" class="w-7 h-7 rounded bg-rose-50 hover:bg-rose-100 text-rose-500 shrink-0 inline-flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>';
+    row.querySelector('button').addEventListener('click', () => { row.remove(); updateRubricSum(); });
+    row.querySelectorAll('input').forEach((inp) => inp.addEventListener('input', updateRubricSum));
+    document.getElementById('rubricRows').appendChild(row);
+    updateRubricSum();
+  }
+
+  function updateRubricSum() {
+    const marksInputs = document.querySelectorAll('#rubricRows input[name="rubric_marks[]"]');
+    const sum = Array.from(marksInputs).reduce((s, inp) => s + (parseInt(inp.value, 10) || 0), 0);
+    const label = document.getElementById('rubricSum');
+    const questionMarks = parseInt(document.getElementById('marksInput').value, 10) || 0;
+    if (!marksInputs.length) { label.textContent = ''; return; }
+    label.textContent = sum + ' / ' + questionMarks + ' marks allocated';
+    label.className = 'text-[10px] font-bold ' + (sum === questionMarks ? 'text-emerald-600' : 'text-amber-600');
+  }
+
+  // Wire up remove-buttons and live-sum for any rubric rows rendered server-side (edit mode)
+  document.querySelectorAll('#rubricRows .rubric-row').forEach((row) => {
+    row.querySelectorAll('input').forEach((inp) => inp.addEventListener('input', updateRubricSum));
+  });
+  document.getElementById('marksInput').addEventListener('input', updateRubricSum);
+  updateRubricSum();
+
+  <% if (eq) { %>
+  // Jump straight to the edit form so the teacher doesn't have to scroll past the whole paper.
+  document.getElementById('qform').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  <% } %>
+</script>
+</body>
+</html>

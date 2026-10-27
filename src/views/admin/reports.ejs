@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports & Analytics — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+
+<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'reports' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, MCQs, or anything...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex-1 flex flex-col space-y-6">
+
+      <!-- BREADCRUMB & TITLE HEADER -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+            <i class="fa-solid fa-chart-column"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight">Results & Analytics</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Track student performance, progress and detailed analytics across MCQs, tutorials, study materials, and exam papers.</p>
+          </div>
+        </div>
+
+        <form method="get" class="flex items-center space-x-3 shrink-0">
+          <!-- Date Selector: real GET-param filter (range=...) applied to every query below -->
+          <div class="relative bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-2 shadow-sm hover:bg-slate-50">
+            <i class="fa-regular fa-calendar text-blue-600"></i>
+            <select name="range" onchange="this.form.submit()" class="bg-transparent outline-none cursor-pointer pr-2 font-medium">
+              <option value="this_month" <%= range === 'this_month' ? 'selected' : '' %>>This Month</option>
+              <option value="last_month" <%= range === 'last_month' ? 'selected' : '' %>>Last Month</option>
+              <option value="last_3_months" <%= range === 'last_3_months' ? 'selected' : '' %>>Last 3 Months</option>
+              <option value="this_year" <%= range === 'this_year' ? 'selected' : '' %>>This Year</option>
+              <option value="all_time" <%= range === 'all_time' ? 'selected' : '' %>>All Time</option>
+            </select>
+          </div>
+
+          <!-- Export Report: real CSV export of the filtered exam submissions (same range) -->
+          <a href="/admin/reports/export?range=<%= range %>" class="bg-white hover:bg-slate-50 border border-slate-200 text-blue-600 font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition shadow-sm flex items-center space-x-2">
+            <i class="fa-solid fa-download text-xs"></i>
+            <span>Export Report</span>
+          </a>
+        </form>
+      </div>
+
+      <!-- BREADCRUMB & ANALYTICS TABS PILLS -->
+      <div class="flex flex-col space-y-3 border-b border-slate-200 pb-2">
+        <nav class="flex text-xs font-semibold text-slate-500 space-x-2">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a>
+          <span class="text-slate-400">&gt;</span>
+          <a href="/admin/reports" class="hover:text-blue-600 transition">Results & Analytics</a>
+          <span class="text-slate-400">&gt;</span>
+          <span class="text-blue-600 font-bold">Overview (<%= rangeLabel %>)</span>
+        </nav>
+
+        <div class="flex items-center space-x-2 overflow-x-auto text-xs font-semibold select-none pt-1">
+          <button type="button" class="analytics-tab-btn px-4 py-2 rounded-xl bg-blue-600 text-white shadow-sm transition shrink-0">Overview</button>
+          <a href="/admin/results" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">MCQ Performance</a>
+          <a href="/admin/results" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">Subject Analysis</a>
+          <a href="/admin/students" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">Student Progress</a>
+          <a href="/admin/results" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">Exam Results</a>
+          <button type="button" onclick="document.getElementById('content-usage-card').scrollIntoView({behavior:'smooth'})" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">Content Usage</button>
+          <a href="/admin/submissions" class="analytics-tab-btn px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition shrink-0">Detailed Reports</a>
+        </div>
+      </div>
+
+      <!-- 6 KPI METRIC CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Total Students</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.totalStudents %></h3>
+            <% if (kpi.studentsDelta !== null) { %>
+            <p class="text-[10px] <%= kpi.studentsDelta >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-semibold flex items-center gap-0.5 mt-0.5">
+              <i class="fa-solid fa-arrow-<%= kpi.studentsDelta >= 0 ? 'up' : 'down' %> text-[9px]"></i> <%= Math.abs(kpi.studentsDelta) %>% <span class="text-slate-400 font-normal">vs last month</span>
+            </p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-user-check"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Active Students</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.activeStudents %></h3>
+            <p class="text-[10px] text-slate-400 font-normal mt-0.5">Active in last 30 days</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0"><i class="fa-regular fa-file-lines"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Total MCQs Attempted</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.mcqAttemptedTotal.toLocaleString() %></h3>
+            <% if (kpi.mcqDelta !== null) { %>
+            <p class="text-[10px] <%= kpi.mcqDelta >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-semibold flex items-center gap-0.5 mt-0.5">
+              <i class="fa-solid fa-arrow-<%= kpi.mcqDelta >= 0 ? 'up' : 'down' %> text-[9px]"></i> <%= Math.abs(kpi.mcqDelta) %>% <span class="text-slate-400 font-normal">vs last month</span>
+            </p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-trophy"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Average Score</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.avgScore %>%</h3>
+            <% if (kpi.avgScoreDelta !== null) { %>
+            <p class="text-[10px] <%= kpi.avgScoreDelta >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-semibold flex items-center gap-0.5 mt-0.5">
+              <i class="fa-solid fa-arrow-<%= kpi.avgScoreDelta >= 0 ? 'up' : 'down' %> text-[9px]"></i> <%= Math.abs(kpi.avgScoreDelta) %>pt <span class="text-slate-400 font-normal">vs last month</span>
+            </p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0"><i class="fa-regular fa-circle-check"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Assignments Completed</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.assignmentsCompleted %></h3>
+            <% if (kpi.assignmentsDelta !== null) { %>
+            <p class="text-[10px] <%= kpi.assignmentsDelta >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-semibold flex items-center gap-0.5 mt-0.5">
+              <i class="fa-solid fa-arrow-<%= kpi.assignmentsDelta >= 0 ? 'up' : 'down' %> text-[9px]"></i> <%= Math.abs(kpi.assignmentsDelta) %>% <span class="text-slate-400 font-normal">vs last month</span>
+            </p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 card-shadow flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-file-signature"></i></div>
+          <div>
+            <p class="text-[11px] font-semibold text-slate-500">Full Exam Submissions</p>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= kpi.fullExamSubmissions %></h3>
+            <% if (kpi.examDelta !== null) { %>
+            <p class="text-[10px] <%= kpi.examDelta >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-semibold flex items-center gap-0.5 mt-0.5">
+              <i class="fa-solid fa-arrow-<%= kpi.examDelta >= 0 ? 'up' : 'down' %> text-[9px]"></i> <%= Math.abs(kpi.examDelta) %>% <span class="text-slate-400 font-normal">vs last month</span>
+            </p>
+            <% } %>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Performance Overview Line Chart (5 Cols) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 card-shadow space-y-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-blue-600"></i>
+              <span>Performance Overview</span>
+            </h3>
+            <div class="flex items-center space-x-3 text-[11px] font-semibold">
+              <span class="flex items-center gap-1.5 text-blue-600"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> Average Score</span>
+              <span class="flex items-center gap-1.5 text-purple-500"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Attempted MCQs</span>
+            </div>
+          </div>
+          <div class="relative h-60 w-full">
+            <% if (chart.monthLabels.length) { %>
+            <canvas id="performanceOverviewChart"></canvas>
+            <% } else { %>
+            <div class="h-full w-full flex items-center justify-center text-xs text-slate-400 font-medium">No submissions/MCQs in this range yet.</div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Subject-wise Performance Bar Chart (4 Cols) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 card-shadow space-y-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-blue-600"></i>
+              <span>Subject-wise Performance</span>
+            </h3>
+            <div class="flex items-center space-x-2 text-[10px] font-semibold text-slate-500">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Avg Score</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-200"></span> MCQs</span>
+            </div>
+          </div>
+          <div class="relative h-60 w-full">
+            <% if (subjectAverages.length) { %>
+            <canvas id="subjectPerformanceChart"></canvas>
+            <% } else { %>
+            <div class="h-full w-full flex items-center justify-center text-xs text-slate-400 font-medium">No subject activity in this range yet.</div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Score Distribution Donut Chart (3 Cols) — real substitute for "Question Type
+             Performance": this app doesn't capture a per-attempt question-type breakdown,
+             so this reuses the real score-distribution buckets from /admin/results instead. -->
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 card-shadow space-y-3 flex flex-col justify-between">
+          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-blue-600"></i>
+            <span>Score Distribution</span>
+          </h3>
+          <div class="flex items-center justify-between">
+            <div class="relative w-36 h-36 shrink-0 mx-auto lg:mx-0">
+              <% if (kpi.fullExamSubmissions) { %>
+              <canvas id="scoreDistributionChart"></canvas>
+              <% } %>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span class="text-base font-extrabold text-slate-900 leading-none"><%= kpi.avgScore %>%</span>
+                <span class="text-[9px] font-bold text-slate-400 mt-0.5">Avg. Score</span>
+              </div>
+            </div>
+            <ul class="space-y-1.5 text-xs font-semibold text-slate-700 ml-2">
+              <% const bucketColors = ['bg-rose-400','bg-amber-400','bg-sky-400','bg-blue-500','bg-emerald-500']; %>
+              <% bucketLabels.forEach((lbl, i) => { %>
+              <li class="flex items-center justify-between gap-2">
+                <span class="flex items-center gap-1.5 text-[11px]"><span class="w-2.5 h-2.5 rounded-full <%= bucketColors[i] %>"></span> <%= lbl %></span>
+                <span class="font-bold"><%= buckets[i] %></span>
+              </li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DATA CARDS ROW 2 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Top Performing Students -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-users text-blue-600"></i>
+              <span>Top Performing Students</span>
+            </h3>
+            <a href="/admin/students" class="text-blue-600 hover:underline text-xs font-bold">View All</a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-medium text-slate-700">
+              <thead>
+                <tr class="text-[10px] text-slate-400 uppercase font-bold border-b border-slate-100">
+                  <th class="py-1.5">#</th>
+                  <th class="py-1.5">Student Name</th>
+                  <th class="py-1.5">Class</th>
+                  <th class="py-1.5 text-center">Avg. Score</th>
+                  <th class="py-1.5 text-right">MCQs</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <% topPerformers.forEach((s, i) => { %>
+                <tr>
+                  <td class="py-2 text-slate-400 font-bold"><%= i + 1 %></td>
+                  <td class="py-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0"><%= (s.name || '?').charAt(0).toUpperCase() %></div>
+                      <span class="font-bold text-slate-900"><%= s.name %></span>
+                    </div>
+                  </td>
+                  <td class="py-2 text-slate-500"><%= s.classLabel %></td>
+                  <td class="py-2 text-center font-bold text-emerald-600"><%= s.avg %>%</td>
+                  <td class="py-2 text-right font-semibold"><%= s.mcqCount %></td>
+                </tr>
+                <% }) %>
+                <% if (!topPerformers.length) { %>
+                <tr><td colspan="5" class="py-6 text-center text-slate-400">No exam submissions in this range yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Performance by Year Level & Content Usage Container -->
+        <div class="space-y-6">
+          <!-- Performance by Year Level -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-blue-600"></i>
+                <span>Performance by Year Level</span>
+              </h3>
+              <a href="/admin/students" class="text-blue-600 hover:underline text-xs font-bold">View Details</a>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+              <% const yearBarColors = ['bg-emerald-500','bg-blue-600','bg-purple-600','bg-amber-500']; %>
+              <% byYearLevel.forEach((y, i) => { %>
+              <div class="space-y-1">
+                <div class="flex items-center justify-between font-bold">
+                  <span class="text-slate-800"><%= y.year %> <span class="text-slate-400 font-normal text-[11px]">(<%= y.studentCount %> Students)</span></span>
+                  <span class="text-emerald-600 font-extrabold"><%= y.avg %>%</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full <%= yearBarColors[i % yearBarColors.length] %> rounded-full" style="width: <%= y.avg %>%;"></div>
+                </div>
+              </div>
+              <% }) %>
+              <% if (!byYearLevel.length) { %>
+              <p class="text-slate-400 text-center py-3">No exam submissions in this range yet.</p>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Content Usage -->
+          <div id="content-usage-card" class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-folder-open text-blue-600"></i>
+                <span>Content Usage</span>
+              </h3>
+            </div>
+
+            <table class="w-full text-left text-xs font-medium text-slate-700">
+              <thead>
+                <tr class="text-[10px] text-slate-400 uppercase font-bold border-b border-slate-100">
+                  <th class="py-1">Content Type</th>
+                  <th class="py-1 text-center">Total Access</th>
+                  <th class="py-1 text-right">Unique Students</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <% contentUsage.forEach(c => { %>
+                <tr>
+                  <td class="py-1.5 flex items-center gap-2 font-semibold">
+                    <i class="<%= c.icon %> <%= c.color %>"></i> <%= c.type %>
+                  </td>
+                  <td class="py-1.5 text-center font-bold"><%= c.totalAccess.toLocaleString() %></td>
+                  <td class="py-1.5 text-right font-semibold text-slate-500"><%= c.uniqueStudents %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3 lg:col-span-2">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-regular fa-clipboard text-blue-600"></i>
+              <span>Recent Results</span>
+            </h3>
+            <a href="/admin/results" class="text-blue-600 hover:underline text-xs font-bold">View All</a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-medium text-slate-700">
+              <thead>
+                <tr class="text-[10px] text-slate-400 uppercase font-bold border-b border-slate-100">
+                  <th class="py-1.5">Student</th>
+                  <th class="py-1.5">Type</th>
+                  <th class="py-1.5">Subject</th>
+                  <th class="py-1.5 text-center">Score</th>
+                  <th class="py-1.5 text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <% const typeBadge = { Exam: 'bg-purple-50 text-purple-600', MCQ: 'bg-blue-50 text-blue-600' }; %>
+                <% recentResults.forEach(r => { %>
+                <tr>
+                  <td class="py-2.5">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0"><%= (r.student || '?').charAt(0).toUpperCase() %></div>
+                      <span class="font-bold text-slate-900"><%= r.student %></span>
+                    </div>
+                  </td>
+                  <td class="py-2.5"><span class="<%= typeBadge[r.type] || 'bg-slate-50 text-slate-600' %> text-[10px] font-bold px-2 py-0.5 rounded-md"><%= r.type %></span></td>
+                  <td class="py-2.5 text-slate-600 font-semibold"><%= r.subject %></td>
+                  <td class="py-2.5 text-center font-bold <%= r.score >= 80 ? 'text-emerald-600' : (r.score >= 50 ? 'text-amber-600' : 'text-rose-600') %>"><%= r.score %>%</td>
+                  <td class="py-2.5 text-right text-slate-400"><%= new Date(r.date).toLocaleDateString('en-AU', { day: '2-digit', month: 'short' }) %></td>
+                </tr>
+                <% }) %>
+                <% if (!recentResults.length) { %>
+                <tr><td colspan="5" class="py-6 text-center text-slate-400">No results in this range yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM ROW: EXAM PAPER PERFORMANCE & QUICK INSIGHTS -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Exam Paper Performance -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-file-signature text-blue-600"></i>
+              <span>Exam Paper Performance</span>
+            </h3>
+            <a href="/admin/papers" class="text-blue-600 hover:underline text-xs font-bold">View Details</a>
+          </div>
+
+          <table class="w-full text-left text-xs font-medium text-slate-700">
+            <thead>
+              <tr class="text-[10px] text-slate-400 uppercase font-bold border-b border-slate-100">
+                <th class="py-1.5">Exam Paper</th>
+                <th class="py-1.5 text-center">Submissions</th>
+                <th class="py-1.5 text-center">Average Score</th>
+                <th class="py-1.5 text-right">Pass Rate</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% const paperBarColors = ['bg-emerald-500','bg-blue-600','bg-purple-600','bg-amber-500','bg-rose-500','bg-sky-500']; %>
+              <% paperPerformance.forEach((p, i) => { %>
+              <tr>
+                <td class="py-3 font-bold text-slate-900"><%= p.title %></td>
+                <td class="py-3 text-center font-semibold text-slate-600"><%= p.submissions %></td>
+                <td class="py-3 text-center font-bold text-emerald-600"><%= p.avgScore %>%</td>
+                <td class="py-3 text-right font-bold text-slate-800">
+                  <div class="flex items-center justify-end space-x-2">
+                    <div class="w-20 bg-slate-100 h-2 rounded-full overflow-hidden inline-block">
+                      <div class="<%= paperBarColors[i % paperBarColors.length] %> h-full" style="width: <%= p.passRate %>%;"></div>
+                    </div>
+                    <span><%= p.passRate %>%</span>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% if (!paperPerformance.length) { %>
+              <tr><td colspan="4" class="py-6 text-center text-slate-400">No exam submissions in this range yet.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Quick Insights Grid -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 card-shadow space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h3 class="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-regular fa-lightbulb text-amber-500"></i>
+              <span>Quick Insights</span>
+            </h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <% insights.forEach(ins => { %>
+            <div class="<%= ins.color === 'blue' ? 'bg-blue-50/60 border-blue-100' : ins.color === 'rose' ? 'bg-rose-50/60 border-rose-100' : ins.color === 'amber' ? 'bg-amber-50/60 border-amber-100' : 'bg-purple-50/60 border-purple-100' %> border rounded-xl p-3 flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-lg <%= ins.color === 'blue' ? 'bg-blue-600' : ins.color === 'rose' ? 'bg-rose-500' : ins.color === 'amber' ? 'bg-amber-500' : 'bg-purple-600' %> text-white flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid <%= ins.icon %>"></i>
+              </div>
+              <div>
+                <h4 class="font-extrabold text-slate-900 text-sm"><%= ins.value %></h4>
+                <p class="text-[11px] text-slate-600 font-medium leading-tight"><%= ins.text %></p>
+              </div>
+            </div>
+            <% }) %>
+            <% if (!insights.length) { %>
+            <p class="text-slate-400 text-xs text-center py-3 sm:col-span-2">Not enough data yet to compute insights for this range.</p>
+            <% } %>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/tw_scripts') %>
+
+<script>
+  function showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold text-xs shadow-xl flex items-center gap-2 pointer-events-auto';
+    toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const monthLabels = <%- JSON.stringify(chart.monthLabels) %>;
+    const monthAvgScores = <%- JSON.stringify(chart.monthAvgScores) %>;
+    const monthMcqCounts = <%- JSON.stringify(chart.monthMcqCounts) %>;
+    const subjectNames = <%- JSON.stringify(subjectAverages.map(s => s.name)) %>;
+    const subjectAvgs = <%- JSON.stringify(subjectAverages.map(s => s.avg)) %>;
+    const subjectMcqs = <%- JSON.stringify(subjectAverages.map(s => s.mcqCount)) %>;
+    const bucketLabels = <%- JSON.stringify(bucketLabels) %>;
+    const buckets = <%- JSON.stringify(buckets) %>;
+
+    // CHART 1: Performance Overview Line Chart
+    const c1 = document.getElementById('performanceOverviewChart');
+    if (c1) {
+      const ctx1 = c1.getContext('2d');
+      const gradientBlue = ctx1.createLinearGradient(0, 0, 0, 200);
+      gradientBlue.addColorStop(0, 'rgba(27, 97, 249, 0.15)');
+      gradientBlue.addColorStop(1, 'rgba(27, 97, 249, 0.0)');
+      const maxMcq = Math.max(1, ...monthMcqCounts);
+      new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: monthLabels,
+          datasets: [
+            { label: 'Average Score', data: monthAvgScores, borderColor: '#1b61f9', backgroundColor: gradientBlue, borderWidth: 2.5, fill: true, tension: 0.35, pointBackgroundColor: '#1b61f9', pointRadius: 4, yAxisID: 'y' },
+            { label: 'Attempted MCQs', data: monthMcqCounts, borderColor: '#a855f7', borderWidth: 2, borderDash: [4, 4], fill: false, tension: 0.35, pointBackgroundColor: '#a855f7', pointRadius: 3, yAxisID: 'y1' },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 100, ticks: { stepSize: 25, callback: (v) => v + '%' }, grid: { color: '#f1f5f9' } },
+            y1: { min: 0, max: maxMcq * 1.2, display: false },
+            x: { grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    // CHART 2: Subject-wise Performance Bar Chart
+    const c2 = document.getElementById('subjectPerformanceChart');
+    if (c2) {
+      const ctx2 = c2.getContext('2d');
+      const maxMcqSubj = Math.max(1, ...subjectMcqs);
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: subjectNames,
+          datasets: [
+            { label: 'Avg Score', data: subjectAvgs, backgroundColor: '#1b61f9', borderRadius: 6, barPercentage: 0.5, yAxisID: 'y' },
+            { label: 'Attempted MCQs', data: subjectMcqs, backgroundColor: '#bfdbfe', borderRadius: 6, barPercentage: 0.5, yAxisID: 'y1' },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 100, ticks: { stepSize: 25, callback: (v) => v + '%' }, grid: { color: '#f1f5f9' } },
+            y1: { min: 0, max: maxMcqSubj * 1.2, display: false },
+            x: { grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    // CHART 3: Score Distribution Donut
+    const c3 = document.getElementById('scoreDistributionChart');
+    if (c3) {
+      const ctx3 = c3.getContext('2d');
+      new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+          labels: bucketLabels,
+          datasets: [{ data: buckets, backgroundColor: ['#f43f5e', '#fbbf24', '#38bdf8', '#3b82f6', '#10b981'], borderWidth: 0, hoverOffset: 4 }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } },
+      });
+    }
+  });
+</script>
+</body>
+</html>

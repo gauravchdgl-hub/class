@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class & Year Level — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'class-year-levels' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search classes, year levels, subjects...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full flex-1 flex flex-col space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Class & Year Level</h1>
+          <p class="text-sm text-slate-500 mt-1">Manage all curricula and year levels. Newly added items will automatically appear in the Add Subject form.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <a href="/admin/subjects/new" class="bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-semibold text-sm px-4 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+            <i class="fa-solid fa-book-medical text-xs"></i><span>Go to Add Subject</span>
+          </a>
+          <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition shadow-md shadow-blue-500/20 flex items-center space-x-2">
+            <i class="fa-solid fa-plus text-xs"></i><span>Add Class & Year Level</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 card-shadow overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="relative w-full sm:w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+            <input type="text" id="tableSearch" onkeyup="filterRows()" placeholder="Search classes or year levels..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <span class="text-xs text-slate-500 font-medium" id="total-count-label">Showing <%= items.length %> curricula &amp; year levels</span>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                <th class="py-3.5 px-6">#</th>
+                <th class="py-3.5 px-6">Class / Curriculum</th>
+                <th class="py-3.5 px-6">Year Level</th>
+                <th class="py-3.5 px-6">Status</th>
+                <th class="py-3.5 px-6 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs text-slate-700 font-medium" id="rowsBody">
+              <% items.forEach((item, idx) => { %>
+                <tr class="hover:bg-slate-50 transition cy-row" data-search="<%= (item.curriculum + ' ' + item.year_level).toLowerCase() %>">
+                  <td class="py-4 px-6 text-slate-400 font-bold"><%= idx + 1 %></td>
+                  <td class="py-4 px-6 font-bold text-slate-900"><%= item.curriculum %></td>
+                  <td class="py-4 px-6"><span class="bg-blue-50 border border-blue-200 text-blue-700 font-bold px-2.5 py-1 rounded-md text-[11px]"><%= item.year_level %></span></td>
+                  <td class="py-4 px-6">
+                    <form method="post" action="/admin/class-year-levels/<%= item.id %>/toggle">
+                      <button type="submit" class="<%= item.status==='Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200' %> border font-bold px-2.5 py-1 rounded-full text-[10px]"><%= item.status %></button>
+                    </form>
+                  </td>
+                  <td class="py-4 px-6 text-center space-x-2">
+                    <button onclick='openEditModal(<%- JSON.stringify({ id: item.id, curriculum: item.curriculum, year_level: item.year_level }) %>)' class="p-1.5 text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                    <form method="post" action="/admin/class-year-levels/<%= item.id %>/delete" class="inline" onsubmit="return confirm('Delete this class & year level record? Subjects already using it keep their data.');">
+                      <button type="submit" class="p-1.5 text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition" title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+              <% if (!items.length) { %>
+                <tr><td colspan="5" class="p-6 text-center text-slate-400">No class & year level records yet. Click "Add Class & Year Level" to create one.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: Add / Edit Class & Year Level -->
+<div id="cy-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden">
+    <div class="p-6 pb-4 border-b border-slate-100 flex items-start justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner shrink-0">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h3 id="cy-modal-title" class="text-xl font-extrabold text-slate-900">Add Class & Year Level</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Type any custom class / curriculum and year level below. These will instantly become available when adding subjects.</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-50 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+
+    <form id="cy-form" method="post" action="/admin/class-year-levels/new">
+      <div class="p-6 space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Class / Curriculum Name <span class="text-red-500">*</span></label>
+            <input type="text" name="curriculum" id="cy-curriculum" required placeholder="e.g. Australia Year 11–12, IGCSE, Custom Class" class="form-input">
+          </div>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Year Level <span class="text-red-500">*</span></label>
+            <input type="text" name="year_level" id="cy-year-level" required placeholder="e.g. Year 11, Year 12, Year 11 - A" class="form-input">
+          </div>
+        </div>
+        <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 flex items-start space-x-3 text-blue-900">
+          <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shrink-0 mt-0.5 shadow-sm"><i class="fa-solid fa-info text-[10px]"></i></div>
+          <div class="text-xs leading-relaxed">
+            <strong class="font-bold block text-blue-950 mb-0.5">Synced Automatically:</strong>
+            Once saved here, this combination will be listed in the table above and selectable as a checkbox option when you create or edit subjects.
+          </div>
+        </div>
+      </div>
+      <div class="p-6 pt-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end space-x-3">
+        <button type="button" onclick="closeModal()" class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-100 transition shadow-sm">Cancel</button>
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition flex items-center space-x-2">
+          <i class="fa-solid fa-floppy-disk text-xs"></i><span id="cy-submit-label">Save Class & Year Level</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/tw_scripts') %>
+<script>
+  function openAddModal() {
+    document.getElementById('cy-modal-title').textContent = 'Add Class & Year Level';
+    document.getElementById('cy-submit-label').textContent = 'Save Class & Year Level';
+    document.getElementById('cy-form').action = '/admin/class-year-levels/new';
+    document.getElementById('cy-curriculum').value = '';
+    document.getElementById('cy-year-level').value = '';
+    document.getElementById('cy-modal').classList.remove('hidden');
+  }
+  function openEditModal(item) {
+    document.getElementById('cy-modal-title').textContent = 'Edit Class & Year Level';
+    document.getElementById('cy-submit-label').textContent = 'Save Changes';
+    document.getElementById('cy-form').action = '/admin/class-year-levels/' + item.id + '/edit';
+    document.getElementById('cy-curriculum').value = item.curriculum;
+    document.getElementById('cy-year-level').value = item.year_level;
+    document.getElementById('cy-modal').classList.remove('hidden');
+  }
+  function closeModal() { document.getElementById('cy-modal').classList.add('hidden'); }
+  function filterRows() {
+    const q = document.getElementById('tableSearch').value.toLowerCase();
+    let visible = 0;
+    document.querySelectorAll('.cy-row').forEach((row) => {
+      const match = row.dataset.search.includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    document.getElementById('total-count-label').textContent = 'Showing ' + visible + ' curricula & year levels';
+  }
+</script>
+</body>
+</html>

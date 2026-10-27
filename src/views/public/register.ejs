@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — <%= platformName %></title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'<%= themeFont %>','Inter',sans-serif;background-color:#0f172a;color:#1e293b}
+  .custom-bg{background-image:linear-gradient(to bottom right, rgba(15,23,42,0.88), rgba(30,58,138,0.82), rgba(15,23,42,0.92)), url('<%= heroImageUrl %>');background-size:cover;background-position:center}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+  .btn-primary{background:<%= themeColor %>}
+  .btn-primary:hover{background:<%= themeColor2 %>}
+  .text-primary{color:<%= themeColor %>}
+  .bg-primary{background:<%= themeColor %>}
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-bg text-slate-100 antialiased overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+  <header class="w-full p-6 lg:px-12 lg:py-8 flex items-center justify-between z-20">
+    <a href="/" class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg shrink-0">
+        <% if (siteLogo) { %><img src="<%= siteLogo %>" alt="Logo" class="w-full h-full object-cover rounded-xl"><% } else { %><i class="fa-solid fa-graduation-cap"></i><% } %>
+      </div>
+      <div><h1 class="font-bold text-lg leading-tight tracking-wide text-white"><%= loginText.brand_name %></h1><p class="text-[11px] text-slate-300 font-medium"><%= loginText.brand_tagline %></p></div>
+    </a>
+    <div class="hidden sm:flex items-center space-x-3">
+      <span class="text-sm text-slate-300 font-medium">Already have an account?</span>
+      <a href="/login" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition backdrop-blur-md shadow-sm">Login</a>
+    </div>
+  </header>
+
+  <main class="w-full max-w-[1600px] mx-auto px-6 lg:px-12 py-4 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center flex-1 z-10">
+
+    <div class="lg:col-span-7 space-y-8 pr-0 lg:pr-8">
+      <div class="space-y-4 max-w-2xl">
+        <h2 class="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.1]">Start learning with your own portal.</h2>
+        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed">Sign up free and get 50 MCQs instantly — no plan purchase needed to start practising.</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-blue-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-gift"></i></div>
+          <div><h4 class="font-bold text-xs text-white">50 Free</h4><span class="text-[11px] text-slate-400">MCQs</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-purple-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-chart-line"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Track Your</h4><span class="text-[11px] text-slate-400">Progress</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-emerald-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-book-open"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Buy Plans &</h4><span class="text-[11px] text-slate-400">Papers</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-amber-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-users"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Learn</h4><span class="text-[11px] text-slate-400">Anywhere</span></div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-5 max-w-lg space-y-3 shadow-xl">
+        <p class="text-xs sm:text-sm text-slate-200 font-medium italic">&ldquo;Trusted by thousands of Australian students for better results.&rdquo;</p>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center -space-x-2">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+          </div>
+          <div class="flex items-center space-x-1 text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 flex justify-center lg:justify-end w-full">
+      <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-slate-800 space-y-5 relative border border-slate-100">
+        <div class="text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center text-2xl mx-auto shadow-md">
+            <% if (siteLogo) { %><img src="<%= siteLogo %>" alt="Logo" class="w-full h-full object-cover rounded-2xl"><% } else { %><i class="fa-solid fa-graduation-cap"></i><% } %>
+          </div>
+          <div><h3 class="font-bold text-lg text-slate-900 leading-tight"><%= loginText.brand_name %></h3><span class="text-xs text-slate-500 font-medium"><%= loginText.brand_tagline %></span></div>
+          <div class="pt-2"><h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Create Student Account</h2><p class="text-xs text-slate-500 mt-1">Sign up free and start practising in minutes.</p></div>
+        </div>
+
+        <% if (success && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= success[0] %></div><% } %>
+        <% if (error && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= error[0] %></div><% } %>
+        <div id="jsError" class="hidden bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"></div>
+
+        <form method="post" action="/register" id="signupForm" class="space-y-4 text-xs" onsubmit="return handleSignup(event)">
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Full Name</label>
+            <div class="relative"><i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="text" name="name" required placeholder="Your full name" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"></div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Email Address</label>
+            <div class="relative"><i class="fa-regular fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"></div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Mobile Number</label>
+            <div class="flex gap-2">
+              <select id="countryCode" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+                <option value="+61" selected>🇦🇺 +61</option>
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+              </select>
+              <div class="relative flex-1"><i class="fa-solid fa-mobile-screen absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="tel" name="phone" id="phoneNumber" required placeholder="0400 111 222" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"></div>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Password</label>
+            <div class="relative"><i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="password" name="password" id="regPw" required placeholder="Create a password" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+              <i id="regPwEye" onclick="togglePassword('regPw','regPwEye')" class="fa-regular fa-eye absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600"></i></div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Confirm Password</label>
+            <div class="relative"><i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="password" id="regPwConfirm" required placeholder="Re-enter your password" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+              <i id="regPwConfirmEye" onclick="togglePassword('regPwConfirm','regPwConfirmEye')" class="fa-regular fa-eye absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600"></i></div>
+          </div>
+          <label class="flex items-start space-x-2 cursor-pointer pt-1">
+            <input type="checkbox" id="agreeTerms" required class="w-4 h-4 mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+            <span class="text-slate-600 font-medium text-xs">I agree to the <a href="#" class="text-primary font-semibold hover:underline">Terms of Service</a> and <a href="#" class="text-primary font-semibold hover:underline">Privacy Policy</a></span>
+          </label>
+          <div class="pt-2">
+            <button type="submit" class="btn-primary w-full text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
+              <span>Create Account</span><i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center pt-2 text-xs text-slate-500 font-medium">
+          Already have an account? <a href="/login" class="text-primary font-bold hover:underline">Login</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full p-6 text-center text-xs text-slate-400 font-medium z-20">&copy; <%= new Date().getFullYear() %> <%= loginText.brand_name %>. All rights reserved.</footer>
+
+<script>
+function togglePassword(inputId, iconId){
+  const input = document.getElementById(inputId), icon = document.getElementById(iconId);
+  if (input.type === 'password') { input.type='text'; icon.className='fa-regular fa-eye-slash absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600'; }
+  else { input.type='password'; icon.className='fa-regular fa-eye absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600'; }
+}
+function handleSignup(event){
+  const pw = document.getElementById('regPw').value;
+  const cpw = document.getElementById('regPwConfirm').value;
+  const errBox = document.getElementById('jsError');
+  if (pw !== cpw){
+    event.preventDefault();
+    errBox.textContent = 'Passwords do not match. Please re-enter.';
+    errBox.classList.remove('hidden');
+    return false;
+  }
+  errBox.classList.add('hidden');
+  // Combine country code + phone into a single field the backend expects.
+  const code = document.getElementById('countryCode').value;
+  const phoneInput = document.getElementById('phoneNumber');
+  if (phoneInput.value && !phoneInput.value.startsWith('+')) {
+    phoneInput.value = code + ' ' + phoneInput.value;
+  }
+  return true;
+}
+</script>
+</body>
+</html>

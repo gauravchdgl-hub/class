@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assign Paper — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'assign' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search papers, students...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-clipboard-list text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Assign Paper</h1>
+          <p class="text-[13px] text-slate-500 mt-0.5">Assign paper to a student, class or selected group.</p>
+        </div>
+      </div>
+
+      <!-- Stepper (visual only) -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">1</span>
+          <div><b class="block text-slate-800 font-bold">Select Paper</b><small class="text-slate-400">Choose the exam to assign</small></div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold shrink-0">2</span>
+          <div><b class="block text-slate-800 font-bold">Select Students</b><small class="text-slate-400">Student, class or group</small></div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold shrink-0">3</span>
+          <div><b class="block text-slate-800 font-bold">Schedule</b><small class="text-slate-400">Date, time and access</small></div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold shrink-0">4</span>
+          <div><b class="block text-slate-800 font-bold">Confirm</b><small class="text-slate-400">Review assignment</small></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6 lg:col-span-7">
+          <div class="mb-4"><h3 class="text-lg font-bold text-[#091e42]">Assign Exam Paper</h3><p class="text-[13px] text-slate-500">Choose a paper and who should receive it.</p></div>
+          <form method="post" action="/admin/assign" id="assignForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <label class="block font-semibold text-slate-600">Paper
+              <select name="paper_id" required class="custom-select mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <% papers.forEach(p => { %><option value="<%= p.id %>"><%= p.title %></option><% }) %>
+              </select>
+            </label>
+            <label class="block font-semibold text-slate-600">Subject (for "class" targeting, optional)
+              <select name="subject_id" class="custom-select mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Any</option>
+                <% subjects.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %>
+              </select>
+            </label>
+            <label class="block font-semibold text-slate-600">Students / Class
+              <select name="target_type" id="targetType" onchange="document.getElementById('singleStudentField').style.display = this.value==='single' ? 'block' : 'none'; document.getElementById('yearField').style.display = this.value==='all' ? 'block' : 'none';" class="custom-select mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="all">All Students (optionally filtered by subject/year)</option>
+                <option value="single">One Specific Student</option>
+              </select>
+            </label>
+            <label id="yearField" class="block font-semibold text-slate-600">Year (optional filter)
+              <select name="year" class="custom-select mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Any</option><option>Year 11</option><option>Year 12</option></select>
+            </label>
+            <label id="singleStudentField" style="display:none;" class="block font-semibold text-slate-600 sm:col-span-2">Student
+              <select name="user_id" class="custom-select mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select student...</option>
+                <% students.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> — <%= s.email %></option><% }) %>
+              </select>
+            </label>
+            <label class="block font-semibold text-slate-600">Start Date<input type="date" name="start_date" class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></label>
+            <label class="block font-semibold text-slate-600">Start Time<input type="time" name="start_time" value="09:00" class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></label>
+            <label class="block font-semibold text-slate-600">Due Date<input type="date" name="due_date" class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></label>
+            <label class="block font-semibold text-slate-600 sm:col-span-2">Instructions<textarea name="instructions" placeholder="Optional instructions for students..." class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3">Complete all sections within the scheduled time.</textarea></label>
+            <div class="sm:col-span-2 flex items-center justify-end gap-3 pt-1">
+              <button class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm" type="reset">Cancel</button>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30" type="submit">Assign Paper</button>
+            </div>
+          </form>
+          <% if (!students.length) { %><p class="mt-3 text-slate-400 text-xs">No student accounts yet — they need to sign up first.</p><% } %>
+        </section>
+
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6 lg:col-span-5">
+          <div class="mb-4"><h3 class="text-lg font-bold text-[#091e42]">Recently Assigned</h3><p class="text-[13px] text-slate-500">Quick access to recent assignments.</p></div>
+          <div class="space-y-3">
+            <% recentRaw.forEach(r => { %>
+              <div class="flex items-center gap-3 border border-slate-200 rounded-xl p-3">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-lg shrink-0">📄</div>
+                <div class="flex-1 min-w-0">
+                  <b class="block text-slate-800 text-sm truncate"><%= r.title %></b>
+                  <small class="text-slate-400 text-[11px]"><%= r.year %> · <%= r.student_count %> student<%= r.student_count>1?'s':'' %> · <%= new Date(r.assigned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) %></small>
+                </div>
+                <span class="<%= r.status==='assigned' ? 'bg-amber-50 text-amber-700 border-amber-200' : (r.status==='reviewed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200') %> border px-2.5 py-0.5 rounded-full font-semibold text-[11px] shrink-0"><%= r.status %></span>
+              </div>
+            <% }) %>
+            <% if (!recentRaw.length) { %><p class="text-slate-400 text-xs">No papers assigned yet.</p><% } %>
+          </div>
+        </section>
+      </div>
+
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+        <div class="mb-4"><h3 class="text-lg font-bold text-[#091e42]">Assign MCQs</h3><p class="text-[13px] text-slate-500">Give a student a specific batch from their plan's quota — never the full bank.</p></div>
+        <form method="post" action="/admin/mcq-assign" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="sm:col-span-2"><label class="block font-semibold text-slate-600 mb-1">Student plan (with remaining quota)</label>
+            <select name="student_plan_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">Select a plan...</option>
+              <% plansWithQuota.forEach(p => { %>
+                <option value="<%= p.plan_row_id %>"><%= p.student_name %> — <%= p.plan_name %> (<%= p.remaining_mcqs %> remaining of <%= p.mcq_count %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <div><label class="block font-semibold text-slate-600 mb-1">Subject (optional)</label>
+            <select name="subject_id" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Any</option><% subjects.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> (<%= s.year %>)</option><% }) %></select>
+          </div>
+          <div><label class="block font-semibold text-slate-600 mb-1">Year (optional)</label>
+            <select name="year" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Any</option><option>Year 11</option><option>Year 12</option></select>
+          </div>
+          <div><label class="block font-semibold text-slate-600 mb-1">Topic (optional)</label>
+            <select name="topic" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Any</option><% topics.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %></select>
+          </div>
+          <div><label class="block font-semibold text-slate-600 mb-1">Number of MCQs</label><input type="number" name="mcq_count" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+          <div><label class="block font-semibold text-slate-600 mb-1">Due date (optional)</label><input type="date" name="due_date" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+          <div class="sm:col-span-2"><label class="block font-semibold text-slate-600 mb-1">Teacher note (optional)</label><textarea name="teacher_note" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
+          <div class="sm:col-span-2"><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30" type="submit">Assign MCQs + Email</button></div>
+        </form>
+        <% if (!plansWithQuota.length) { %><p class="mt-3 text-slate-400 text-xs">No plans with unassigned quota right now.</p><% } %>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+          <div class="mb-4"><h3 class="text-lg font-bold text-[#091e42]">Assign Tutorial</h3><p class="text-[13px] text-slate-500">Give a student access to a specific tutorial video.</p></div>
+          <form method="post" action="/admin/assign-tutorial" class="grid grid-cols-1 gap-4 text-xs">
+            <div><label class="block font-semibold text-slate-600 mb-1">Student</label>
+              <select name="user_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select student...</option>
+                <% students.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> — <%= s.email %></option><% }) %>
+              </select>
+            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Tutorial</label>
+              <select name="tutorial_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select tutorial...</option>
+                <% tutorialsForAssign.forEach(t => { %><option value="<%= t.id %>"><%= t.title %><% if (t.subject_name) { %> — <%= t.subject_name %><% } %></option><% }) %>
+              </select>
+            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Due date (optional)</label><input type="date" name="due_date" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Instructions (optional)</label><textarea name="instructions" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
+            <div><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30" type="submit">Assign Tutorial</button></div>
+          </form>
+          <% if (!tutorialsForAssign.length) { %><p class="mt-3 text-slate-400 text-xs">No tutorials in the library yet.</p><% } %>
+        </section>
+
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+          <div class="mb-4"><h3 class="text-lg font-bold text-[#091e42]">Assign Study Material</h3><p class="text-[13px] text-slate-500">Give a student access to a specific study material item.</p></div>
+          <form method="post" action="/admin/assign-material" class="grid grid-cols-1 gap-4 text-xs">
+            <div><label class="block font-semibold text-slate-600 mb-1">Student</label>
+              <select name="user_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select student...</option>
+                <% students.forEach(s => { %><option value="<%= s.id %>"><%= s.name %> — <%= s.email %></option><% }) %>
+              </select>
+            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Study Material</label>
+              <select name="material_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select study material...</option>
+                <% materialsForAssign.forEach(m => { %><option value="<%= m.id %>"><%= m.title %><% if (m.subject_name) { %> — <%= m.subject_name %><% } %></option><% }) %>
+              </select>
+            </div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Due date (optional)</label><input type="date" name="due_date" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+            <div><label class="block font-semibold text-slate-600 mb-1">Instructions (optional)</label><textarea name="instructions" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
+            <div><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30" type="submit">Assign Study Material</button></div>
+          </form>
+          <% if (!materialsForAssign.length) { %><p class="mt-3 text-slate-400 text-xs">No study material in the library yet.</p><% } %>
+        </section>
+      </div>
+
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 sm:p-6 pb-0"><h3 class="text-lg font-bold text-[#091e42]">Recently Assigned Content</h3><p class="text-[13px] text-slate-500">Tutorials and study material assigned to students.</p></div>
+        <div class="overflow-x-auto p-5 sm:p-6 pt-4">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5">Student</th><th class="p-3.5">Type</th><th class="p-3.5">Content</th><th class="p-3.5">Status</th><th class="p-3.5">Assigned</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% recentContent.forEach(r => { %>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="p-3.5"><%= r.student_name %></td>
+                  <td class="p-3.5"><%= r.content_type === 'tutorial' ? 'Tutorial' : 'Study Material' %></td>
+                  <td class="p-3.5"><%= r.content_title || '—' %></td>
+                  <td class="p-3.5"><span class="<%= r.status==='assigned' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200' %> border px-2.5 py-0.5 rounded-full font-semibold text-[11px]"><%= r.status %></span></td>
+                  <td class="p-3.5 text-slate-600"><%= new Date(r.assigned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) %></td>
+                </tr>
+              <% }) %>
+              <% if (!recentContent.length) { %><tr><td colspan="5" class="p-6 text-center text-slate-400">No tutorials or study material assigned yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; 2026 AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

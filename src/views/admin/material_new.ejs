@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= material ? 'Edit Study Material' : 'Add Study Material' %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: material ? 'material-edit' : 'material-new' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, study material...' }) %>
+
+    <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <a href="/admin/material" class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition shrink-0 mt-0.5 border border-blue-100" title="Go Back"><i class="fa-solid fa-arrow-left"></i></a>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight"><%= material ? 'Edit Study Material' : 'Add Study Material' %></h1>
+            <p class="text-[13px] text-slate-500 mt-1">Upload and publish study material for a subject and year level.</p>
+          </div>
+        </div>
+        <nav class="flex text-[13px] text-slate-500 space-x-2 pt-2 md:pt-0 shrink-0 font-medium">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <a href="/admin/material" class="hover:text-blue-600 transition">Study Material</a><span class="text-slate-400">&gt;</span>
+          <span class="text-[#091e42] font-semibold"><%= material ? 'Edit Study Material' : 'Add Study Material' %></span>
+        </nav>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" action="<%= material ? '/admin/material/' + material.id + '/edit' : '/admin/material/new' %>">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+
+          <div class="xl:col-span-2 space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
+              <div class="flex items-center space-x-2 mb-5"><i class="fa-solid fa-file-lines text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Basic Information</h2></div>
+
+              <div class="space-y-5">
+                <div>
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Title <span class="text-red-500">*</span></label>
+                  <input type="text" name="title" required value="<%= material ? material.title : '' %>" placeholder="Enter study material title (e.g. Year 12 Maths Revision Notes)" class="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Subject <span class="text-red-500">*</span></label>
+                    <select name="subject_id" required class="custom-select w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                      <option value="">Select subject</option>
+                      <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= material && material.subject_id==s.id ? 'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Year Level</label>
+                    <input type="text" name="year" value="<%= material ? (material.year||'') : '' %>" placeholder="e.g. Year 11, Year 12" class="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Description</label>
+                <div class="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition bg-white shadow-sm">
+                  <div class="bg-white border-b border-slate-200 px-3 py-2 flex flex-wrap items-center gap-1">
+                    <button type="button" class="rt-btn font-bold">B</button><button type="button" class="rt-btn italic">I</button><button type="button" class="rt-btn underline">U</button>
+                    <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                    <button type="button" class="rt-btn"><i class="fa-solid fa-list-ul"></i></button>
+                    <button type="button" class="rt-btn"><i class="fa-solid fa-list-ol"></i></button>
+                  </div>
+                  <textarea name="description" rows="4" maxlength="1000" placeholder="Write a short description about this study material..." class="w-full p-4 text-[13px] text-slate-700 placeholder-slate-400 outline-none resize-y min-h-[140px]"><%= material ? (material.notes||'') : '' %></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
+              <div class="flex items-center space-x-2 mb-5"><i class="fa-solid fa-cloud-arrow-up text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Upload</h2></div>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Content Type</label>
+                  <select name="content_type" id="contentTypeSelect" onchange="toggleUploadFields()" class="custom-select w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                    <% ['pdf','video','doc','ppt','zip','link'].forEach(ct => { %>
+                      <option value="<%= ct %>" <%= material && material.content_type===ct ? 'selected' : (!material && ct==='pdf' ? 'selected':'') %>><%= ct.toUpperCase() %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div id="fieldVideo">
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Upload Video File</label>
+                  <input type="file" name="video_file" accept="video/*" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-600 shadow-sm">
+                  <% if (material && material.video_path) { %><p class="text-[10px] text-slate-500 mt-1">Current file: <%= material.video_path %></p><% } %>
+                </div>
+                <div id="fieldPdf">
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Upload PDF File</label>
+                  <input type="file" name="pdf_file" accept="application/pdf" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-600 shadow-sm">
+                  <% if (material && material.pdf_path) { %><p class="text-[10px] text-slate-500 mt-1">Current file: <%= material.pdf_path %></p><% } %>
+                </div>
+                <div id="fieldFile">
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Upload File (Doc / PPT / ZIP)</label>
+                  <input type="file" name="file" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-600 shadow-sm">
+                  <% if (material && material.file_path) { %><p class="text-[10px] text-slate-500 mt-1">Current file: <%= material.file_path %></p><% } %>
+                </div>
+                <div id="fieldLink">
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">External URL</label>
+                  <input type="text" name="file_url" value="<%= material ? (material.file_url||'') : '' %>" placeholder="https://..." class="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
+              <div class="flex items-center space-x-2 mb-5"><i class="fa-solid fa-user-group text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Assignment Settings</h2></div>
+              <div class="space-y-3">
+                <label class="flex items-start space-x-3 cursor-pointer"><input type="radio" name="assignto" value="none" onchange="toggleAssignBoxes()" <%= !material ? 'checked' : '' %> class="mt-1"><span class="text-[13px] font-semibold text-[#091e42]">None (assign later)</span></label>
+                <label class="flex items-start space-x-3 cursor-pointer"><input type="radio" name="assignto" value="all" onchange="toggleAssignBoxes()" class="mt-1"><span class="text-[13px] font-medium text-[#091e42]">All Students</span></label>
+                <label class="flex items-start space-x-3 cursor-pointer"><input type="radio" name="assignto" value="classes" onchange="toggleAssignBoxes()" class="mt-1"><span class="text-[13px] font-medium text-[#091e42]">Specific Classes</span></label>
+                <label class="flex items-start space-x-3 cursor-pointer"><input type="radio" name="assignto" value="students" onchange="toggleAssignBoxes()" class="mt-1"><span class="text-[13px] font-medium text-[#091e42]">Specific Students</span></label>
+              </div>
+              <div id="assignClassesBox" class="hidden mt-3 max-h-40 overflow-y-auto border border-slate-200 rounded-lg p-2 space-y-1">
+                <% const classNames = [...new Set(students.map(s => s.class_section).filter(Boolean))]; %>
+                <% classNames.forEach(cn => { %>
+                  <label class="flex items-center space-x-2 text-xs py-1 cursor-pointer"><input type="checkbox" name="class_names" value="<%= cn %>"><span><%= cn %></span></label>
+                <% }) %>
+                <% if (!classNames.length) { %><p class="text-xs text-slate-400 p-1">No classes found yet.</p><% } %>
+              </div>
+              <div id="assignStudentsBox" class="hidden mt-3 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2 space-y-1">
+                <% students.forEach(s => { %>
+                  <label class="flex items-center space-x-2 text-xs py-1 cursor-pointer"><input type="checkbox" name="student_ids" value="<%= s.id %>"><span><%= s.name %> — <%= s.email %></span></label>
+                <% }) %>
+              </div>
+              <div class="mt-3">
+                <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Notify Students</label>
+                <select name="notify" class="custom-select w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                  <option value="yes">Yes, send email notification</option>
+                  <option value="no">No notification</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
+              <div class="flex items-center space-x-2 mb-5"><i class="fa-solid fa-lock text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Access Type</h2></div>
+              <div class="space-y-3">
+                <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="accesstype" value="immediate" onchange="toggleAccessFields()" <%= (!material || material.access_type==='immediate') ? 'checked' : '' %> class="accent-blue-600"><span class="text-[13px] font-semibold text-[#091e42]">Immediate Access</span></label>
+                <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="accesstype" value="until_due" onchange="toggleAccessFields()" <%= material && material.access_type==='until_due' ? 'checked' : '' %> class="accent-blue-600"><span class="text-[13px] font-medium text-[#091e42]">Until Due Date</span></label>
+                <label class="flex items-center space-x-3 cursor-pointer"><input type="radio" name="accesstype" value="scheduled" onchange="toggleAccessFields()" <%= material && material.access_type==='scheduled' ? 'checked' : '' %> class="accent-blue-600"><span class="text-[13px] font-medium text-[#091e42]">Scheduled</span></label>
+              </div>
+              <div id="scheduledFields" class="hidden mt-3 grid grid-cols-2 gap-3">
+                <input type="date" name="available_date" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px]">
+                <input type="time" name="available_time" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px]">
+              </div>
+              <div class="mt-3">
+                <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Due Date (optional)</label>
+                <input type="date" name="due_date" value="<%= material && material.due_date ? material.due_date : '' %>" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px]">
+              </div>
+            </div>
+          </div>
+
+          <div class="xl:col-span-1 space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <div class="flex items-center space-x-2 mb-4"><i class="fa-solid fa-paper-plane text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Publish</h2></div>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-[13px] font-semibold text-[#091e42] mb-1.5">Status</label>
+                  <select name="status" class="custom-select w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                    <option value="published" <%= (!material || material.is_published) ? 'selected' : '' %>>Publish Immediately</option>
+                    <option value="draft" <%= material && !material.is_published ? 'selected' : '' %>>Save as Draft</option>
+                  </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] px-4 py-2.5 rounded-lg transition shadow-sm flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-paper-plane text-xs"></i><span><%= material ? 'Save Changes' : 'Publish Study Material' %></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <div class="flex items-center space-x-2 mb-5"><i class="fa-solid fa-gear text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Additional Settings</h2></div>
+              <div class="space-y-4">
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center space-x-2.5 text-[13px] text-[#091e42] font-medium"><i class="fa-regular fa-comments text-slate-400 w-4 text-center"></i><span>Allow Comments</span></span>
+                  <input type="checkbox" name="allow_comments" <%= (!material || material.allow_comments) ? 'checked' : '' %> class="w-9 h-5 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center space-x-2.5 text-[13px] text-[#091e42] font-medium"><i class="fa-solid fa-download text-slate-400 w-4 text-center"></i><span>Allow Download</span></span>
+                  <input type="checkbox" name="allow_download" <%= (!material || material.allow_download) ? 'checked' : '' %> class="w-9 h-5 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center space-x-2.5 text-[13px] text-[#091e42] font-medium"><i class="fa-solid fa-print text-slate-400 w-4 text-center"></i><span>Allow Print</span></span>
+                  <input type="checkbox" name="allow_print" <%= material && material.allow_print ? 'checked' : '' %> class="w-9 h-5 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center space-x-2.5 text-[13px] text-[#091e42] font-medium"><i class="fa-regular fa-star text-slate-400 w-4 text-center"></i><span>Mark as Featured</span></span>
+                  <input type="checkbox" name="is_featured" <%= material && material.is_featured ? 'checked' : '' %> class="w-9 h-5 accent-blue-600">
+                </label>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <div class="flex items-center space-x-2 mb-4"><i class="fa-solid fa-tags text-blue-600"></i><h2 class="text-base font-bold text-[#091e42]">Tags</h2></div>
+              <input type="text" name="tags" value="<%= material ? (material.tags||'') : '' %>" placeholder="Add tags (e.g. Revision, Formulas, Exam Prep)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  function toggleUploadFields() {
+    const ct = document.getElementById('contentTypeSelect').value;
+    document.getElementById('fieldVideo').classList.toggle('hidden', ct !== 'video');
+    document.getElementById('fieldPdf').classList.toggle('hidden', ct !== 'pdf');
+    document.getElementById('fieldFile').classList.toggle('hidden', !['doc','ppt','zip'].includes(ct));
+    document.getElementById('fieldLink').classList.toggle('hidden', ct !== 'link');
+  }
+  function toggleAssignBoxes() {
+    const val = document.querySelector('input[name="assignto"]:checked').value;
+    document.getElementById('assignClassesBox').classList.toggle('hidden', val !== 'classes');
+    document.getElementById('assignStudentsBox').classList.toggle('hidden', val !== 'students');
+  }
+  function toggleAccessFields() {
+    const val = document.querySelector('input[name="accesstype"]:checked').value;
+    document.getElementById('scheduledFields').classList.toggle('hidden', val !== 'scheduled');
+  }
+  toggleUploadFields();
+  toggleAssignBoxes();
+  toggleAccessFields();
+</script>
+</body>
+</html>

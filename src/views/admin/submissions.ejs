@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Paper Submissions — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'submissions' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, exam papers...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-file-arrow-up text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">All Exam Paper Submissions</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">View and manage all student exam paper submissions.</p>
+          </div>
+        </div>
+        <nav class="flex text-[13px] text-slate-500 space-x-2 font-medium">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <span class="text-[#091e42] font-semibold">Submissions</span>
+        </nav>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Total Submissions</span>
+            <h3 class="text-2xl font-bold text-[#091e42]"><%= counts.total %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block">All exam submissions</span>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-lines"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Pending Review</span>
+            <h3 class="text-2xl font-bold text-amber-600"><%= counts.pending %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block">Awaiting feedback</span>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-clock"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">In Review</span>
+            <h3 class="text-2xl font-bold text-blue-600"><%= counts.inReview %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block">Being evaluated</span>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-rotate-right"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Graded</span>
+            <h3 class="text-2xl font-bold text-emerald-600"><%= counts.graded %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block">Completed</span>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-circle-check"></i></div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <form method="get" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div class="flex items-center space-x-2 text-[#091e42] font-bold text-sm">
+          <i class="fa-solid fa-filter text-blue-600"></i><span>Filters</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Subject</label>
+            <select name="subject_id" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Subjects</option>
+              <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Year Level</label>
+            <select name="year" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Years</option>
+              <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Class</label>
+            <input type="text" name="class_name" value="<%= filters.class_name || '' %>" placeholder="e.g. 12A" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Exam Paper</label>
+            <select name="paper_id" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Exam Papers</option>
+              <% papers.forEach(p => { %><option value="<%= p.id %>" <%= String(filters.paper_id)===String(p.id)?'selected':'' %>><%= p.title %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Status</label>
+            <select name="status" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Status</option>
+              <option value="pending_review" <%= filters.status==='pending_review'?'selected':'' %>>Pending / In Review</option>
+              <option value="published" <%= filters.status==='published'?'selected':'' %>>Graded</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Date Range</label>
+            <div class="grid grid-cols-2 gap-1.5">
+              <input type="date" name="date_from" value="<%= filters.date_from || '' %>" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-slate-700 font-medium text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="date" name="date_to" value="<%= filters.date_to || '' %>" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-slate-700 font-medium text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition shadow-sm">Apply Filters</button>
+          <a href="/admin/submissions" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 font-semibold text-xs px-5 py-2.5 rounded-lg transition shadow-sm">Reset</a>
+        </div>
+      </form>
+
+      <!-- Status Tab Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold">
+        <a href="/admin/submissions" class="py-3 <%= !filters.status ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %> rounded-lg transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-list-check"></i><span>All (<%= counts.total %>)</span>
+        </a>
+        <a href="/admin/submissions?status=pending_review" class="py-3 text-slate-600 hover:bg-slate-100 rounded-lg transition flex items-center justify-center space-x-2">
+          <i class="fa-regular fa-clock"></i><span>Pending (<%= counts.pending %>)</span>
+        </a>
+        <a href="/admin/submissions?status=pending_review" class="py-3 text-slate-600 hover:bg-slate-100 rounded-lg transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-rotate-right"></i><span>In Review (<%= counts.inReview %>)</span>
+        </a>
+        <a href="/admin/submissions?status=published" class="py-3 <%= filters.status==='published' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %> rounded-lg transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-circle-check"></i><span>Graded (<%= counts.graded %>)</span>
+        </a>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5 w-12">#</th>
+                <th class="p-3.5">Student</th>
+                <th class="p-3.5">Exam Paper</th>
+                <th class="p-3.5">Subject</th>
+                <th class="p-3.5">Year</th>
+                <th class="p-3.5">Class</th>
+                <th class="p-3.5">Submitted On</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5">Marks</th>
+                <th class="p-3.5 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% submissions.forEach((s, i) => {
+                   const initials = s.student_name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+                   const statusClasses = { Pending: 'bg-amber-50 text-amber-700 border-amber-200', 'In Review': 'bg-purple-50 text-purple-700 border-purple-200', Graded: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+              %>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="p-3.5 text-slate-500"><%= i + 1 %></td>
+                  <td class="p-3.5">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0"><%= initials %></div>
+                      <div>
+                        <span class="block font-bold text-slate-900 leading-tight"><%= s.student_name %></span>
+                        <span class="text-[10px] text-slate-400"><%= s.email %></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 font-semibold text-slate-800"><%= s.title %></td>
+                  <td class="p-3.5"><span class="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-md font-semibold text-[11px]"><%= s.subject_name || '—' %></span></td>
+                  <td class="p-3.5"><%= (s.year || '').replace('Year ', '') || '—' %></td>
+                  <td class="p-3.5"><%= s.class_name || '—' %></td>
+                  <td class="p-3.5 text-slate-600"><% if (s.submitted_at) { const d = new Date(s.submitted_at); %><%= d.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) %><br><span class="text-[10px] text-slate-400"><%= d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' }) %></span><% } else { %>—<% } %></td>
+                  <td class="p-3.5"><span class="<%= statusClasses[s.derivedStatus] %> border px-2.5 py-0.5 rounded-full font-semibold text-[11px]"><%= s.derivedStatus %></span></td>
+                  <td class="p-3.5 font-semibold <%= s.derivedStatus==='Graded' ? 'text-emerald-600 font-bold' : 'text-slate-400' %>"><%= s.derivedStatus==='Graded' ? `${s.total_score} / ${s.total_marks}` : '-' %></td>
+                  <td class="p-3.5 text-center">
+                    <div class="flex items-center justify-center space-x-2">
+                      <a href="/admin/submissions/<%= s.id %>/review" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition shadow-sm"><%= s.derivedStatus==='Graded' ? 'View' : 'Review' %></a>
+                      <a href="/admin/submissions/<%= s.id %>/review" class="p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg transition" title="View"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+              <% if (!submissions.length) { %><tr><td colspan="10" class="p-6 text-center text-slate-400">No submissions match these filters.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+          <span>Showing <%= submissions.length %> of <%= counts.total %> submissions</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

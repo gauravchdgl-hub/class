@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'dashboard' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', {}) %>
+
+    <div class="p-4 sm:p-6 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">Welcome back, <%= currentUser.name %>! <span>👋</span></h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Here's an overview of your students and content performance.</p>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Total Students</p><h3 class="text-xl font-bold text-slate-900"><%= stats.students %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-user-tie"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Total Teachers</p><h3 class="text-xl font-bold text-slate-900"><%= stats.teachers %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg"><i class="fa-solid fa-book-open"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Total Subjects</p><h3 class="text-xl font-bold text-slate-900"><%= stats.subjects %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-solid fa-file-lines"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Total Exam Papers</p><h3 class="text-xl font-bold text-slate-900"><%= stats.papers %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg"><i class="fa-solid fa-user-check"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Active Students</p><h3 class="text-xl font-bold text-slate-900"><%= stats.activeStudents %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg"><i class="fa-solid fa-clock"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Pending Exams</p><h3 class="text-xl font-bold text-slate-900"><%= stats.pendingExams %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg"><i class="fa-solid fa-circle-check"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Completed Exams</p><h3 class="text-xl font-bold text-slate-900"><%= stats.completedExams %></h3></div>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 card-shadow flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-lg"><i class="fa-solid fa-chart-simple"></i></div>
+            <div><p class="text-xs font-medium text-slate-500">Average Score</p><h3 class="text-xl font-bold text-slate-900"><%= avgScore %>%</h3></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Student Growth</h3>
+          <div class="h-52 w-full relative"><canvas id="studentGrowthChart"></canvas></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Exam Performance</h3>
+          <div class="h-52 w-full relative"><canvas id="examPerformanceChart"></canvas></div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between md:col-span-2 lg:col-span-1">
+          <h3 class="text-sm font-bold text-slate-800 mb-2">Subject-wise Performance</h3>
+          <div class="flex items-center justify-center my-auto py-2">
+            <div class="w-48 h-48 relative">
+              <canvas id="subjectPerformanceChart"></canvas>
+              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span class="text-2xl font-extrabold text-slate-800"><%= overallAvgForDonut %>%</span>
+                <span class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Overall</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY / EXAMS / SUBMISSIONS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Recent Activity</h3><a href="/admin/audit-logs" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+          <div class="space-y-4">
+            <% if (recentActivity.length === 0) { %><p class="text-xs text-slate-400">No recent activity yet.</p><% } %>
+            <% recentActivity.forEach(function(a){ %>
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0"><%= (a.user_label||'?').charAt(0).toUpperCase() %></div>
+              <div class="text-xs">
+                <p class="font-bold text-slate-800"><%= a.user_label %></p>
+                <p class="text-slate-500"><%= a.action %></p>
+                <p class="text-[10px] text-slate-400 mt-0.5"><%= new Date(a.created_at).toLocaleString() %></p>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Upcoming Exams</h3><a href="/admin/papers" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+          <div class="space-y-3">
+            <% if (upcomingExams.length === 0) { %><p class="text-xs text-slate-400">No upcoming exams assigned.</p><% } %>
+            <% upcomingExams.forEach(function(e){ var d = e.due_at ? new Date(e.due_at) : null; %>
+            <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex items-center space-x-3">
+                <div class="text-center px-2 py-1 bg-amber-100/80 text-amber-800 rounded-lg font-bold text-xs leading-tight">
+                  <%= d ? d.getDate() : '—' %><br><span class="text-[9px] font-normal uppercase"><%= d ? d.toLocaleDateString('en-US',{month:'short'}) : '' %></span>
+                </div>
+                <div><h4 class="text-xs font-bold text-slate-800"><%= e.title %></h4><p class="text-[10px] text-slate-500"><%= e.duration_minutes %> mins</p></div>
+              </div>
+              <span class="text-[10px] font-semibold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md"><%= e.status %></span>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow md:col-span-2 lg:col-span-1">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Pending Submissions</h3><a href="/admin/submissions" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+          <div class="space-y-3">
+            <% if (pendingSubmissionsList.length === 0) { %><p class="text-xs text-slate-400">Nothing pending review.</p><% } %>
+            <% pendingSubmissionsList.forEach(function(p){ %>
+            <div class="flex items-center justify-between p-2.5 bg-rose-50/60 rounded-xl border border-rose-100">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm"><i class="fa-regular fa-file-lines"></i></div>
+                <div><h4 class="text-xs font-bold text-slate-800"><%= p.title %></h4><p class="text-[10px] text-slate-500">Year <%= p.year %> | <%= p.cnt %> submissions</p></div>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <a href="/admin/tutorials" class="flex items-center space-x-3 bg-emerald-50/80 border border-emerald-200/80 p-3.5 rounded-2xl hover:shadow-md transition text-left group">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-square-plus"></i></div>
+          <div><h4 class="text-xs font-bold text-emerald-950">Create Tutorial</h4><p class="text-[10px] text-emerald-700">Add new video tutorial</p></div>
+        </a>
+        <a href="/admin/mcqs" class="flex items-center space-x-3 bg-blue-50/80 border border-blue-200/80 p-3.5 rounded-2xl hover:shadow-md transition text-left group">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-circle-question"></i></div>
+          <div><h4 class="text-xs font-bold text-blue-950">Add Questions</h4><p class="text-[10px] text-blue-700">Create MCQs</p></div>
+        </a>
+        <a href="/admin/papers" class="flex items-center space-x-3 bg-orange-50/80 border border-orange-200/80 p-3.5 rounded-2xl hover:shadow-md transition text-left group">
+          <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-file-pen"></i></div>
+          <div><h4 class="text-xs font-bold text-orange-950">Create Exam</h4><p class="text-[10px] text-orange-700">Build exam paper</p></div>
+        </a>
+        <a href="/admin/assign" class="flex items-center space-x-3 bg-purple-50/80 border border-purple-200/80 p-3.5 rounded-2xl hover:shadow-md transition text-left group">
+          <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-user-plus"></i></div>
+          <div><h4 class="text-xs font-bold text-purple-950">Assign to Students</h4><p class="text-[10px] text-purple-700">Assign papers or MCQs</p></div>
+        </a>
+        <a href="/admin/results" class="flex items-center space-x-3 bg-sky-50/80 border border-sky-200/80 p-3.5 rounded-2xl hover:shadow-md transition text-left group sm:col-span-2 md:col-span-1">
+          <div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-chart-pie"></i></div>
+          <div><h4 class="text-xs font-bold text-sky-950">View Results</h4><p class="text-[10px] text-sky-700">Check student performance</p></div>
+        </a>
+      </div>
+
+      <!-- PERFORMANCE / TOP STUDENTS / SUBJECT BARS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Performance by Subject &amp; Year</h3>
+          <div class="h-56 w-full relative"><canvas id="classPerformanceChart"></canvas></div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow">
+          <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Top Performing Students</h3><a href="/admin/students" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead><tr class="border-b border-slate-100 text-slate-400 font-semibold"><th class="pb-2">#</th><th class="pb-2">Student Name</th><th class="pb-2">Year</th><th class="pb-2 text-right">Average Score</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% if (topStudents.length === 0) { %><tr><td colspan="4" class="py-3 text-slate-400">No published results yet.</td></tr><% } %>
+                <% topStudents.forEach(function(s, i){ %>
+                <tr>
+                  <td class="py-2.5"><% if (i===0) { %><i class="fa-solid fa-trophy text-amber-400"></i><% } else { %><span class="text-slate-400"><%= i+1 %></span><% } %></td>
+                  <td class="py-2.5 font-bold text-slate-800"><%= s.name %></td>
+                  <td class="py-2.5 text-slate-500"><%= s.class_year || '—' %></td>
+                  <td class="py-2.5 text-right"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md text-[11px]"><%= s.avg_score %>%</span></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow md:col-span-2 lg:col-span-1">
+          <h3 class="text-sm font-bold text-slate-800 mb-4">Subject Performance</h3>
+          <div class="space-y-3.5">
+            <% if (subjectPerformance.length === 0) { %><p class="text-xs text-slate-400">No published results yet.</p><% } %>
+            <% subjectPerformance.forEach(function(s){ %>
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-slate-700"><%= s.name %></span><span class="text-slate-900 font-bold"><%= s.score %>%</span></div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:<%= s.score %>%;background:<%= s.color %>"></div></div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVENUE / TEACHER ACTIVITY -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Revenue Overview</h3>
+            <div class="h-44 w-full relative"><canvas id="revenueOverviewChart"></canvas></div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-dollar-sign"></i></div>
+              <div><p class="text-[10px] text-slate-500 font-medium leading-none mb-0.5">Total Revenue</p><h4 class="text-xs font-extrabold text-slate-800">A$ <%= stats.totalRevenue.toFixed(2) %></h4></div>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-purple-500 text-white flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-cart-shopping"></i></div>
+              <div><p class="text-[10px] text-slate-500 font-medium leading-none mb-0.5">Total Orders</p><h4 class="text-xs font-extrabold text-slate-800"><%= stats.totalOrders %></h4></div>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+              <div><p class="text-[10px] text-slate-500 font-medium leading-none mb-0.5">Pending Payments</p><h4 class="text-xs font-extrabold text-slate-800"><%= stats.pendingPayments %></h4></div>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-circle-check"></i></div>
+              <div><p class="text-[10px] text-slate-500 font-medium leading-none mb-0.5">Completed</p><h4 class="text-xs font-extrabold text-slate-800"><%= stats.completedPayments %></h4></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Teacher Activity</h3><a href="/admin/audit-logs" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead><tr class="border-b border-slate-100 text-slate-400 font-semibold"><th class="pb-2">#</th><th class="pb-2">Name</th><th class="pb-2">Action</th><th class="pb-2 text-right">Time</th></tr></thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                  <% if (teacherActivity.length === 0) { %><tr><td colspan="4" class="py-3 text-slate-400">No activity logged yet.</td></tr><% } %>
+                  <% teacherActivity.forEach(function(t, i){ %>
+                  <tr>
+                    <td class="py-2.5 text-slate-400"><%= i+1 %></td>
+                    <td class="py-2.5 font-bold text-slate-800"><%= t.user_label %></td>
+                    <td class="py-2.5 text-slate-600"><%= t.action %></td>
+                    <td class="py-2.5 text-right text-slate-400 whitespace-nowrap"><%= new Date(t.created_at).toLocaleDateString() %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LATEST ORDERS -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 card-shadow">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-slate-800">Latest Orders</h3><a href="/admin/orders" class="text-xs font-semibold text-blue-600 hover:text-blue-700">View All</a></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="border-b border-slate-100 text-slate-400 font-semibold"><th class="pb-2">#</th><th class="pb-2">Student</th><th class="pb-2">Plan/Paper</th><th class="pb-2">Amount</th><th class="pb-2 text-right">Status</th></tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% if (recentOrders.length === 0) { %><tr><td colspan="5" class="py-3 text-slate-400">No orders yet.</td></tr><% } %>
+              <% recentOrders.forEach(function(o, i){ %>
+              <tr>
+                <td class="py-2.5 text-slate-400"><%= i+1 %></td>
+                <td class="py-2.5 font-bold text-slate-800"><%= o.student %></td>
+                <td class="py-2.5 text-slate-600"><%= o.item %></td>
+                <td class="py-2.5 font-bold text-slate-800">A$ <%= Number(o.amount).toFixed(2) %></td>
+                <td class="py-2.5 text-right"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md text-[11px]"><%= o.status %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-auto bg-white border-t border-slate-200 px-6 py-4 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+      <div class="flex items-center space-x-2"><span class="font-bold text-slate-800">AUS Academy</span><span>•</span><span>Australia Year 11-12 Online Exam Platform</span></div>
+      <div>© <%= new Date().getFullYear() %> AUS Academy. All rights reserved.</div>
+    </footer>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+window.onload = function () {
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = '#94a3b8';
+
+  new Chart(document.getElementById('studentGrowthChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(months.map(m => m.label)) %>,
+      datasets: [{ label: 'New Students', data: <%- JSON.stringify(months.map(m => m.count)) %>, backgroundColor: '#2563eb', borderRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' }, min: 0, max: <%= Math.max(maxSignups, 1) %> } } }
+  });
+
+  new Chart(document.getElementById('examPerformanceChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: <%- JSON.stringify(examPerformance.map(e => e.label)) %>,
+      datasets: [
+        { label: 'Average Score', data: <%- JSON.stringify(examPerformance.map(e => e.avg)) %>, borderColor: '#2563eb', backgroundColor: '#2563eb', borderWidth: 2, tension: 0.35, pointRadius: 3 },
+        { label: 'Pass %', data: <%- JSON.stringify(examPerformance.map(e => e.pass)) %>, borderColor: '#93c5fd', backgroundColor: '#93c5fd', borderWidth: 2, tension: 0.35, pointRadius: 3 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' }, min: 0, max: 100 } } }
+  });
+
+  new Chart(document.getElementById('subjectPerformanceChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: <%- JSON.stringify(subjectPerformance.map(s => s.name)) %>,
+      datasets: [{ data: <%- JSON.stringify(subjectPerformance.map(s => s.score)) %>, backgroundColor: <%- JSON.stringify(subjectPerformance.map(s => s.color)) %>, borderWidth: 2, borderColor: '#ffffff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('classPerformanceChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(classPerformance.map(c => c.label)) %>,
+      datasets: [{ label: 'Average Score', data: <%- JSON.stringify(classPerformance.map(c => c.score)) %>, backgroundColor: '#2563eb', borderRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' }, min: 0, max: <%= Math.max(maxClassScore, 100) %> } } }
+  });
+
+  new Chart(document.getElementById('revenueOverviewChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(revenue.map(r => r.label)) %>,
+      datasets: [{ label: 'Revenue (A$)', data: <%- JSON.stringify(revenue.map(r => r.amount)) %>, backgroundColor: '#2563eb', borderRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' }, min: 0, max: <%= Math.max(maxRevenue, 1) %> } } }
+  });
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<%- include('../partials/portal_top', { title: 'My Subjects', active: 'subjects', crumb: 'Student / My Subjects' }) %>
+<div class="portal-title"><div><h1>My Subjects</h1><p>Subjects your Admin/Teacher has made visible to you.</p></div></div>
+<div class="grid g3">
+  <% subjects.forEach(s => { %>
+    <div class="card card-pad">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="brand-mark" style="width:40px;height:40px;font-size:14px;"><%= s.name.slice(0,2).toUpperCase() %></div>
+        <span class="pill blue"><%= s.year %></span>
+      </div>
+      <h3 style="margin:14px 0 4px"><%= s.name %></h3>
+      <p class="muted small">Practice MCQs and full papers for this subject.</p>
+      <a class="btn btn-primary" style="margin-top:10px" href="/student/mcq/plans">Practice MCQs →</a>
+    </div>
+  <% }) %>
+  <% if (!subjects.length) { %><p class="muted">No subjects available yet.</p><% } %>
+</div>
+<%- include('../partials/portal_bottom') %>

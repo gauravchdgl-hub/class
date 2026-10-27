@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Login — <%= platformName %></title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'<%= themeFont %>','Inter',sans-serif;background-color:#0f172a;color:#1e293b}
+  .custom-bg{background-image:linear-gradient(to bottom right, rgba(15,23,42,0.88), rgba(30,58,138,0.82), rgba(15,23,42,0.92)), url('<%= heroImageUrl %>');background-size:cover;background-position:center}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+  .btn-primary{background:<%= themeColor %>}
+  .btn-primary:hover{background:<%= themeColor2 %>}
+  .text-primary{color:<%= themeColor %>}
+  .bg-primary{background:<%= themeColor %>}
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-bg text-slate-100 antialiased overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+  <header class="w-full p-6 lg:px-12 lg:py-8 flex items-center justify-between z-20">
+    <a href="/" class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg shrink-0">
+        <% if (siteLogo) { %><img src="<%= siteLogo %>" alt="Logo" class="w-full h-full object-cover rounded-xl"><% } else { %><i class="fa-solid fa-graduation-cap"></i><% } %>
+      </div>
+      <div><h1 class="font-bold text-lg leading-tight tracking-wide text-white"><%= loginText.brand_name %></h1><p class="text-[11px] text-slate-300 font-medium"><%= loginText.brand_tagline %></p></div>
+    </a>
+    <div class="hidden sm:flex items-center space-x-3">
+      <span class="text-sm text-slate-300 font-medium">New here?</span>
+      <a href="/register" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition backdrop-blur-md shadow-sm">Create Account</a>
+    </div>
+  </header>
+
+  <main class="w-full max-w-[1600px] mx-auto px-6 lg:px-12 py-4 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center flex-1 z-10">
+
+    <div class="lg:col-span-7 space-y-8 pr-0 lg:pr-8">
+      <div class="space-y-4 max-w-2xl">
+        <h2 class="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.1]"><%= loginText.login_student_hero_title %></h2>
+        <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed"><%= loginText.login_student_hero_text %></p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-blue-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-file-lines"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Exam Focused</h4><span class="text-[11px] text-slate-400">Content</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-purple-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-chart-line"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Track Your</h4><span class="text-[11px] text-slate-400">Progress</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-emerald-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-book-open"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Expert Study</h4><span class="text-[11px] text-slate-400">Material</span></div>
+        </div>
+        <div class="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 space-y-3 hover:border-amber-500/50 transition">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md"><i class="fa-solid fa-users"></i></div>
+          <div><h4 class="font-bold text-xs text-white">Learn</h4><span class="text-[11px] text-slate-400">Anywhere</span></div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-5 max-w-lg space-y-3 shadow-xl">
+        <p class="text-xs sm:text-sm text-slate-200 font-medium italic">&ldquo;Trusted by thousands of Australian students for better results.&rdquo;</p>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center -space-x-2">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full border-2 border-slate-800 object-cover">
+          </div>
+          <div class="flex items-center space-x-1 text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 flex justify-center lg:justify-end w-full">
+      <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md text-slate-800 space-y-6 relative border border-slate-100">
+        <div class="text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center text-2xl mx-auto shadow-md">
+            <% if (siteLogo) { %><img src="<%= siteLogo %>" alt="Logo" class="w-full h-full object-cover rounded-2xl"><% } else { %><i class="fa-solid fa-graduation-cap"></i><% } %>
+          </div>
+          <div><h3 class="font-bold text-lg text-slate-900 leading-tight"><%= loginText.brand_name %></h3><span class="text-xs text-slate-500 font-medium"><%= loginText.brand_tagline %></span></div>
+          <div class="pt-2"><h2 class="text-2xl font-extrabold text-slate-900 tracking-tight"><%= loginText.login_student_title %></h2><p class="text-xs text-slate-500 mt-1"><%= loginText.login_student_subtitle %></p></div>
+        </div>
+
+        <% if (success && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= success[0] %></div><% } %>
+        <% if (error && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= error[0] %></div><% } %>
+
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <button type="button" id="modeBtnPassword" onclick="switchMode('password')" class="py-2 rounded-lg transition bg-white shadow-sm">Password</button>
+          <button type="button" id="modeBtnOtp" onclick="switchMode('otp')" class="py-2 rounded-lg transition text-slate-500">Login with OTP</button>
+        </div>
+
+        <form method="post" action="/login" id="passwordForm" class="space-y-4 text-xs">
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Email Address</label>
+            <div class="relative"><i class="fa-regular fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="email" name="email" required placeholder="you@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"></div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Password</label>
+            <div class="relative"><i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="password" name="password" id="studentPw" required placeholder="Enter your password" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+              <i id="studentPwEye" onclick="togglePw('studentPw','studentPwEye')" class="fa-regular fa-eye absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600"></i></div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"><span class="text-slate-600 font-medium text-xs">Remember me</span></label>
+            <a href="/forgot-password" class="text-primary hover:underline font-semibold text-xs">Forgot Password?</a>
+          </div>
+          <div class="pt-2">
+            <button type="submit" class="btn-primary w-full text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
+              <span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </form>
+
+        <form method="post" action="/login/otp/request" id="otpForm" class="space-y-4 text-xs hidden">
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-slate-700">Email or Phone Number</label>
+            <div class="relative"><i class="fa-solid fa-shield-halved absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="text" name="identifier" required placeholder="you@example.com or phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"></div>
+          </div>
+          <p class="text-slate-400 text-[11px]">We'll email you a 6-digit code (and text it too, if SMS OTP is enabled and a phone is on file). No password needed.</p>
+          <div class="pt-2"><button type="submit" class="btn-primary w-full text-white font-bold py-3.5 px-6 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2"><span>Send OTP</span><i class="fa-solid fa-arrow-right text-xs"></i></button></div>
+        </form>
+
+        <div class="text-center pt-2 text-xs text-slate-500 font-medium">
+          New to <%= loginText.brand_name %>? <a href="/register" class="text-primary font-bold hover:underline">Create Account</a>
+        </div>
+        <div class="text-center text-xs text-slate-400 font-medium">
+          Admin / Teacher? <a href="/staff-login" class="text-primary font-bold hover:underline">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full p-6 text-center text-xs text-slate-400 font-medium z-20">&copy; <%= new Date().getFullYear() %> <%= loginText.brand_name %>. All rights reserved.</footer>
+
+<script>
+function switchMode(mode){
+  document.getElementById('passwordForm').classList.toggle('hidden', mode!=='password');
+  document.getElementById('otpForm').classList.toggle('hidden', mode!=='otp');
+  document.getElementById('modeBtnPassword').className = mode==='password' ? 'py-2 rounded-lg transition bg-white shadow-sm' : 'py-2 rounded-lg transition text-slate-500';
+  document.getElementById('modeBtnOtp').className = mode==='otp' ? 'py-2 rounded-lg transition bg-white shadow-sm' : 'py-2 rounded-lg transition text-slate-500';
+}
+function togglePw(inputId, iconId){
+  const input = document.getElementById(inputId), icon = document.getElementById(iconId);
+  if (input.type === 'password') { input.type='text'; icon.className='fa-regular fa-eye-slash absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600'; }
+  else { input.type='password'; icon.className='fa-regular fa-eye absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm cursor-pointer hover:text-slate-600'; }
+}
+</script>
+</body>
+</html>

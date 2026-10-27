@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= assignment.title %> - AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1e293b}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+</style>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden">
+<div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+<div class="flex flex-1 min-h-screen relative">
+
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#071330] text-slate-300 flex flex-col justify-between shrink-0 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out h-screen overflow-y-auto border-r border-slate-800">
+    <div>
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-[#040a1d]">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div><h1 class="font-bold text-base leading-tight tracking-wide text-white">AUS Academy</h1><p class="text-[10px] text-slate-400 mt-0.5">Australia Year 11–12 Student Portal</p></div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <nav class="p-3 space-y-1 text-sm font-medium">
+        <a href="/student/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-house w-5 text-center text-slate-400"></i><span>Dashboard</span></a>
+        <a href="/student/exams" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-md font-semibold shadow-blue-600/30"><i class="fa-solid fa-file-signature w-5 text-center text-white"></i><span>My Exam Papers</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 min-h-screen relative">
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none"><i class="fa-solid fa-bars text-lg"></i></button>
+      <nav class="flex text-xs text-slate-500 space-x-2 font-medium">
+        <a href="/student/exams" class="hover:text-blue-600 transition">My Exam Papers</a><span>&gt;</span><span class="text-slate-800 font-semibold"><%= assignment.title %></span>
+      </nav>
+      <div></div>
+    </header>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto w-full space-y-6">
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900"><%= assignment.title %></h1>
+            <p class="text-xs text-slate-500 mt-1">Full exam paper: MCQ + Short Answer + Long Answer sections, teacher reviewed.</p>
+          </div>
+          <span class="shrink-0 bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full"><i class="fa-regular fa-clock mr-1"></i><%= assignment.duration_minutes %> min</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center pt-2">
+          <div class="bg-slate-50 rounded-xl p-3"><span class="block text-lg font-extrabold text-slate-900"><%= assignment.duration_minutes %></span><span class="text-[10px] font-semibold text-slate-500">Minutes</span></div>
+          <div class="bg-slate-50 rounded-xl p-3"><span class="block text-lg font-extrabold text-slate-900">Instant</span><span class="text-[10px] font-semibold text-slate-500">MCQ Score</span></div>
+          <div class="bg-slate-50 rounded-xl p-3"><span class="block text-lg font-extrabold text-slate-900">Teacher</span><span class="text-[10px] font-semibold text-slate-500">Feedback</span></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <h2 class="font-bold text-sm text-slate-900 flex items-center space-x-2"><i class="fa-solid fa-circle-info text-blue-600"></i><span>Instructions</span></h2>
+        <ul class="text-xs text-slate-600 space-y-2 list-disc pl-5">
+          <li>Your timer starts as soon as you click Start Exam and cannot be paused.</li>
+          <li>Answer all sections and submit before time runs out — the exam auto-submits at zero.</li>
+          <li>MCQs are auto-checked instantly; written &amp; essay answers are reviewed by your teacher.</li>
+        </ul>
+        <p class="text-[11px] text-slate-400">Assigned on <%= new Date(assignment.assigned_at).toLocaleDateString() %></p>
+
+        <% if (!submission) { %>
+          <form method="post" action="/student/exams/<%= assignment.id %>/start">
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md shadow-blue-600/30">Start Exam <i class="fa-solid fa-arrow-right ml-1"></i></button>
+          </form>
+        <% } else if (submission.status === 'in_progress') { %>
+          <p class="text-xs text-amber-600 font-semibold">You already started this exam.</p>
+          <a href="/student/exams/<%= assignment.id %>/take" class="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md shadow-blue-600/30">Continue Exam <i class="fa-solid fa-arrow-right ml-1"></i></a>
+        <% } else { %>
+          <p class="text-xs text-slate-500">Status: <b class="text-slate-800"><%= submission.status.replace('_',' ') %></b>. MCQs are auto-checked; written &amp; essay answers are pending teacher review.</p>
+          <a href="/student/results" class="block text-center w-full border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm py-3.5 rounded-xl transition">View Results &amp; Feedback <i class="fa-solid fa-arrow-right ml-1"></i></a>
+        <% } %>
+      </div>
+
+    </div>
+  </main>
+</div>
+<script>
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('sidebar-backdrop').classList.toggle('hidden'); }
+</script>
+</body>
+</html>

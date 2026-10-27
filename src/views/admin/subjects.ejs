@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subjects — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'subjects' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search subjects by name, description, or year level...' }) %>
+
+    <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <nav class="flex text-xs text-slate-500 space-x-2 mb-1">
+            <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span>&gt;</span>
+            <span class="text-slate-800 font-semibold">Subjects</span>
+          </nav>
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Subjects</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Manage all subjects, organize by year level, and track related content.</p>
+        </div>
+        <a href="/admin/subjects/new" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg transition shadow-sm flex items-center space-x-2 shrink-0">
+          <i class="fa-solid fa-plus text-xs"></i><span>Add Subject</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow flex items-center space-x-4">
+          <div class="w-14 h-14 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-book-open"></i></div>
+          <div><p class="text-xs font-semibold text-slate-500">Total Subjects</p><h3 class="text-2xl font-extrabold text-slate-900 leading-tight"><%= stats.total %></h3><p class="text-[11px] text-slate-400 font-medium mt-0.5">All year levels</p></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow flex items-center space-x-4">
+          <div class="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-layer-group"></i></div>
+          <div><p class="text-xs font-semibold text-slate-500">Active Subjects</p><h3 class="text-2xl font-extrabold text-slate-900 leading-tight"><%= stats.active %></h3><p class="text-[11px] text-slate-400 font-medium mt-0.5"><%= stats.total ? Math.round(stats.active/stats.total*100) : 0 %>% of total</p></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow flex items-center space-x-4">
+          <div class="w-14 h-14 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-square-minus"></i></div>
+          <div><p class="text-xs font-semibold text-slate-500">Inactive Subjects</p><h3 class="text-2xl font-extrabold text-slate-900 leading-tight"><%= stats.inactive %></h3><p class="text-[11px] text-slate-400 font-medium mt-0.5"><%= stats.total ? Math.round(stats.inactive/stats.total*100) : 0 %>% of total</p></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow flex items-center space-x-4">
+          <div class="w-14 h-14 rounded-xl bg-fuchsia-50 text-fuchsia-500 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-file-lines"></i></div>
+          <div><p class="text-xs font-semibold text-slate-500">Total Content</p><h3 class="text-2xl font-extrabold text-slate-900 leading-tight"><%= stats.totalContent %></h3><p class="text-[10px] text-slate-400 font-medium mt-0.5">Tutorials + Materials + MCQs</p></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden flex flex-col">
+        <form method="get" class="p-4 sm:p-5 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="relative w-full lg:w-[350px]">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+            <input type="text" name="q" value="<%= filters.q %>" placeholder="Search subjects by name, description, or year level..." class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+          </div>
+          <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <select name="year" onchange="this.form.submit()" class="custom-select min-w-[140px] bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 font-medium focus:outline-none focus:border-blue-500 transition">
+              <option value="">Year Level: All</option>
+              <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+            <select name="status" onchange="this.form.submit()" class="custom-select min-w-[120px] bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 font-medium focus:outline-none focus:border-blue-500 transition">
+              <option value="">Status: All</option>
+              <option value="active" <%= filters.status==='active'?'selected':'' %>>Active</option>
+              <option value="inactive" <%= filters.status==='inactive'?'selected':'' %>>Inactive</option>
+            </select>
+            <select name="sort" onchange="this.form.submit()" class="custom-select min-w-[160px] bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 font-medium focus:outline-none focus:border-blue-500 transition">
+              <option value="name" <%= filters.sort==='name'?'selected':'' %>>Sort By: Name (A-Z)</option>
+              <option value="name_desc" <%= filters.sort==='name_desc'?'selected':'' %>>Name (Z-A)</option>
+              <option value="newest" <%= filters.sort==='newest'?'selected':'' %>>Newest First</option>
+            </select>
+            <a href="/admin/subjects" class="bg-white border border-blue-200 hover:border-blue-400 text-blue-600 font-medium text-sm px-4 py-2.5 rounded-lg transition flex items-center space-x-2">
+              <i class="fa-solid fa-rotate-right"></i><span>Reset</span>
+            </a>
+          </div>
+        </form>
+
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-left border-collapse whitespace-nowrap min-w-[1000px]">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                <th class="py-3.5 px-4 w-10 text-center"><input type="checkbox" class="align-middle"></th>
+                <th class="py-3.5 px-2 w-10">#</th>
+                <th class="py-3.5 px-4 w-56">Subject Name</th>
+                <th class="py-3.5 px-4">Year Level</th>
+                <th class="py-3.5 px-4 w-64">Description</th>
+                <th class="py-3.5 px-4 text-center">Total Tutorials</th>
+                <th class="py-3.5 px-4 text-center">Study Materials</th>
+                <th class="py-3.5 px-4 text-center">MCQs</th>
+                <th class="py-3.5 px-4 text-center">Exam Papers</th>
+                <th class="py-3.5 px-4">Status</th>
+                <th class="py-3.5 px-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-[13px] text-slate-700 font-medium">
+              <% subjects.forEach((s, i) => { %>
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-4 text-center"><input type="checkbox" class="align-middle"></td>
+                  <td class="py-3 px-2 text-slate-400"><%= (page-1)*perPage + i + 1 %></td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 overflow-hidden text-base">
+                        <% if (s.icon_url) { %><img src="<%= s.icon_url %>" class="w-full h-full object-cover"><% } else { %><%= s.icon %><% } %>
+                      </div>
+                      <span class="font-bold text-slate-800"><%= s.name %></span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4"><span class="bg-blue-50 border border-blue-100 text-blue-600 font-bold px-2.5 py-1 rounded-md text-[11px]"><%= s.yearLabel.replace('Year ','Y') %></span></td>
+                  <td class="py-3 px-4 text-slate-500 truncate max-w-[200px]" title="<%= s.description %>"><%= s.description || '—' %></td>
+                  <td class="py-3 px-4 text-center text-blue-600 font-semibold"><%= s.tutorials %></td>
+                  <td class="py-3 px-4 text-center text-slate-600 font-semibold"><%= s.materials %></td>
+                  <td class="py-3 px-4 text-center text-slate-600 font-semibold"><%= s.mcqs %></td>
+                  <td class="py-3 px-4 text-center text-slate-600 font-semibold"><%= s.papers %></td>
+                  <td class="py-3 px-4">
+                    <% if (s.is_active) { %>
+                    <span class="inline-flex items-center space-x-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>Active</span></span>
+                    <% } else { %>
+                    <span class="inline-flex items-center space-x-1.5 bg-rose-50 border border-rose-100 text-rose-700 font-bold px-2.5 py-1 rounded-full text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span>Inactive</span></span>
+                    <% } %>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center justify-center space-x-1.5">
+                      <a href="/admin/subjects/<%= encodeURIComponent(s.name) %>/edit" class="w-7 h-7 rounded border border-blue-100 text-blue-600 bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition" title="View"><i class="fa-regular fa-eye text-sm"></i></a>
+                      <a href="/admin/subjects/<%= encodeURIComponent(s.name) %>/edit" class="w-7 h-7 rounded border border-blue-100 text-blue-600 bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition" title="Edit"><i class="fa-solid fa-pen text-xs"></i></a>
+                      <a href="/admin/reports" class="w-7 h-7 rounded border border-blue-100 text-blue-600 bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition" title="Analytics"><i class="fa-solid fa-chart-simple text-sm"></i></a>
+                      <form method="post" action="/admin/subjects/<%= encodeURIComponent(s.name) %>/delete" onsubmit="return confirm('Delete subject &quot;<%= s.name %>&quot;? This only works if it has no content yet.');">
+                        <button type="submit" class="w-7 h-7 rounded border border-blue-100 text-blue-600 bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition" title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+              <% if (!subjects.length) { %><tr><td colspan="11" class="py-6 px-4 text-slate-400 text-center">No subjects found.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white mt-auto">
+          <div class="flex items-center space-x-3 text-sm text-slate-500">
+            <form method="get" class="flex items-center space-x-2">
+              <input type="hidden" name="q" value="<%= filters.q %>"><input type="hidden" name="year" value="<%= filters.year %>">
+              <input type="hidden" name="status" value="<%= filters.status %>"><input type="hidden" name="sort" value="<%= filters.sort %>">
+              <span>Show</span>
+              <select name="per_page" onchange="this.form.submit()" class="custom-select bg-white border border-slate-200 rounded-md px-2 py-1 text-sm font-semibold text-slate-700 focus:outline-none focus:border-blue-500">
+                <option value="10" <%= perPage==10?'selected':'' %>>10</option>
+                <option value="20" <%= perPage==20?'selected':'' %>>20</option>
+                <option value="50" <%= perPage==50?'selected':'' %>>50</option>
+              </select>
+              <span>per page</span>
+            </form>
+            <span class="hidden sm:inline-block w-px h-4 bg-slate-300"></span>
+            <span class="font-medium">Showing <%= subjects.length ? (page-1)*perPage+1 : 0 %> to <%= Math.min(page*perPage, allCount) %> of <%= allCount %> subjects</span>
+          </div>
+          <div class="flex items-center space-x-1 font-semibold text-sm">
+            <% if (page > 1) { %><a class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" href="?page=<%= page-1 %>&per_page=<%= perPage %>&q=<%= filters.q %>&year=<%= filters.year %>&status=<%= filters.status %>&sort=<%= filters.sort %>"><i class="fa-solid fa-chevron-left text-xs"></i></a><% } %>
+            <% for (let p = Math.max(1,page-2); p <= Math.min(totalPages,page+2); p++) { %>
+              <a href="?page=<%= p %>&per_page=<%= perPage %>&q=<%= filters.q %>&year=<%= filters.year %>&status=<%= filters.status %>&sort=<%= filters.sort %>" class="w-8 h-8 flex items-center justify-center rounded-lg <%= p===page ? 'bg-blue-600 text-white shadow-sm' : 'border border-slate-200 text-slate-600 hover:bg-slate-50' %> transition"><%= p %></a>
+            <% } %>
+            <% if (page < totalPages) { %><a class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" href="?page=<%= page+1 %>&per_page=<%= perPage %>&q=<%= filters.q %>&year=<%= filters.year %>&status=<%= filters.status %>&sort=<%= filters.sort %>"><i class="fa-solid fa-chevron-right text-xs"></i></a><% } %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

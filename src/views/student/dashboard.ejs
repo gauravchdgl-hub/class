@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1e293b}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:#f1f5f9}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+</style>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden">
+<div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+<div class="flex flex-1 min-h-screen relative">
+
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0f172a] text-slate-300 flex flex-col justify-between shrink-0 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out h-screen overflow-y-auto border-r border-slate-800">
+    <div>
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-[#090d16]">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div><h1 class="font-bold text-base leading-tight tracking-wide text-white">AUS Academy</h1><p class="text-[10px] text-slate-400 mt-0.5">Australia Year 11–12 Online Exam Platform</p></div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <nav class="p-3 space-y-1 text-sm font-medium">
+        <a href="/student/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-md font-semibold shadow-blue-600/30"><i class="fa-solid fa-house w-5 text-center"></i><span>Dashboard</span></a>
+        <a href="/student/subjects" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-book-open w-5 text-center"></i><span>My Subjects</span></a>
+        <a href="/student/mcq/plans" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-id-card w-5 text-center"></i><span>My Plan</span></a>
+        <a href="/student/mcq/my" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-clipboard-list w-5 text-center"></i><span>My Assignments</span></a>
+        <a href="/student/mcq/my" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-circle-question w-5 text-center"></i><span>Practice MCQs</span></a>
+        <a href="/student/exams" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-file-lines w-5 text-center"></i><span>Full Exam Papers</span></a>
+        <a href="/student/tutorials" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-video w-5 text-center"></i><span>Tutorials</span></a>
+        <a href="/student/material" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-book w-5 text-center"></i><span>Study Material</span></a>
+        <a href="/student/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-file-pen w-5 text-center"></i><span>My Exams</span></a>
+        <a href="/student/results" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Results</span></a>
+        <a href="/student/progress" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-chart-line w-5 text-center"></i><span>Progress</span></a>
+        <a href="/student/report-issue" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-flag w-5 text-center"></i><span>Report an Issue</span></a>
+        <a href="/student/mcq/plans" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Orders &amp; Payments</span></a>
+        <a href="/student/profile" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-user-gear w-5 text-center"></i><span>Profile &amp; Settings</span></a>
+        <a href="/logout" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i><span>Logout</span></a>
+      </nav>
+    </div>
+    <div class="p-3 bg-[#090d16] m-3 rounded-xl border border-slate-800 flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset text-lg"></i></div>
+      <div><h4 class="text-xs font-semibold text-white">Need Help?</h4><span class="text-[11px] text-slate-400">Contact Support</span></div>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 min-h-screen relative">
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center space-x-3 w-full max-w-2xl">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none"><i class="fa-solid fa-bars text-lg"></i></button>
+        <div class="flex items-center w-full bg-slate-50 rounded-lg px-3 py-2 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition hidden sm:flex">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2 text-sm"></i>
+          <input type="text" placeholder="Search for subjects, papers, tutorials..." class="bg-transparent border-none text-xs sm:text-sm w-full outline-none text-slate-700 placeholder-slate-400">
+        </div>
+      </div>
+      <div class="flex items-center space-x-3 sm:space-x-4 pl-2 shrink-0">
+        <a href="/student/mcq/my" class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-full transition" title="Notifications"><i class="fa-regular fa-bell text-lg"></i></a>
+        <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+        <a href="/student/profile" class="flex items-center space-x-2.5 cursor-pointer hover:bg-slate-50 p-1 rounded-lg transition">
+          <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm border border-slate-200"><%= (currentUser.name||'S').charAt(0).toUpperCase() %></div>
+          <div class="hidden sm:block text-left">
+            <h4 class="text-xs font-bold text-slate-800 leading-none mb-0.5"><%= currentUser.name %></h4>
+            <span class="text-[11px] text-slate-500 font-medium"><%= studentRow && studentRow.class_year ? studentRow.class_year : 'Student' %></span>
+          </div>
+        </a>
+      </div>
+    </header>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full space-y-6">
+      <div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white p-6 sm:p-8 shadow-xl flex flex-col lg:flex-row items-center justify-between">
+        <div class="relative z-10 space-y-2 max-w-xl">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">Good to see you,<br><span class="text-cyan-300"><%= currentUser.name %> 👋</span></h2>
+          <p class="text-xs sm:text-sm text-slate-200 font-medium">Stay consistent, keep practicing and achieve your best results!</p>
+        </div>
+        <div class="relative z-10 mt-6 lg:mt-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 sm:p-5 max-w-xs shadow-lg space-y-1">
+          <p class="text-xs sm:text-sm font-semibold italic text-slate-100">&ldquo;Small steps make big results.&rdquo;</p>
+          <div class="w-12 h-1 bg-cyan-400 rounded-full mt-2"></div>
+        </div>
+      </div>
+
+      <!-- ANNOUNCEMENTS -->
+      <% if (announcements && announcements.length) { %>
+      <div class="space-y-2">
+        <% announcements.forEach(a => { %>
+        <div class="bg-white rounded-2xl border <%= a.pinned ? 'border-amber-300' : 'border-slate-200' %> p-4 shadow-sm flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl <%= a.pinned ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600' %> flex items-center justify-center shrink-0">
+            <i class="fa-solid <%= a.pinned ? 'fa-thumbtack' : 'fa-bullhorn' %> text-sm"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-sm text-[#091e42]"><%= a.title %></h4>
+            <p class="text-xs text-slate-600 mt-0.5 whitespace-pre-line"><%= a.body %></p>
+            <p class="text-[10px] text-slate-400 mt-1.5"><%= new Date(a.created_at).toLocaleDateString() %></p>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <% } %>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Active Plans</span><h3 class="text-2xl font-bold text-[#091e42]"><%= plans.length %></h3><span class="text-[11px] text-slate-400 mt-1 block">MCQ &amp; exam plans</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-book-open"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Exams Completed</span><h3 class="text-2xl font-bold text-[#091e42]"><%= completedExams %></h3><span class="text-[11px] text-slate-400 mt-1 block"><%= pendingExamsCount %> pending</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-circle-check"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Average Score</span><h3 class="text-2xl font-bold text-emerald-600"><%= avgScore %>%</h3><span class="text-[11px] text-slate-400 font-normal mt-1 block">across published results</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-trophy"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Remaining MCQs</span><h3 class="text-2xl font-bold text-[#091e42]"><%= remainingMcqsCount %></h3><span class="text-[11px] text-slate-400 mt-1 block">of <%= totalMcqsAssignedToStudent %> assigned</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-clock"></i></div>
+        </div>
+      </div>
+
+      <!-- PURCHASED PLANS -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-lg text-[#091e42]">My Purchased Plans</h3>
+          <a href="/student/mcq/plans" class="text-xs font-bold text-blue-600 hover:underline">View All Plans &rarr;</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <% if (plans.length === 0) { %>
+          <div class="md:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm text-xs text-slate-500">You haven't purchased any plans yet. <a href="/student/mcq/plans" class="text-blue-600 font-bold">Browse MCQ Plans &rarr;</a></div>
+          <% } %>
+          <% plans.forEach(function(p){ var used = p.remaining_mcqs != null ? Math.max(0, (p.mcq_count||0) - p.remaining_mcqs) : 0; var pct = p.mcq_count ? Math.round((used/p.mcq_count)*100) : 0; %>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-file-lines"></i></div>
+              <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]">Active</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-base"><%= p.plan_name %></h4>
+              <p class="text-xs text-slate-500"><%= p.mcq_count %> MCQs<% if (p.year) { %> · <%= p.year %><% } %></p>
+              <p class="text-[11px] text-slate-400 mt-0.5"><% if (p.expires_at) { %>Valid Till: <%= new Date(p.expires_at).toLocaleDateString() %><% } %></p>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <div class="flex justify-between font-semibold text-slate-700"><span>Used <%= used %> / <%= p.mcq_count %> MCQs</span><span><%= pct %>%</span></div>
+              <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-600 rounded-full" style="width:<%= pct %>%"></div></div>
+            </div>
+            <a href="/student/mcq/my" class="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/30">Practice Now</a>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between"><h3 class="font-bold text-base text-[#091e42]">Recent Test Results</h3><a href="/student/results" class="text-xs font-bold text-blue-600 hover:underline">View All Results &rarr;</a></div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead><tr class="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]"><th class="py-2.5">Test / Paper</th><th class="py-2.5">Subject</th><th class="py-2.5">Score</th><th class="py-2.5">Date</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% if (recentResults.length === 0) { %><tr><td colspan="4" class="py-3 text-slate-400">No results yet.</td></tr><% } %>
+                <% recentResults.forEach(function(r){ %>
+                <tr>
+                  <td class="py-3 font-bold text-slate-900"><%= r.name %></td>
+                  <td class="py-3 text-slate-500"><%= r.subject || '—' %></td>
+                  <td class="py-3"><span class="<%= r.score >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' %> border px-2 py-0.5 rounded-full font-bold text-[10px]"><%= r.score %>%</span></td>
+                  <td class="py-3 text-slate-500"><%= new Date(r.date).toLocaleDateString() %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="font-bold text-base text-[#091e42]">Score Progress</h3>
+          <div class="h-64 relative"><canvas id="scoreProgressChart"></canvas></div>
+        </div>
+
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between"><h3 class="font-bold text-base text-[#091e42]">Upcoming Assignments</h3><a href="/student/mcq/my" class="text-xs font-bold text-blue-600 hover:underline">View All &rarr;</a></div>
+          <div class="space-y-3">
+            <% if (upcomingAssignments.length === 0) { %><p class="text-xs text-slate-400">Nothing due right now.</p><% } %>
+            <% upcomingAssignments.forEach(function(a){ var d = new Date(a.due); %>
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div><h4 class="font-bold text-xs text-slate-900"><%= a.name %></h4><p class="text-[10px] text-slate-500"><%= a.subject || '' %></p></div>
+              <div class="bg-rose-50 text-rose-600 border border-rose-200 rounded-lg px-2 py-1 text-center shrink-0">
+                <span class="block font-extrabold text-xs"><%= d.getDate() %></span>
+                <span class="text-[9px] uppercase font-bold"><%= d.toLocaleDateString('en-US',{month:'short'}) %></span>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="font-bold text-base text-[#091e42]">Study Activity</h3>
+          <div class="h-60 relative"><canvas id="studyActivityChart"></canvas></div>
+        </div>
+
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="font-bold text-base text-[#091e42]">Subject-wise MCQ Activity</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div class="h-48 relative flex items-center justify-center">
+              <canvas id="timeSpentDonutChart"></canvas>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span class="font-extrabold text-base text-[#091e42]"><%= totalMcqsAssignedToStudent %></span>
+                <span class="text-[10px] text-slate-400 font-medium">Total Assigned</span>
+              </div>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <% if (subjectActivity.length === 0) { %><p class="text-slate-400">No MCQs assigned yet.</p><% } %>
+              <% subjectActivity.forEach(function(s){ %>
+              <div class="flex items-center justify-between"><div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full" style="background:<%= s.color %>"></span><span class="text-slate-600"><%= s.name %></span></div><span class="font-bold text-slate-900"><%= s.pct %>%</span></div>
+              <% }); %>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="font-bold text-base text-[#091e42]">Quick Actions</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <a href="/student/mcq/my" class="p-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-circle-question"></i></div>
+              <span class="block font-bold text-xs text-slate-800">Practice MCQs</span>
+            </a>
+            <a href="/student/dashboard" class="p-4 bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-file-pen"></i></div>
+              <span class="block font-bold text-xs text-slate-800">Take Full Paper</span>
+            </a>
+            <a href="/student/tutorials" class="p-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-video"></i></div>
+              <span class="block font-bold text-xs text-slate-800">Watch Tutorials</span>
+            </a>
+            <a href="/student/material" class="p-4 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-download"></i></div>
+              <span class="block font-bold text-xs text-slate-800">Study Material</span>
+            </a>
+            <a href="/student/results" class="p-4 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-chart-pie"></i></div>
+              <span class="block font-bold text-xs text-slate-800">View Results</span>
+            </a>
+            <a href="/student/report-issue" class="p-4 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 rounded-xl text-center space-y-2 transition group">
+              <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-sm"><i class="fa-solid fa-flag"></i></div>
+              <span class="block font-bold text-xs text-slate-800">Report Issue</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; <%= new Date().getFullYear() %> AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('-translate-x-full');
+  document.getElementById('sidebar-backdrop').classList.toggle('hidden');
+}
+window.onload = function() {
+  new Chart(document.getElementById('scoreProgressChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: <%- JSON.stringify(scoreProgress.map(r => new Date(r.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}))) %>,
+      datasets: [{ label: 'Score %', data: <%- JSON.stringify(scoreProgress.map(r => r.score)) %>,
+        borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 3, fill: true, tension: 0.3, pointBackgroundColor: '#2563eb', pointRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { min: 0, max: 100, ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { size: 10 } }, grid: { display: false } } } }
+  });
+
+  new Chart(document.getElementById('studyActivityChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: <%- JSON.stringify(studyActivity.map(s => s.label)) %>,
+      datasets: [{ label: 'Items completed', data: <%- JSON.stringify(studyActivity.map(s => s.count)) %>, backgroundColor: '#2563eb', borderRadius: 6 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { min: 0, ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } }, x: { ticks: { font: { size: 10 } }, grid: { display: false } } } }
+  });
+
+  new Chart(document.getElementById('timeSpentDonutChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: <%- JSON.stringify(subjectActivity.map(s => s.name)) %>,
+      datasets: [{ data: <%- JSON.stringify(subjectActivity.map(s => s.count)) %>, backgroundColor: <%- JSON.stringify(subjectActivity.map(s => s.color)) %>, borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
+  });
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= item ? 'Edit MCQ Plan' : 'Add New MCQ Plan' %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'mcq-plan-new' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, MCQs, or anything...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full flex-1 flex flex-col space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <a href="/admin/mcq-plans" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition shadow-sm shrink-0"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight"><%= item ? 'Edit MCQ Plan' : 'Add New MCQ Plan' %></h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Create a new MCQ plan, select multiple MCQs, set price and other details.</p>
+          </div>
+        </div>
+        <nav class="flex text-xs font-semibold text-slate-500 space-x-2 shrink-0">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <a href="/admin/mcq-plans" class="hover:text-blue-600 transition">MCQ Plans</a><span class="text-slate-400">&gt;</span>
+          <span class="text-blue-600 font-bold"><%= item ? 'Edit Plan' : 'Add New Plan' %></span>
+        </nav>
+      </div>
+
+      <% const actionUrl = item ? ('/admin/mcq-plans/' + item.id + '/edit') : '/admin/mcq-plans'; %>
+      <% const pickerQs = 'page=' + page + '&subject_id=' + encodeURIComponent(filters.subject_id) + '&year=' + encodeURIComponent(filters.year) + '&q=' + encodeURIComponent(filters.q); %>
+      <form method="post" action="<%= actionUrl %>?<%= pickerQs %>" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 space-y-6">
+
+          <!-- CARD 1: Plan Information -->
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5 sm:p-6 space-y-4">
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-layer-group"></i></div>
+              <span>Plan Information</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Plan Name <span class="text-red-500">*</span></label>
+                <input type="text" id="planNameInput" name="name" value="<%= item ? item.name : '' %>" oninput="updateLivePreview()" required placeholder="e.g. Mathematics Basic Plan" class="form-input">
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Subject <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3 top-2.5 text-blue-600 text-xs"><i class="fa-solid fa-book-open"></i></div>
+                  <select id="subjectSelect" name="subject_id" onchange="updateLivePreview()" required class="form-input pl-8 custom-select text-xs font-semibold">
+                    <option value="" disabled <%= !item ? 'selected' : '' %>>Select subject</option>
+                    <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= item && item.subject_id === s.id ? 'selected' : '' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Class <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3 top-2.5 text-blue-600 text-xs"><i class="fa-solid fa-graduation-cap"></i></div>
+                  <select id="classSelect" name="class_name" required class="form-input pl-8 custom-select text-xs font-semibold">
+                    <option value="" disabled <%= !item ? 'selected' : '' %>>Select class</option>
+                    <% [...new Set(classYearLevels.map(c => c.curriculum).filter(Boolean))].forEach(c => { %>
+                      <option value="<%= c %>" <%= item && item.class_name === c ? 'selected' : '' %>><%= c %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="space-y-1 md:col-span-1">
+                <label class="block text-xs font-bold text-slate-700">Year Level</label>
+                <div class="relative">
+                  <div class="absolute left-3 top-2.5 text-blue-600 text-xs"><i class="fa-regular fa-calendar"></i></div>
+                  <select name="year_level" class="form-input pl-8 custom-select text-xs font-semibold">
+                    <option value="">Select year level</option>
+                    <% [...new Set(classYearLevels.map(c => c.year_level).filter(Boolean))].forEach(y => { %>
+                      <option value="<%= y %>" <%= item && item.year_level === y ? 'selected' : '' %>><%= y %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="space-y-1 md:col-span-2">
+                <label class="block text-xs font-bold text-slate-700">Number of MCQs <span class="text-red-500">*</span></label>
+                <input type="number" name="mcq_count" min="1" value="<%= item ? item.mcq_count : '' %>" required class="form-input">
+                <p class="text-[10px] text-slate-400">This is the advertised count shown to students; select the exact questions below.</p>
+              </div>
+              <div class="space-y-1 md:col-span-3">
+                <label class="block text-xs font-bold text-slate-700">Description (Optional)</label>
+                <textarea name="description" rows="3" class="form-input resize-y"><%= item ? (item.description||'') : '' %></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: Validity & Pricing -->
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5 sm:p-6 space-y-4">
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-tag"></i></div>
+              <span>Validity &amp; Pricing</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Valid For (Months) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3 top-2.5 text-blue-600 text-xs"><i class="fa-regular fa-calendar"></i></div>
+                  <% const currentMonths = item ? Math.round(item.validity_days / 30) : 3; %>
+                  <select id="validitySelect" name="validity_months" onchange="updateLivePreview()" class="form-input pl-8 custom-select text-xs font-semibold">
+                    <option value="1" <%= currentMonths===1?'selected':'' %>>1 Month</option>
+                    <option value="3" <%= currentMonths===3?'selected':'' %>>3 Months</option>
+                    <option value="6" <%= currentMonths===6?'selected':'' %>>6 Months</option>
+                    <option value="12" <%= currentMonths===12?'selected':'' %>>12 Months</option>
+                  </select>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Price (A$) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3 top-2.5 text-blue-600 text-xs font-bold">A$</div>
+                  <input type="number" step="0.01" id="priceInput" name="price" value="<%= item ? item.price : '' %>" oninput="updateLivePreview()" required class="form-input pl-9 font-bold">
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Discount Price (A$)</label>
+                <input type="number" step="0.01" name="discount_price" value="<%= item && item.discount_price != null ? item.discount_price : '' %>" placeholder="Leave empty if no discount" class="form-input">
+              </div>
+              <div class="space-y-1 pl-2">
+                <label class="block text-xs font-bold text-slate-700">Plan Status</label>
+                <div class="flex items-center space-x-2 pt-1">
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_active" <%= (!item || item.is_active) ? 'checked' : '' %> class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                  <div><span class="text-xs font-bold text-emerald-600 block leading-none">Active</span><span class="text-[9px] text-slate-400 font-medium">Make this plan visible to students</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: Select MCQs for This Plan -->
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-list-check"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">Select MCQs for This Plan</h2>
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="text-xs font-bold text-slate-700">Total Selected: <span id="selectedCountHeader" class="text-blue-600"><%= selectedIds.size %> MCQs</span></span>
+                <button type="button" onclick="clearAllSelections()" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-xs rounded-lg transition">Clear All</button>
+              </div>
+            </div>
+
+            <!-- Filter Controls Strip (reloads this page, keeping form values via query string is not possible on GET reload, so filters apply to the picker only) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Subject</label>
+                <select id="pickerSubject" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 custom-select w-full">
+                  <option value="">All Subjects</option>
+                  <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Year</label>
+                <select id="pickerYear" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 custom-select w-full">
+                  <option value="">All Years</option>
+                  <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+                  <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">&nbsp;</label>
+                <div class="flex items-center space-x-1.5">
+                  <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="pickerSearch" value="<%= filters.q %>" placeholder="Search MCQs by title or keyword..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-2 py-1.5 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <button type="button" onclick="applyPickerFilters()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow-sm flex items-center space-x-1">
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i><span>Search</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="text-[10px] text-slate-400">Searching or changing filters reloads the picker below (your other form fields stay filled in).</p>
+
+            <!-- MCQ Selection Table -->
+            <div class="overflow-x-auto w-full border border-slate-200 rounded-xl">
+              <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                    <th class="py-2.5 px-3 w-8 text-center"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)" class="custom-checkbox"></th>
+                    <th class="py-2.5 px-3 w-8">#</th>
+                    <th class="py-2.5 px-3">MCQ Title</th>
+                    <th class="py-2.5 px-3">Module / Topic</th>
+                    <th class="py-2.5 px-3">Subject</th>
+                    <th class="py-2.5 px-3">Difficulty</th>
+                  </tr>
+                </thead>
+                <tbody id="mcqTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 font-medium">
+                  <% questions.forEach((m, i) => { %>
+                    <tr class="<%= selectedIds.has(m.id) ? 'bg-blue-50/50 hover:bg-blue-50/80' : 'hover:bg-slate-50' %> transition">
+                      <td class="py-2.5 px-3 text-center">
+                        <input type="hidden" name="page_mcq_ids" value="<%= m.id %>">
+                        <input type="checkbox" name="mcq_ids" value="<%= m.id %>" <%= selectedIds.has(m.id) ? 'checked' : '' %>
+                          onchange="updateSelectionRow(this)" data-topic="<%= m.topic || 'Uncategorised' %>"
+                          class="mcq-row-checkbox custom-checkbox">
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-400 font-bold"><%= (page - 1) * 25 + i + 1 %></td>
+                      <td class="py-2.5 px-3 font-semibold text-slate-800" style="white-space:normal;max-width:360px;"><%= m.question %></td>
+                      <td class="py-2.5 px-3 text-blue-600"><%= m.topic || '—' %></td>
+                      <td class="py-2.5 px-3 text-slate-500"><%= m.subject_name %></td>
+                      <td class="py-2.5 px-3">
+                        <% const diffColor = m.difficulty === 'easy' ? 'emerald' : (m.difficulty === 'hard' ? 'rose' : 'amber'); %>
+                        <span class="flex items-center gap-1.5 text-<%= diffColor %>-700 font-bold"><i class="fa-solid fa-circle text-[8px] text-<%= diffColor %>-500"></i> <%= m.difficulty %></span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (!questions.length) { %><tr><td colspan="6" class="py-8 px-3 text-center text-slate-400">No questions match these filters.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs font-semibold text-slate-500">
+              <span class="text-slate-400 text-xs">Showing page <%= page %> of <%= totalPages %> · <%= total %> MCQs match your filters</span>
+              <div class="flex items-center space-x-1">
+                <% for (let p = 1; p <= totalPages; p++) { %>
+                  <% if (p === page) { %>
+                    <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold"><%= p %></span>
+                  <% } else { %>
+                    <a class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600" href="?page=<%= p %>&subject_id=<%= filters.subject_id %>&year=<%= filters.year %>&q=<%= filters.q %>"><%= p %></a>
+                  <% } %>
+                <% } %>
+              </div>
+            </div>
+            <p class="text-[10px] text-slate-400 leading-relaxed">Selections save per page — move through the pages and check/uncheck as needed; Save Plan below only submits the current page's ticks (use Assign MCQs afterwards to add more from other pages).</p>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: PLAN PREVIEW, SUMMARY & ACTIONS -->
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-regular fa-eye text-blue-600"></i><span>Plan Preview</span></h3>
+              <p class="text-xs text-slate-400 mt-0.5">This is how the plan will appear to students.</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-50/70 to-indigo-50/50 border border-blue-200/80 rounded-2xl p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3 border-b border-blue-100 pb-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-md shrink-0"><i class="fa-solid fa-book-bookmark"></i></div>
+                  <div>
+                    <h4 id="previewPlanTitle" class="font-bold text-slate-900 text-sm leading-snug"><%= item ? item.name : 'Untitled Plan' %></h4>
+                    <span id="previewMcqCount" class="text-xs font-bold text-blue-600 block"><%= item ? item.mcq_count : 0 %> MCQs</span>
+                    <span id="previewValidity" class="text-[10px] text-slate-500 font-medium">Valid for <%= item ? Math.round(item.validity_days/30) : 3 %> months</span>
+                  </div>
+                </div>
+                <div class="text-right shrink-0"><span id="previewPrice" class="text-xl font-extrabold text-blue-600 block">A$<%= item ? item.price : '0' %></span></div>
+              </div>
+              <ul class="space-y-2 text-xs text-slate-700 font-medium">
+                <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-blue-600"></i><span id="bulletMcqCount"><%= selectedIds.size %> Topic-wise MCQs</span></li>
+                <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-blue-600"></i><span>Single &amp; Multiple correct questions</span></li>
+                <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-blue-600"></i><span>Detailed explanations</span></li>
+                <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-blue-600"></i><span id="bulletValidity">Valid for <%= item ? Math.round(item.validity_days/30) : 3 %> months</span></li>
+                <li class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-blue-600"></i><span>Instant access after purchase</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Selected MCQs Summary (real, from currently ticked rows on this page) -->
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-600"></i><span>Selected MCQs Summary</span></h3>
+              <span id="summaryBadgeCount" class="bg-blue-100 text-blue-700 font-bold text-xs px-2.5 py-0.5 rounded-full"><%= selectedIds.size %> MCQs</span>
+            </div>
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="text-slate-400 uppercase font-bold border-b border-slate-100 text-[10px]">
+                  <th class="py-2">Module / Topic</th>
+                  <th class="py-2 text-right">Count</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTopicBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% topicSummary.forEach(t => { %>
+                  <tr><td class="py-2"><%= t.topic %></td><td class="py-2 text-right font-bold text-slate-900"><%= t.count %></td></tr>
+                <% }) %>
+                <% if (!topicSummary.length) { %><tr><td colspan="2" class="py-2 text-slate-400 text-center">No MCQs selected yet.</td></tr><% } %>
+              </tbody>
+              <tfoot>
+                <tr class="border-t border-slate-200 font-bold text-slate-900 text-xs">
+                  <td class="pt-2.5">Total MCQs (saved)</td>
+                  <td id="summaryTotalCount" class="pt-2.5 text-right text-blue-600"><%= selectedIds.size %></td>
+                </tr>
+              </tfoot>
+            </table>
+            <p class="text-[10px] text-slate-400 leading-relaxed">Reflects MCQs already saved to this plan. Ticking boxes on this page and saving will update it.</p>
+          </div>
+
+          <div class="bg-blue-50/80 border border-blue-200/80 rounded-2xl p-4 flex items-start space-x-3 text-blue-900">
+            <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shrink-0 mt-0.5 shadow-sm"><i class="fa-solid fa-info"></i></div>
+            <div class="text-xs leading-relaxed">
+              <strong class="font-bold block text-blue-950 mb-0.5">Note</strong>
+              You can search and select multiple MCQs from different modules and topics. Only selected MCQs will be included in this plan and visible to students after purchase. Use the page numbers above to review other pages of MCQs — ticks on each page are saved when you click Save.
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <a href="/admin/mcq-plans" class="w-1/2 py-3 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl transition text-center shadow-sm">Cancel</a>
+            <button type="submit" class="w-1/2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-floppy-disk text-xs"></i><span><%= item ? 'Save Changes' : 'Save Plan' %></span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  function updateLivePreview() {
+    const name = document.getElementById('planNameInput').value.trim() || 'Untitled Plan';
+    const price = document.getElementById('priceInput').value.trim() || '0';
+    const validity = document.getElementById('validitySelect').value;
+    document.getElementById('previewPlanTitle').innerText = name;
+    document.getElementById('previewPrice').innerText = `A$${price}`;
+    document.getElementById('previewValidity').innerText = `Valid for ${validity} months`;
+    document.getElementById('bulletValidity').innerText = `Valid for ${validity} months`;
+  }
+
+  function applyPickerFilters() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('subject_id', document.getElementById('pickerSubject').value);
+    params.set('year', document.getElementById('pickerYear').value);
+    params.set('q', document.getElementById('pickerSearch').value);
+    params.set('page', '1');
+    window.location.search = params.toString();
+  }
+  document.getElementById('pickerSubject').addEventListener('change', applyPickerFilters);
+  document.getElementById('pickerYear').addEventListener('change', applyPickerFilters);
+
+  // Recalculates the "Selected MCQs Summary" header count + preview bullet
+  // from the real, currently-checked rows on this page (client-side only;
+  // the saved per-topic table updates after the page reloads on Save).
+  function recalcHeaderCount() {
+    const checked = document.querySelectorAll('.mcq-row-checkbox:checked').length;
+    document.getElementById('selectedCountHeader').innerText = `${checked} MCQs (this page)`;
+  }
+  function updateSelectionRow(checkbox) {
+    const tr = checkbox.closest('tr');
+    if (checkbox.checked) { tr.classList.add('bg-blue-50/50'); tr.classList.remove('hover:bg-slate-50'); }
+    else { tr.classList.remove('bg-blue-50/50'); tr.classList.add('hover:bg-slate-50'); }
+    recalcHeaderCount();
+  }
+  function toggleSelectAll(masterCheckbox) {
+    document.querySelectorAll('.mcq-row-checkbox').forEach(cb => { cb.checked = masterCheckbox.checked; updateSelectionRow(cb); });
+  }
+  function clearAllSelections() {
+    document.getElementById('selectAllCheckbox').checked = false;
+    toggleSelectAll(document.getElementById('selectAllCheckbox'));
+  }
+</script>
+</body>
+</html>

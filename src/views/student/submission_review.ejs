@@ -1,0 +1,145 @@
+<%- include('../partials/portal_top', { title: submission.title, crumb: 'Student / My Submissions / ' + submission.title, active: 'submissions' }) %>
+
+<a href="/student/submissions" class="muted" style="display:inline-block;margin-bottom:10px;">← Back to My Submissions</a>
+
+<% if (pending) { %>
+  <div class="card card-pad" style="text-align:center;padding:48px 20px;">
+    <h2 style="margin-bottom:8px;">⏳ Awaiting Teacher Review</h2>
+    <p class="muted">Your submission for <b><%= submission.title %></b> has been received and is waiting for your teacher to grade the written / essay answers. Check back later for your results and feedback.</p>
+  </div>
+<% } else {
+     const scorePct = submission.total_marks ? Math.round((submission.total_score / submission.total_marks) * 100) : 0;
+     const mcqCorrect = mcqs.filter(a => a.is_correct).length;
+     const writtenAwarded = written.reduce((sum, a) => sum + (a.marks_awarded || 0), 0);
+     const essayAwarded = essays.reduce((sum, a) => sum + (a.marks_awarded || 0), 0);
+%>
+  <div class="card card-pad" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h1 style="margin:0;"><%= submission.title %></h1>
+        <span class="pill green">Reviewed</span>
+      </div>
+      <p class="muted" style="margin-top:6px;">
+        <%= submission.subject_name || '' %> · <%= submission.year || '' %>
+        &nbsp;·&nbsp; Submitted on <b><%= submission.submitted_at ? new Date(submission.submitted_at).toLocaleString('en-AU') : '—' %></b>
+        <% if (submission.timeTaken) { %>&nbsp;·&nbsp; Time Taken <b><%= submission.timeTaken %></b><% } %>
+      </p>
+    </div>
+    <div class="card" style="background:#fbfcfe;display:flex;align-items:center;gap:16px;">
+      <div><span class="label" style="font-size:11px;color:var(--muted);text-transform:uppercase;">Score</span>
+        <h2 style="margin:2px 0;"><%= submission.total_score %> <small class="muted">/ <%= submission.total_marks %></small></h2>
+        <span class="pill blue"><%= scorePct %>%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" style="margin-bottom:16px;">
+    <a href="#" onclick="switchTab('overview');return false;" id="tab-overview" class="active">Overview</a>
+    <a href="#" onclick="switchTab('review');return false;" id="tab-review">Question Review</a>
+    <a href="#" onclick="switchTab('feedback');return false;" id="tab-feedback">Feedback</a>
+  </div>
+
+  <!-- Overview Tab -->
+  <div id="panel-overview">
+    <div class="grid g3" style="margin-bottom:16px;">
+      <div class="card">
+        <span class="label" style="font-size:11px;color:var(--muted);text-transform:uppercase;">Section A · MCQs</span>
+        <h3 style="margin:4px 0;"><%= submission.mcq_score %> / <%= submission.mcq_total %></h3>
+        <small class="muted"><%= mcqCorrect %> of <%= mcqs.length %> correct</small>
+      </div>
+      <div class="card">
+        <span class="label" style="font-size:11px;color:var(--muted);text-transform:uppercase;">Section B · Written</span>
+        <h3 style="margin:4px 0;"><%= writtenAwarded %> / <%= submission.written_total %></h3>
+        <small class="muted"><%= written.length %> question(s)</small>
+      </div>
+      <div class="card">
+        <span class="label" style="font-size:11px;color:var(--muted);text-transform:uppercase;">Section C · Essay</span>
+        <h3 style="margin:4px 0;"><%= essayAwarded %> / <%= submission.essay_total %></h3>
+        <small class="muted"><%= essays.length %> question(s)</small>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <p class="muted">Use the <b>Question Review</b> tab to see each answer alongside the correct answer (for MCQs) and marks/feedback (for written &amp; essay). Use the <b>Feedback</b> tab to read all teacher comments in one place.</p>
+    </div>
+  </div>
+
+  <!-- Question Review Tab -->
+  <div id="panel-review" style="display:none;">
+    <% if (mcqs.length) { %>
+      <h3 style="margin:18px 0 10px;">Section A — Multiple Choice</h3>
+      <% mcqs.forEach((q, i) => {
+           const letters = ['A','B','C','D'];
+           const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+      %>
+        <div class="card card-pad" style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <b>Question <%= i + 1 %></b>
+            <span class="pill <%= q.is_correct ? 'green' : 'red' %>"><%= q.is_correct ? 'Correct' : 'Incorrect' %></span>
+          </div>
+          <p><%= q.question %></p>
+          <div class="grid g2" style="margin-top:8px;">
+            <div class="card" style="background:#e8f7ee;"><small class="muted">Correct Answer</small><br><b><%= q.correct_option ? `${q.correct_option}. ${opts[letters.indexOf(q.correct_option)] || ''}` : '—' %></b></div>
+            <div class="card" style="background:<%= q.is_correct ? '#e8f7ee' : '#fff0f2' %>;"><small class="muted">Your Answer</small><br><b><%= q.selected_option ? `${q.selected_option}. ${opts[letters.indexOf(q.selected_option)] || ''}` : '(no answer)' %></b></div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+    <% if (written.length) { %>
+      <h3 style="margin:18px 0 10px;">Section B — Written Questions</h3>
+      <% written.forEach((a, i) => { %>
+        <div class="card card-pad" style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <b>Question <%= i + 1 %></b>
+            <span class="pill blue"><%= a.marks_awarded ?? 0 %> / <%= a.marks %></span>
+          </div>
+          <p><%= a.question %></p>
+          <div class="notice" style="margin-top:8px;white-space:pre-line;"><%= a.answer_text || '(no answer)' %></div>
+          <% if (a.model_answer) { %><div class="notice" style="margin-top:8px;white-space:pre-line;border-color:#10b981;"><b>Model answer:</b><br><%= a.model_answer %></div><% } %>
+          <% if (a.feedback) { %><p class="muted" style="margin-top:8px;"><b>Teacher feedback:</b> <%= a.feedback %></p><% } %>
+        </div>
+      <% }) %>
+    <% } %>
+    <% if (essays.length) { %>
+      <h3 style="margin:18px 0 10px;">Section C — Essay</h3>
+      <% essays.forEach((a, i) => { %>
+        <div class="card card-pad" style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <b>Question <%= i + 1 %></b>
+            <span class="pill blue"><%= a.marks_awarded ?? 0 %> / <%= a.marks %></span>
+          </div>
+          <p><%= a.question %></p>
+          <div class="notice" style="margin-top:8px;white-space:pre-line;"><%= a.answer_text || '(no answer)' %></div>
+          <% if (a.model_answer) { %><div class="notice" style="margin-top:8px;white-space:pre-line;border-color:#10b981;"><b>Model answer:</b><br><%= a.model_answer %></div><% } %>
+          <% if (a.feedback) { %><p class="muted" style="margin-top:8px;"><b>Teacher feedback:</b> <%= a.feedback %></p><% } %>
+        </div>
+      <% }) %>
+    <% } %>
+    <% if (!mcqs.length && !written.length && !essays.length) { %><p class="muted">No questions found for this submission.</p><% } %>
+  </div>
+
+  <!-- Feedback Tab -->
+  <div id="panel-feedback" style="display:none;">
+    <% const allFeedback = written.concat(essays).filter(a => a.feedback); %>
+    <% if (allFeedback.length) { %>
+      <% allFeedback.forEach((a, i) => { %>
+        <div class="card card-pad" style="margin-bottom:12px;">
+          <p class="muted" style="margin-bottom:4px;"><b>On:</b> <%= a.question.slice(0, 80) %><%= a.question.length > 80 ? '…' : '' %></p>
+          <p><%= a.feedback %></p>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="card card-pad"><p class="muted">No written feedback comments from your teacher yet.</p></div>
+    <% } %>
+  </div>
+<% } %>
+
+<script>
+  function switchTab(tab) {
+    ['overview', 'review', 'feedback'].forEach(t => {
+      document.getElementById('panel-' + t).style.display = (t === tab) ? '' : 'none';
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    });
+  }
+</script>
+
+<%- include('../partials/portal_bottom') %>

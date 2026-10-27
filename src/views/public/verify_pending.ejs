@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Your Email | AUS Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900\&family=Poppins:wght@400;500;600;700;800;900\&family=Roboto:wght@400;500;600;700;800;900\&family=Nunito:wght@400;500;600;700;800;900\&family=Work+Sans:wght@400;500;600;700;800;900\&family=Manrope:wght@400;500;600;700;800;900\&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<style>
+  :root { --blue: <%= themeColor %>; --blue2: <%= themeColor2 %>; }
+  body { font-family: '<%= themeFont %>', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-left">
+      <a class="brand" href="/" style="color:#fff"><span class="brand-mark">A</span><div><strong style="color:#fff">AUS Academy</strong><span style="color:#b9c8e2">Australia • Year 11–12</span></div></a>
+      <div class="eyebrow" style="color:#a8beff;margin-top:48px">One more step</div>
+      <h1>Check your inbox.</h1>
+      <p>We've sent a verification link to your email. Click it to activate your account — you'll need this before buying an MCQ plan or starting any exam.</p>
+    </div>
+    <div class="auth-right">
+      <h2>Verify your email</h2>
+      <% if (success && success.length) { %><div class="notice" style="margin-bottom:12px;"><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="notice" style="margin-bottom:12px;color:#bd2d2d"><%= error[0] %></div><% } %>
+      <p class="muted">Didn't get the email? Check spam, or request a new link below.</p>
+      <form method="post" action="/resend-verification">
+        <div class="field"><label>Email address</label><input type="email" name="email" value="<%= email %>" required></div>
+        <button class="btn btn-primary btn-block" style="margin-top:14px" type="submit">Resend verification email</button>
+      </form>
+      <p class="muted" style="font-size:12px;margin-top:18px">Already verified? <a href="/login" style="color:var(--blue);font-weight:900">Login</a></p>
+    </div>
+  </div>
+</div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

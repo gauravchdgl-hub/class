@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Multiple MCQs — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'mcq-set-new' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto relative">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, MCQs, or anything...' }) %>
+
+    <form id="setForm" method="post" action="<%= item ? ('/admin/mcq-sets/' + item.id + '/edit') : '/admin/mcq-sets/new' %>">
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex-1 space-y-6 pb-28">
+
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <a href="/admin/mcqs" class="w-9 h-9 rounded-full bg-white text-slate-600 flex items-center justify-center hover:bg-slate-100 transition shrink-0 mt-0.5 border border-slate-200 shadow-sm" title="Back"><i class="fa-solid fa-arrow-left"></i></a>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight"><%= item ? 'Edit MCQ Set' : 'Add Multiple MCQs' %></h1>
+            <p class="text-[13px] text-slate-500 mt-1">Add multiple MCQ questions under one title and assign to subject, class, or students.</p>
+          </div>
+        </div>
+        <nav class="flex text-[13px] text-slate-500 space-x-2 pt-2 md:pt-0 shrink-0 font-medium">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <a href="/admin/mcqs" class="hover:text-blue-600 transition">MCQ Question Bank</a><span class="text-slate-400">&gt;</span>
+          <span class="text-[#091e42] font-semibold">Add Multiple MCQs</span>
+        </nav>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3 max-w-2xl mx-auto"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3 max-w-2xl mx-auto"><%= error[0] %></div><% } %>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-center max-w-2xl mx-auto">
+        <div class="flex items-center space-x-4 sm:space-x-8 w-full justify-center">
+          <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">1</div><span class="text-xs sm:text-sm font-bold text-blue-600">Basic Information</span></div>
+          <div class="w-8 sm:w-16 h-0.5 bg-blue-600"></div>
+          <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">2</div><span class="text-xs sm:text-sm font-bold text-blue-600">Add Questions</span></div>
+          <div class="w-8 sm:w-16 h-0.5 bg-slate-200"></div>
+          <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">3</div><span class="text-xs sm:text-sm font-medium text-slate-500">Assign &amp; Publish</span></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left: Basic Info + Question Settings -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center space-x-2 text-[#091e42] pb-2 border-b border-slate-100"><i class="fa-solid fa-file-pen text-blue-600"></i><h3 class="font-bold text-sm">Basic Information</h3></div>
+            <div class="space-y-3.5 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Main Title <span class="text-red-500">*</span></label>
+                <input type="text" name="title" required value="<%= item ? item.title : '' %>" placeholder="e.g. Math 1 - 100 MCQs" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Subject <span class="text-red-500">*</span></label>
+                <select name="subject_id" id="subjectSelect" required onchange="onSubjectChange()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="" disabled <%= !item ? 'selected' : '' %>>Select subject</option>
+                  <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= item && item.subject_id===s.id ? 'selected' : '' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Year Level <span class="text-red-500">*</span></label>
+                <select name="year" id="yearSelect" onchange="onYearChange()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="Year 11" <%= item && item.year==='Year 11' ? 'selected' : '' %>>Year 11</option>
+                  <option value="Year 12" <%= item && item.year==='Year 12' ? 'selected' : '' %>>Year 12</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Module / Topic <span class="text-red-500">*</span></label>
+                <select name="module_id" id="moduleSelect" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">No specific module</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Description (Optional)</label>
+                <textarea name="description" rows="4" maxlength="500" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 outline-none resize-none"><%= item ? (item.description||'') : '' %></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center space-x-2 text-[#091e42] pb-2 border-b border-slate-100"><i class="fa-solid fa-sliders text-blue-600"></i><h3 class="font-bold text-sm">Question Settings</h3></div>
+            <div class="space-y-3.5 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Default Marks (per question)</label>
+                <input type="number" step="0.5" min="0" name="default_marks" value="<%= item ? item.default_marks : 1 %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Negative Marks (per wrong answer)</label>
+                <input type="number" step="0.25" min="0" name="negative_marks" value="<%= item ? item.negative_marks : 0 %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Default Difficulty</label>
+                <select name="difficulty" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="easy">Easy</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" name="action" value="draft" class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs py-2.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center space-x-2">
+            <i class="fa-regular fa-floppy-disk text-slate-500"></i><span>Save as Draft</span>
+          </button>
+        </div>
+
+        <!-- Center: Questions List -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <h3 class="font-bold text-sm text-[#091e42] flex items-center space-x-2"><i class="fa-solid fa-list-check text-blue-600"></i><span>Questions (<span id="questionCount">0</span>)</span></h3>
+          </div>
+          <div id="questionsContainer" class="space-y-4"></div>
+        </div>
+
+        <!-- Right: Add Questions -->
+        <div class="lg:col-span-3 space-y-6">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center space-x-2 text-[#091e42] pb-2 border-b border-slate-100"><i class="fa-solid fa-circle-plus text-blue-600"></i><h3 class="font-bold text-sm">Add Questions</h3></div>
+            <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-start space-x-2.5 text-xs text-blue-900">
+              <i class="fa-solid fa-circle-info text-blue-600 mt-0.5 shrink-0"></i><span>Add questions one by one. Each needs 4 options and 1 correct answer.</span>
+            </div>
+            <button type="button" onclick="addQuestion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-md shadow-blue-600/30 flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-plus text-xs"></i><span>Add New Question</span>
+            </button>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <div class="flex items-center space-x-2 text-[#091e42] pb-2 border-b border-slate-100"><i class="fa-solid fa-lightbulb text-amber-500"></i><h3 class="font-bold text-sm">Tips</h3></div>
+            <ul class="space-y-2 text-[11px] text-slate-600 list-disc pl-4 font-medium">
+              <li>Each question must have 4 options and 1 correct answer.</li>
+              <li>You can edit, duplicate, or delete questions anytime before saving.</li>
+              <li>Save as Draft to come back later, or publish to move to Assign &amp; Publish.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 lg:left-64 right-0 bg-white border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 z-30 shadow-lg">
+      <div class="flex items-center space-x-3 text-xs font-semibold text-slate-600">
+        <span class="text-slate-900 font-bold">Total Questions: <span id="questionCountBar">0</span></span>
+      </div>
+      <button type="submit" name="action" value="publish" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30 flex items-center space-x-2">
+        <span>Next: Assign &amp; Publish</span><i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+    </div>
+    </form>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  const COURSE_MODULES = <%- JSON.stringify(courseModules) %>;
+  const EXISTING_QUESTIONS = <%- JSON.stringify(questions) %>;
+  const CURRENT_MODULE_ID = <%- item && item.module_id ? item.module_id : 'null' %>;
+  let qIndex = 0;
+
+  function onSubjectChange() { populateModules(); }
+  function onYearChange() { populateModules(); }
+
+  function populateModules() {
+    const subjectId = document.getElementById('subjectSelect').value;
+    const year = document.getElementById('yearSelect').value;
+    const sel = document.getElementById('moduleSelect');
+    const matches = COURSE_MODULES.filter(m => String(m.subject_id) === String(subjectId) && (!m.year_level || m.year_level.indexOf(year) !== -1 || !year));
+    sel.innerHTML = '<option value="">No specific module</option>' + matches.map(m => `<option value="${m.id}" ${CURRENT_MODULE_ID===m.id?'selected':''}>${m.title}</option>`).join('');
+  }
+
+  function optionRow(qi, letter, value, isCorrect) {
+    return `<div class="flex items-center space-x-2 ${isCorrect?'bg-emerald-50 border border-emerald-300':'bg-slate-50 border border-slate-200'} rounded-lg p-2 relative">
+      <span class="w-6 h-6 rounded-full ${isCorrect?'bg-emerald-600 text-white':'bg-slate-200 text-slate-600'} font-bold flex items-center justify-center text-[11px] shrink-0">${letter}</span>
+      <input type="text" name="questions[${qi}][option_${letter.toLowerCase()}]" value="${value||''}" required class="w-full bg-transparent text-slate-700 outline-none font-medium" placeholder="Option ${letter}">
+      <input type="radio" name="questions[${qi}][correct_option]" value="${letter}" ${isCorrect?'checked':''} required class="text-emerald-600 focus:ring-emerald-500">
+    </div>`;
+  }
+
+  function addQuestion(data) {
+    data = data || {};
+    const qi = qIndex++;
+    const div = document.createElement('div');
+    div.className = 'bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4';
+    div.id = 'question-' + qi;
+    div.innerHTML = `
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h4 class="font-bold text-xs sm:text-sm text-slate-900">Question <span class="qnum"></span></h4>
+        <div class="flex items-center space-x-2">
+          <select name="questions[${qi}][difficulty]" class="custom-select text-[11px] font-semibold bg-slate-50 border border-slate-200 rounded-full px-2 py-1">
+            <option value="easy" ${data.difficulty==='easy'?'selected':''}>Easy</option>
+            <option value="medium" ${(!data.difficulty||data.difficulty==='medium')?'selected':''}>Medium</option>
+            <option value="hard" ${data.difficulty==='hard'?'selected':''}>Hard</option>
+          </select>
+          <button type="button" onclick="removeQuestion(${qi})" class="w-7 h-7 rounded bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition flex items-center justify-center" title="Delete"><i class="fa-regular fa-trash-can text-xs"></i></button>
+        </div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <textarea name="questions[${qi}][question]" required placeholder="Type the question text..." rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-semibold text-slate-800 outline-none resize-none">${data.question||''}</textarea>
+        <div class="space-y-2">
+          ${optionRow(qi,'A',data.option_a,data.correct_option==='A')}
+          ${optionRow(qi,'B',data.option_b,data.correct_option==='B')}
+          ${optionRow(qi,'C',data.option_c,data.correct_option==='C')}
+          ${optionRow(qi,'D',data.option_d,data.correct_option==='D')}
+        </div>
+        <div class="pt-2">
+          <label class="block font-semibold text-slate-600 mb-1">Explanation <span class="text-slate-400">(Optional)</span></label>
+          <textarea name="questions[${qi}][explanation]" rows="2" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 outline-none resize-none">${data.explanation||''}</textarea>
+        </div>
+      </div>`;
+    document.getElementById('questionsContainer').appendChild(div);
+    renumber();
+  }
+
+  function removeQuestion(qi) {
+    const el = document.getElementById('question-' + qi);
+    if (el) el.remove();
+    renumber();
+  }
+
+  function renumber() {
+    const cards = document.querySelectorAll('#questionsContainer > div');
+    cards.forEach((c, i) => { c.querySelector('.qnum').textContent = i + 1; });
+    document.getElementById('questionCount').textContent = cards.length;
+    document.getElementById('questionCountBar').textContent = cards.length;
+  }
+
+  document.getElementById('setForm').addEventListener('submit', function (e) {
+    if (!document.querySelectorAll('#questionsContainer > div').length) {
+      e.preventDefault();
+      alert('Add at least one question before saving.');
+    }
+  });
+
+  populateModules();
+  if (EXISTING_QUESTIONS.length) {
+    EXISTING_QUESTIONS.forEach(q => addQuestion(q));
+  } else {
+    addQuestion();
+  }
+</script>
+</body>
+</html>

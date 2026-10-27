@@ -1,0 +1,90 @@
+<%- include('../partials/portal_top', { title: 'My Submissions', crumb: 'Student / My Submissions', active: 'submissions' }) %>
+<div class="portal-title"><div><h1>My Submissions</h1><p>View your exam paper submissions and results. Click View to see detailed feedback from your teacher.</p></div></div>
+
+<div class="grid g4" style="margin-bottom:16px;">
+  <div class="card stat">
+    <span class="label">Total Submissions</span>
+    <strong><%= counts.total %></strong>
+    <small>All exam papers submitted</small>
+    <div class="stat-icon bluebg">📄</div>
+  </div>
+  <div class="card stat">
+    <span class="label">Reviewed</span>
+    <strong><%= counts.reviewed %></strong>
+    <small>Checked by teachers</small>
+    <div class="stat-icon greenbg">✔</div>
+  </div>
+  <div class="card stat">
+    <span class="label">Pending Review</span>
+    <strong><%= counts.pending %></strong>
+    <small>Awaiting teacher feedback</small>
+    <div class="stat-icon orangebg">⏱</div>
+  </div>
+  <div class="card stat">
+    <span class="label">Average Score</span>
+    <strong><%= counts.avgScore !== null ? counts.avgScore + '%' : '—' %></strong>
+    <small>Based on reviewed papers</small>
+    <div class="stat-icon purplebg">★</div>
+  </div>
+</div>
+
+<form method="get" class="card card-pad" style="margin-bottom:16px;">
+  <div class="grid g4">
+    <div class="field">
+      <label>Subject</label>
+      <select name="subject_id" onchange="this.form.submit()">
+        <option value="">All Subjects</option>
+        <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label>Year</label>
+      <select name="year" onchange="this.form.submit()">
+        <option value="">All Years</option>
+        <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+        <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select name="status" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        <option value="published" <%= filters.status==='published'?'selected':'' %>>Reviewed</option>
+        <option value="pending" <%= filters.status==='pending'?'selected':'' %>>Pending</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>From / To</label>
+      <div class="grid g2">
+        <input type="date" name="date_from" value="<%= filters.date_from || '' %>" onchange="this.form.submit()">
+        <input type="date" name="date_to" value="<%= filters.date_to || '' %>" onchange="this.form.submit()">
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="table-wrap card">
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Exam Paper</th><th>Subject</th><th>Year</th><th>Submitted On</th><th>Time Taken</th><th>Score</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% submissions.forEach((s, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><b><%= s.title %></b></td>
+          <td><%= s.subject_name || '—' %></td>
+          <td><%= s.year || '—' %></td>
+          <td><% if (s.submitted_at) { const d = new Date(s.submitted_at); %><%= d.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) %><br><small class="muted"><%= d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' }) %></small><% } else { %>—<% } %></td>
+          <td><%= s.timeTaken || '—' %></td>
+          <td><b><%= s.status === 'published' ? `${s.total_score} / ${s.total_marks}` : '—' %></b></td>
+          <td><span class="pill <%= s.status==='published' ? 'green' : 'orange' %>"><%= s.status==='published' ? 'Reviewed' : 'Pending' %></span></td>
+          <td><a class="btn-soft" href="/student/submissions/<%= s.id %>">View →</a></td>
+        </tr>
+      <% }) %>
+      <% if (!submissions.length) { %><tr><td colspan="9" class="muted">No exam submissions yet.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/portal_bottom') %>

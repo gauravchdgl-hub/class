@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Materials — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'material' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search study materials by title, subject, or keyword...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Study Materials</h1>
+          <p class="text-[13px] text-slate-500 mt-1">Manage and organize all study materials (PDF, Notes, Documents) for your students.</p>
+        </div>
+        <div class="flex items-center justify-between md:justify-end gap-4">
+          <nav class="flex text-[13px] text-slate-500 space-x-2 font-medium">
+            <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a>
+            <span class="text-slate-400">&gt;</span>
+            <span class="text-[#091e42] font-semibold">Study Material</span>
+          </nav>
+          <a href="/admin/material/new" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-lg transition shadow-md shadow-blue-600/30 flex items-center space-x-2 shrink-0">
+            <i class="fa-solid fa-plus text-xs"></i><span>Add Study Material</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500">Total Materials</span><h3 class="text-2xl font-bold text-slate-900 mt-1"><%= stats.total %></h3></div>
+          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-book-bookmark"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500">Active Materials</span><h3 class="text-2xl font-bold text-slate-900 mt-1"><%= stats.active %></h3></div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-graduation-cap"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500">Scheduled</span><h3 class="text-2xl font-bold text-slate-900 mt-1"><%= stats.scheduled %></h3></div>
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-clock"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500">Inactive</span><h3 class="text-2xl font-bold text-slate-900 mt-1"><%= stats.inactive %></h3></div>
+          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-folder-closed"></i></div>
+        </div>
+      </div>
+
+      <form method="get" class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div class="lg:col-span-1 relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" name="q" value="<%= filters.q %>" placeholder="Search by title, subject..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <select name="subject" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+            <option value="">All Subjects</option>
+            <% subjects.forEach(s => { %><option value="<%= s.name %>" <%= filters.subject===s.name?'selected':'' %>><%= s.name %></option><% }) %>
+          </select>
+          <select name="year" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+            <option value="">All Years</option>
+            <% years.forEach(y => { %><option value="<%= y %>" <%= filters.year===y?'selected':'' %>><%= y %></option><% }) %>
+          </select>
+          <select name="module" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+            <option value="">All Modules</option>
+            <% modules.forEach(m => { %><option value="<%= m.title %>" <%= filters.module===m.title?'selected':'' %>><%= m.title %></option><% }) %>
+          </select>
+          <div class="flex gap-2">
+            <select name="status" onchange="this.form.submit()" class="custom-select flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Status</option>
+              <option value="Active" <%= filters.status==='Active'?'selected':'' %>>Active</option>
+              <option value="Scheduled" <%= filters.status==='Scheduled'?'selected':'' %>>Scheduled</option>
+              <option value="Inactive" <%= filters.status==='Inactive'?'selected':'' %>>Inactive</option>
+            </select>
+            <a href="/admin/material" class="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-lg text-xs font-semibold transition flex items-center justify-center shrink-0" title="Reset Filters"><i class="fa-solid fa-rotate-right"></i></a>
+          </div>
+          <button type="submit" class="hidden"></button>
+        </div>
+      </form>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+              <tr>
+                <th class="py-3 px-2 w-12">#</th>
+                <th class="py-3 px-3">Title</th>
+                <th class="py-3 px-3">Subject</th>
+                <th class="py-3 px-3">Year</th>
+                <th class="py-3 px-3">Module / Topic</th>
+                <th class="py-3 px-3">File Info</th>
+                <th class="py-3 px-3">Assigned To</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+              <% materials.forEach((m, idx) => { %>
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-2 text-slate-400"><%= (page-1)*perPage + idx + 1 %></td>
+                  <td class="py-3 px-3 flex items-center space-x-2.5 font-bold text-slate-900">
+                    <div class="w-7 h-7 rounded bg-red-50 text-red-500 flex items-center justify-center shrink-0 text-xs"><i class="fa-solid fa-file-<%= m.fileMeta.badge==='Video'?'video':(m.fileMeta.badge==='Link'?'link':(m.fileMeta.badge==='ZIP'?'zipper':(m.fileMeta.badge==='PPT'?'powerpoint':(m.fileMeta.badge==='Doc'?'word':'pdf')))) %>"></i></div>
+                    <span><%= m.title %></span>
+                  </td>
+                  <td class="py-3 px-3 text-slate-600"><%= m.subject_name || '—' %></td>
+                  <td class="py-3 px-3 text-slate-600"><%= m.year || '—' %></td>
+                  <td class="py-3 px-3 text-slate-600"><%= m.module_title || '—' %></td>
+                  <td class="py-3 px-3 text-slate-500 leading-tight"><%= m.fileMeta.sizeLabel %><br><span class="text-[10px] text-slate-400"><%= m.fileMeta.badge %></span></td>
+                  <td class="py-3 px-3 text-slate-600"><%= m.assigned_summary || (m.assignedCount ? m.assignedCount + ' student(s)' : '—') %></td>
+                  <td class="py-3 px-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold <%= m.computedStatus==='Active'?'bg-emerald-50 text-emerald-600':(m.computedStatus==='Scheduled'?'bg-amber-50 text-amber-600':'bg-rose-50 text-rose-600') %>">
+                      <span class="w-1.5 h-1.5 rounded-full <%= m.computedStatus==='Active'?'bg-emerald-500':(m.computedStatus==='Scheduled'?'bg-amber-500':'bg-rose-500') %> mr-1.5"></span> <%= m.computedStatus %>
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-3 text-right space-x-1 whitespace-nowrap">
+                    <a href="/admin/material/<%= m.id %>/assign" class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center" title="Assign"><i class="fa-solid fa-paper-plane text-xs"></i></a>
+                    <a href="/admin/material/<%= m.id %>/edit" class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen-to-square text-xs"></i></a>
+                    <a href="/admin/material/<%= m.id %>/comments" class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center" title="Comments"><i class="fa-regular fa-comments text-xs"></i></a>
+                    <form method="post" action="/admin/material/<%= m.id %>/toggle" class="inline"><button class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center" title="Toggle Status"><i class="fa-solid fa-toggle-on text-xs"></i></button></form>
+                    <form method="post" action="/admin/material/<%= m.id %>/delete" class="inline" onsubmit="return confirm('Delete this study material?');"><button class="w-7 h-7 rounded bg-slate-50 hover:bg-red-50 hover:text-red-600 text-slate-500 transition inline-flex items-center justify-center" title="Delete"><i class="fa-solid fa-trash text-xs"></i></button></form>
+                  </td>
+                </tr>
+              <% }) %>
+              <% if (!materials.length) { %>
+                <tr><td colspan="9" class="p-6 text-center text-slate-400">No study materials found. Click "Add Study Material" to create one.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="px-6 py-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <span>Showing <%= materials.length %> of <%= allCount %> materials</span>
+          <div class="flex items-center space-x-1.5">
+            <% for (let p = 1; p <= totalPages; p++) { %>
+              <a href="?page=<%= p %>" class="w-8 h-8 rounded-lg <%= p===page?'bg-blue-600 text-white font-semibold shadow-sm':'border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium' %> flex items-center justify-center text-xs transition"><%= p %></a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<%- include('../partials/portal_top', { title: 'Report an Issue', crumb: 'Student / Report an Issue', active: 'dashboard' }) %>
+<div class="portal-title"><div><h1>Report a Question Issue</h1><p>Spotted a typo, wrong answer key, or something confusing? Let your teacher know.</p></div></div>
+<div class="card card-pad" style="max-width:560px;">
+  <form method="post" action="/student/report-issue">
+    <input type="hidden" name="question_type" value="<%= type %>">
+    <input type="hidden" name="question_id" value="<%= id %>">
+    <div class="field"><label>What's wrong?</label>
+      <select name="issue_type" required>
+        <option value="wrong_question">Wrong question</option>
+        <option value="wrong_answer_key">Wrong MCQ answer key</option>
+        <option value="typo">Typo</option>
+        <option value="ambiguous">Ambiguous / unclear</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="field" style="margin-top:10px;"><label>Details (optional)</label><textarea name="description" rows="4" placeholder="Tell us more..."></textarea></div>
+    <button class="btn btn-primary btn-block" style="margin-top:14px;" type="submit">Send Report</button>
+  </form>
+</div>
+<%- include('../partials/portal_bottom') %>

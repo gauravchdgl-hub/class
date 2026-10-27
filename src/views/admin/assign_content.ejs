@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assign Content to Students — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'assign-content' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, plans, MCQs, tutorials, material, papers...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex-1 flex flex-col space-y-6">
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <!-- BREADCRUMB & PAGE HEADER -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <button onclick="history.back()" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition shadow-sm shrink-0">
+            <i class="fa-solid fa-arrow-left text-sm"></i>
+          </button>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight">Assign Content to Students</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Assign MCQ plans, individual MCQs, tutorials, study materials, or exam papers to selected students.</p>
+          </div>
+        </div>
+        <nav class="flex text-xs font-semibold text-slate-500 space-x-2 shrink-0">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a>
+          <span class="text-slate-400">&gt;</span>
+          <a href="/admin/assign" class="hover:text-blue-600 transition">Assignments</a>
+          <span class="text-slate-400">&gt;</span>
+          <span class="text-blue-600 font-bold">Assign Content</span>
+        </nav>
+      </div>
+
+      <form method="post" action="/admin/assign-content" id="assignContentForm">
+        <input type="hidden" name="content_type" id="contentTypeInput" value="mcq-plans">
+
+        <!-- TOP CONTENT TYPE SELECTOR TABS -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
+          <div data-tab="mcq-plans" onclick="selectContentTab('mcq-plans', this)" class="content-tab-card bg-blue-50 border-2 border-blue-600 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer shadow-sm transition">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shrink-0 shadow-md"><i class="fa-solid fa-layer-group"></i></div>
+            <div><h4 class="font-bold text-xs text-blue-900 leading-tight">MCQ Plans</h4><p class="text-[10px] text-blue-600 font-medium leading-tight mt-0.5">Assign full MCQ plans</p></div>
+          </div>
+          <div data-tab="individual-mcqs" onclick="selectContentTab('individual-mcqs', this)" class="content-tab-card bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer transition">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-cube"></i></div>
+            <div><h4 class="font-bold text-xs text-slate-800 leading-tight">Individual MCQs</h4><p class="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">Assign specific questions</p></div>
+          </div>
+          <div data-tab="tutorials" onclick="selectContentTab('tutorials', this)" class="content-tab-card bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer transition">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-circle-play"></i></div>
+            <div><h4 class="font-bold text-xs text-slate-800 leading-tight">Tutorials</h4><p class="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">Assign video tutorials</p></div>
+          </div>
+          <div data-tab="study-material" onclick="selectContentTab('study-material', this)" class="content-tab-card bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer transition">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-file-lines"></i></div>
+            <div><h4 class="font-bold text-xs text-slate-800 leading-tight">Study Material</h4><p class="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">Assign PDFs and documents</p></div>
+          </div>
+          <div data-tab="exam-papers" onclick="selectContentTab('exam-papers', this)" class="content-tab-card bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer transition col-span-2 sm:col-span-1">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-file-signature"></i></div>
+            <div><h4 class="font-bold text-xs text-slate-800 leading-tight">Exam Papers</h4><p class="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">Assign full exam papers</p></div>
+          </div>
+        </div>
+
+        <!-- MAIN WORKFLOW GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- COLUMN 1: STUDENTS -->
+          <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 card-shadow p-4 sm:p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3.5">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5">
+                <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">1. Select Students <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" id="studentSearch" onkeyup="filterStudents()" placeholder="Search students by name, class, or email..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Year Level</label>
+                  <select id="studentYearFilter" onchange="filterStudents()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 custom-select">
+                    <option value="">All Years</option>
+                    <% yearLevels.forEach(y => { %><option value="<%= y %>"><%= y %></option><% }) %>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Class</label>
+                  <select id="studentClassFilter" onchange="filterStudents()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-700 custom-select">
+                    <option value="">All Classes</option>
+                    <% classSections.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                  </select>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-1 pb-1 px-1">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input type="checkbox" id="selectAllStudents" onclick="toggleSelectAllStudents(this)" class="custom-checkbox">
+                  <span class="text-xs font-bold text-slate-700">Select All (visible)</span>
+                </label>
+                <span class="text-[11px] text-slate-400 font-medium"><%= students.length %> students</span>
+              </div>
+              <div class="space-y-1.5 max-h-[380px] overflow-y-auto pr-1" id="studentListContainer">
+                <% students.forEach(s => { %>
+                <label class="student-item flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition"
+                       data-name="<%= (s.name||'').toLowerCase() %>" data-email="<%= (s.email||'').toLowerCase() %>"
+                       data-year="<%= s.class_year || '' %>" data-class="<%= s.class_section || '' %>">
+                  <div class="flex items-center space-x-2.5">
+                    <input type="checkbox" name="student_ids" value="<%= s.id %>" onchange="updateStudentSelection(this)" class="student-checkbox custom-checkbox shrink-0">
+                    <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[11px] font-bold shrink-0"><%= (s.name||'?').charAt(0).toUpperCase() %></div>
+                    <div>
+                      <h4 class="text-xs font-bold text-slate-900 leading-tight"><%= s.name %></h4>
+                      <span class="text-[10px] text-slate-500 font-medium"><%= s.class_year || 'Year —' %><% if (s.class_section) { %> · <%= s.class_section %><% } %></span>
+                    </div>
+                  </div>
+                </label>
+                <% }) %>
+                <% if (!students.length) { %><p class="text-xs text-slate-400 text-center py-6">No student accounts yet.</p><% } %>
+              </div>
+            </div>
+            <div class="flex items-center justify-center space-x-1 pt-3 border-t border-slate-100 text-xs font-semibold" id="studentPagination"></div>
+          </div>
+
+          <!-- COLUMN 2: CONTENT PICKER (changes per tab) -->
+          <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 card-shadow p-4 sm:p-5 flex flex-col justify-between space-y-4">
+
+            <!-- MCQ PLANS -->
+            <div class="content-page active" data-page="mcq-plans">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5 mb-3.5">
+                <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-list-check"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">2. Select MCQ Plans <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" class="content-search" data-page="mcq-plans" onkeyup="filterContentCards('mcq-plans')" placeholder="Search plans by name or subject..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1 content-cards" data-page="mcq-plans">
+                <% mcqPlans.forEach(p => { %>
+                <div class="plan-card content-card p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 transition relative" data-text="<%= (p.name + ' ' + (p.subject_name||'')).toLowerCase() %>">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-start space-x-3">
+                      <input type="checkbox" name="content_ids" value="<%= p.id %>" data-page="mcq-plans" onchange="updateCardSelection(this)" class="content-checkbox custom-checkbox mt-1 shrink-0" disabled>
+                      <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm"><i class="fa-solid fa-book-bookmark"></i></div>
+                      <div>
+                        <div class="flex items-center space-x-2 flex-wrap">
+                          <h3 class="font-bold text-xs sm:text-sm text-slate-900"><%= p.name %></h3>
+                          <% if (p.year_level) { %><span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md"><%= p.year_level %></span><% } %>
+                          <% if (p.subject_name) { %><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md"><%= p.subject_name %></span><% } %>
+                          <% if (!p.is_active) { %><span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md">Inactive</span><% } %>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1 leading-snug"><%= p.description || '' %></p>
+                      </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <span class="text-xs font-bold text-slate-500 block mcq-count"><%= p.mcq_count %></span>
+                      <span class="text-[10px] text-slate-400 block font-medium">MCQs</span>
+                      <span class="text-sm font-extrabold text-blue-600 block mt-1">A$<%= p.price %></span>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                <% if (!mcqPlans.length) { %><p class="text-xs text-slate-400 text-center py-6">No MCQ plans created yet.</p><% } %>
+              </div>
+            </div>
+
+            <!-- INDIVIDUAL MCQS -->
+            <div class="content-page" data-page="individual-mcqs">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5 mb-3.5">
+                <div class="w-6 h-6 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center text-xs"><i class="fa-solid fa-cube"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">2. Select Individual MCQs <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" onkeyup="filterContentCards('individual-mcqs')" placeholder="Search questions by text, subject or topic..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="space-y-2 max-h-[420px] overflow-y-auto pr-1 content-cards" data-page="individual-mcqs">
+                <% mcqs.forEach(m => { %>
+                <label class="content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition" data-text="<%= (m.question + ' ' + (m.subject_name||'') + ' ' + (m.topic||'')).toLowerCase() %>">
+                  <input type="checkbox" name="content_ids" value="<%= m.id %>" data-page="individual-mcqs" onchange="updateCardSelection(this)" class="content-checkbox custom-checkbox mt-0.5 shrink-0" disabled>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800 leading-snug truncate"><%= m.question %></p>
+                    <span class="text-[10px] text-slate-400 font-medium"><%= m.subject_name || 'No subject' %><% if (m.topic) { %> · <%= m.topic %><% } %><% if (m.year) { %> · <%= m.year %><% } %></span>
+                  </div>
+                </label>
+                <% }) %>
+                <% if (!mcqs.length) { %><p class="text-xs text-slate-400 text-center py-6">No MCQs in the question bank yet.</p><% } %>
+              </div>
+            </div>
+
+            <!-- TUTORIALS -->
+            <div class="content-page" data-page="tutorials">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5 mb-3.5">
+                <div class="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xs"><i class="fa-solid fa-circle-play"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">2. Select Tutorials <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" onkeyup="filterContentCards('tutorials')" placeholder="Search tutorials by title or subject..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="space-y-2 max-h-[420px] overflow-y-auto pr-1 content-cards" data-page="tutorials">
+                <% tutorials.forEach(t => { %>
+                <label class="content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition" data-text="<%= (t.title + ' ' + (t.subject_name||'')).toLowerCase() %>">
+                  <input type="checkbox" name="content_ids" value="<%= t.id %>" data-page="tutorials" onchange="updateCardSelection(this)" class="content-checkbox custom-checkbox mt-0.5 shrink-0" disabled>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800 leading-snug truncate"><%= t.title %></p>
+                    <span class="text-[10px] text-slate-400 font-medium"><%= t.subject_name || 'No subject' %><% if (t.year) { %> · <%= t.year %><% } %><% if (t.duration_minutes) { %> · <%= t.duration_minutes %> min<% } %></span>
+                  </div>
+                </label>
+                <% }) %>
+                <% if (!tutorials.length) { %><p class="text-xs text-slate-400 text-center py-6">No tutorials in the library yet.</p><% } %>
+              </div>
+            </div>
+
+            <!-- STUDY MATERIAL -->
+            <div class="content-page" data-page="study-material">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5 mb-3.5">
+                <div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-file-lines"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">2. Select Study Material <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" onkeyup="filterContentCards('study-material')" placeholder="Search materials by title or subject..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="space-y-2 max-h-[420px] overflow-y-auto pr-1 content-cards" data-page="study-material">
+                <% studyMaterials.forEach(m => { %>
+                <label class="content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition" data-text="<%= (m.title + ' ' + (m.subject_name||'')).toLowerCase() %>">
+                  <input type="checkbox" name="content_ids" value="<%= m.id %>" data-page="study-material" onchange="updateCardSelection(this)" class="content-checkbox custom-checkbox mt-0.5 shrink-0" disabled>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800 leading-snug truncate"><%= m.title %></p>
+                    <span class="text-[10px] text-slate-400 font-medium"><%= m.subject_name || 'No subject' %><% if (m.file_type) { %> · <%= m.file_type.toUpperCase() %><% } %></span>
+                  </div>
+                </label>
+                <% }) %>
+                <% if (!studyMaterials.length) { %><p class="text-xs text-slate-400 text-center py-6">No study material in the library yet.</p><% } %>
+              </div>
+            </div>
+
+            <!-- EXAM PAPERS -->
+            <div class="content-page" data-page="exam-papers">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5 mb-3.5">
+                <div class="w-6 h-6 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-file-signature"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">2. Select Exam Papers <span class="text-red-500">*</span></h2>
+              </div>
+              <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" onkeyup="filterContentCards('exam-papers')" placeholder="Search papers by title or subject..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="space-y-2 max-h-[420px] overflow-y-auto pr-1 content-cards" data-page="exam-papers">
+                <% examPapers.forEach(p => { %>
+                <label class="content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition" data-text="<%= (p.title + ' ' + (p.subject_name||'')).toLowerCase() %>">
+                  <input type="checkbox" name="content_ids" value="<%= p.id %>" data-page="exam-papers" onchange="updateCardSelection(this)" class="content-checkbox custom-checkbox mt-0.5 shrink-0" disabled>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800 leading-snug truncate"><%= p.title %></p>
+                    <span class="text-[10px] text-slate-400 font-medium"><%= p.subject_name || 'No subject' %><% if (p.year) { %> · <%= p.year %><% } %> · A$<%= p.price %></span>
+                  </div>
+                </label>
+                <% }) %>
+                <% if (!examPapers.length) { %><p class="text-xs text-slate-400 text-center py-6">No exam papers published yet.</p><% } %>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-1 pt-3 border-t border-slate-100 text-xs font-semibold" id="contentPagination"></div>
+          </div>
+
+          <!-- COLUMN 3: SETTINGS + SUMMARY -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-4 sm:p-5 space-y-4">
+              <div class="flex items-center space-x-2 border-b border-slate-100 pb-2.5">
+                <div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-gear"></i></div>
+                <h2 class="text-sm font-bold text-slate-900">3. Assignment Settings</h2>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Assignment Title <span class="text-red-500">*</span></label>
+                <input type="text" name="title" id="assignmentTitleInput" required oninput="updateSummaryText()" class="form-input font-medium" placeholder="e.g. Mathematics Practice Assignment">
+                <p class="text-[10px] text-slate-400">This title will be visible to selected students.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="space-y-1">
+                  <label class="block text-xs font-bold text-slate-700">Start Date</label>
+                  <div class="relative">
+                    <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-blue-600 text-xs"></i>
+                    <input type="date" name="start_date" id="startDateInput" onchange="updateSummaryText()" class="form-input pl-8 font-semibold text-xs">
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label class="block text-xs font-bold text-slate-700">End Date</label>
+                  <div class="relative">
+                    <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-blue-600 text-xs"></i>
+                    <input type="date" name="end_date" id="endDateInput" onchange="updateSummaryText()" class="form-input pl-8 font-semibold text-xs">
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-xs font-bold text-slate-700">Instructions (Optional)</label>
+                <textarea name="instructions" rows="3" maxlength="500" class="w-full p-2.5 text-xs text-slate-700 border border-slate-200 rounded-xl outline-none resize-none leading-relaxed focus:ring-2 focus:ring-blue-500" placeholder="Please complete the assigned content within the given time."></textarea>
+              </div>
+              <div class="space-y-3 pt-1 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                  <div><span class="text-xs font-bold text-slate-800 block leading-tight">Send Email Notification</span><span class="text-[10px] text-slate-400">Notify students about this assignment</span></div>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" name="notify" checked class="sr-only peer">
+                    <div class="w-8 h-[18px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div><span class="text-xs font-bold text-slate-800 block leading-tight">Show in Student Dashboard</span><span class="text-[10px] text-slate-400">Make this assignment visible to students</span></div>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" name="show_dashboard" checked class="sr-only peer">
+                    <div class="w-8 h-[18px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div><span class="text-xs font-bold text-slate-800 block leading-tight">Set as Compulsory</span><span class="text-[10px] text-slate-400">Students must complete this assignment</span></div>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input type="checkbox" name="compulsory" class="sr-only peer">
+                    <div class="w-8 h-[18px] bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-3">
+              <h3 class="text-xs font-bold text-slate-900 flex items-center gap-2 border-b border-blue-100/80 pb-2">
+                <i class="fa-solid fa-graduation-cap text-blue-600"></i><span>Assignment Summary</span>
+              </h3>
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between text-slate-700">
+                  <span class="flex items-center gap-2 text-slate-500 font-medium"><i class="fa-solid fa-users text-blue-600 text-[11px]"></i> Selected Students</span>
+                  <span id="summaryStudentsCount" class="font-extrabold text-slate-900">0 students</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-700">
+                  <span class="flex items-center gap-2 text-slate-500 font-medium"><i class="fa-solid fa-list-check text-blue-600 text-[11px]"></i> Selected Content</span>
+                  <span id="summaryContentCount" class="font-extrabold text-blue-600">0 items</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-700">
+                  <span class="flex items-center gap-2 text-slate-500 font-medium"><i class="fa-regular fa-calendar text-blue-600 text-[11px]"></i> Start Date</span>
+                  <span id="summaryStartDate" class="font-bold text-slate-900">—</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-700">
+                  <span class="flex items-center gap-2 text-slate-500 font-medium"><i class="fa-regular fa-calendar-check text-blue-600 text-[11px]"></i> End Date</span>
+                  <span id="summaryEndDate" class="font-bold text-slate-900">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-3 pt-1">
+              <button type="button" onclick="history.back()" class="w-1/3 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl transition shadow-sm text-center">Cancel</button>
+              <button type="submit" onclick="return validateBeforeSubmit()" class="w-2/3 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-paper-plane text-xs"></i><span>Assign Content</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  const PAGE_SIZE = 8;
+  const studentPages = {}; // rebuilt on filter
+  let studentPage = 1;
+  let contentPage = 1;
+
+  function selectContentTab(type, cardEl) {
+    document.querySelectorAll('.content-tab-card').forEach((card) => {
+      card.className = "content-tab-card bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer transition";
+      const h = card.querySelector('h4'); if (h) h.className = "font-bold text-xs text-slate-800 leading-tight";
+    });
+    cardEl.className = "content-tab-card bg-blue-50 border-2 border-blue-600 rounded-2xl p-3.5 flex items-center space-x-3 cursor-pointer shadow-sm transition";
+    const h = cardEl.querySelector('h4'); if (h) h.className = "font-bold text-xs text-blue-900 leading-tight";
+
+    document.getElementById('contentTypeInput').value = type;
+    document.querySelectorAll('.content-page').forEach((p) => p.classList.toggle('active', p.dataset.page === type));
+    // Only the active tab's checkboxes should ever submit.
+    document.querySelectorAll('.content-checkbox').forEach((cb) => { cb.disabled = cb.dataset.page !== type; });
+    contentPage = 1;
+    paginateContent(type);
+    recalculateSummary();
+  }
+
+  function updateStudentSelection(cb) {
+    const label = cb.closest('label');
+    label.className = cb.checked
+      ? "student-item flex items-center justify-between p-2 rounded-xl bg-blue-50/70 border border-blue-200/80 cursor-pointer transition"
+      : "student-item flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition";
+    recalculateSummary();
+  }
+
+  function toggleSelectAllStudents(masterCb) {
+    document.querySelectorAll('#studentListContainer .student-item').forEach((label) => {
+      if (label.style.display === 'none') return; // only affect currently-visible (filtered) students
+      const cb = label.querySelector('.student-checkbox');
+      cb.checked = masterCb.checked;
+      updateStudentSelection(cb);
+    });
+  }
+
+  function updateCardSelection(cb) {
+    const card = cb.closest('.plan-card') || cb.closest('.content-card');
+    if (!card) return;
+    if (card.classList.contains('plan-card')) {
+      card.className = cb.checked
+        ? "plan-card content-card p-3.5 rounded-2xl bg-blue-50/50 border-2 border-blue-500 transition relative"
+        : "plan-card content-card p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 transition relative";
+    } else {
+      card.className = cb.checked
+        ? "content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-300 cursor-pointer transition"
+        : "content-card flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer transition";
+    }
+    recalculateSummary();
+  }
+
+  function filterStudents() {
+    const q = document.getElementById('studentSearch').value.toLowerCase();
+    const year = document.getElementById('studentYearFilter').value;
+    const cls = document.getElementById('studentClassFilter').value;
+    const items = Array.from(document.querySelectorAll('#studentListContainer .student-item'));
+    items.forEach((item) => {
+      const matchesText = !q || item.dataset.name.includes(q) || item.dataset.email.includes(q) || item.dataset.class.toLowerCase().includes(q);
+      const matchesYear = !year || item.dataset.year === year;
+      const matchesClass = !cls || item.dataset.class === cls;
+      item._visible = matchesText && matchesYear && matchesClass;
+    });
+    studentPage = 1;
+    paginateStudents();
+  }
+
+  function paginateStudents() {
+    const items = Array.from(document.querySelectorAll('#studentListContainer .student-item'));
+    const visible = items.filter((i) => i._visible !== false);
+    const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+    if (studentPage > totalPages) studentPage = totalPages;
+    items.forEach((i) => { i.style.display = 'none'; });
+    visible.slice((studentPage - 1) * PAGE_SIZE, studentPage * PAGE_SIZE).forEach((i) => { i.style.display = ''; });
+    renderPager('studentPagination', totalPages, studentPage, (p) => { studentPage = p; paginateStudents(); });
+  }
+
+  function filterContentCards(type) {
+    const wrap = document.querySelector(`.content-cards[data-page="${type}"]`);
+    const input = wrap.parentElement.querySelector('input[type="text"]');
+    const q = (input.value || '').toLowerCase();
+    Array.from(wrap.querySelectorAll('.content-card')).forEach((card) => {
+      card._visible = !q || card.dataset.text.includes(q);
+    });
+    contentPage = 1;
+    paginateContent(type);
+  }
+
+  function paginateContent(type) {
+    const wrap = document.querySelector(`.content-cards[data-page="${type}"]`);
+    if (!wrap) return;
+    const cards = Array.from(wrap.querySelectorAll('.content-card'));
+    const visible = cards.filter((c) => c._visible !== false);
+    const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+    if (contentPage > totalPages) contentPage = totalPages;
+    cards.forEach((c) => { c.style.display = 'none'; });
+    visible.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE).forEach((c) => { c.style.display = ''; });
+    renderPager('contentPagination', totalPages, contentPage, (p) => { contentPage = p; paginateContent(type); });
+  }
+
+  function renderPager(containerId, totalPages, current, onClick) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    const mk = (label, page, disabled, active) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = "w-7 h-7 rounded-lg flex items-center justify-center font-bold " +
+        (active ? "bg-blue-600 text-white" : disabled ? "border border-slate-200 text-slate-300 cursor-not-allowed" : "border border-slate-200 text-slate-600 hover:bg-slate-50");
+      btn.innerHTML = label;
+      if (!disabled && !active) btn.onclick = () => onClick(page);
+      return btn;
+    };
+    el.appendChild(mk('<i class="fa-solid fa-chevron-left text-[10px]"></i>', current - 1, current <= 1, false));
+    for (let p = 1; p <= totalPages; p++) el.appendChild(mk(String(p), p, false, p === current));
+    el.appendChild(mk('<i class="fa-solid fa-chevron-right text-[10px]"></i>', current + 1, current >= totalPages, false));
+  }
+
+  function recalculateSummary() {
+    const students = document.querySelectorAll('.student-checkbox:checked').length;
+    const activeType = document.getElementById('contentTypeInput').value;
+    const content = document.querySelectorAll(`.content-checkbox[data-page="${activeType}"]:checked`).length;
+    document.getElementById('summaryStudentsCount').innerText = `${students} student${students === 1 ? '' : 's'}`;
+    document.getElementById('summaryContentCount').innerText = `${content} item${content === 1 ? '' : 's'}`;
+  }
+
+  function updateSummaryText() {
+    document.getElementById('summaryStartDate').innerText = document.getElementById('startDateInput').value || '—';
+    document.getElementById('summaryEndDate').innerText = document.getElementById('endDateInput').value || '—';
+  }
+
+  function validateBeforeSubmit() {
+    const title = document.getElementById('assignmentTitleInput').value.trim();
+    const students = document.querySelectorAll('.student-checkbox:checked').length;
+    const activeType = document.getElementById('contentTypeInput').value;
+    const content = document.querySelectorAll(`.content-checkbox[data-page="${activeType}"]:checked`).length;
+    if (!title) { alert('Please enter an assignment title.'); return false; }
+    if (!students) { alert('Please select at least one student.'); return false; }
+    if (!content) { alert('Please select at least one content item.'); return false; }
+    return true;
+  }
+
+  document.querySelectorAll('.student-checkbox, .content-checkbox').forEach((cb) => cb.addEventListener('change', recalculateSummary));
+
+  paginateStudents();
+  paginateContent('mcq-plans');
+  document.querySelectorAll('.content-checkbox').forEach((cb) => { cb.disabled = cb.dataset.page !== 'mcq-plans'; });
+</script>
+</body>
+</html>

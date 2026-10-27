@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden">
+<div class="flex flex-1 min-h-screen relative">
+  <%- include('../partials/tw_sidebar', { active: 'settings' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 min-h-screen relative">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search settings...' }) %>
+
+    <% if (success && success.length) { %>
+    <div class="mx-4 sm:mx-6 lg:mx-8 mt-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+    <div class="mx-4 sm:mx-6 lg:mx-8 mt-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30"><i class="fa-solid fa-gear text-lg"></i></div>
+          <div><h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Settings</h1><p class="text-[13px] text-slate-500 mt-0.5">Manage your portal preferences, integrations and system settings.</p></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold">
+        <button onclick="switchCategory('general')" id="pill-general" class="pill active py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600"><i class="fa-solid fa-sliders"></i><span>General</span></button>
+        <button onclick="switchCategory('email')" id="pill-email" class="pill py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-envelope"></i><span>Email</span></button>
+        <button onclick="switchCategory('payments')" id="pill-payments" class="pill py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-credit-card"></i><span>Payments</span></button>
+        <button onclick="switchCategory('appearance')" id="pill-appearance" class="pill py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-palette"></i><span>Appearance</span></button>
+        <button onclick="switchCategory('roles')" id="pill-roles" class="pill py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-user-shield"></i><span>User Roles</span></button>
+        <button onclick="switchCategory('security')" id="pill-security" class="pill py-3 rounded-lg transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-lock"></i><span>Security</span></button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- LEFT SUB-NAV -->
+        <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-2 shadow-sm space-y-1">
+          <div class="cat-menu" data-cat="general">
+            <a href="#" onclick="switchSub('general','profile');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-user w-5 text-center text-slate-400"></i><span>Profile Information</span></a>
+            <a href="#" onclick="switchSub('general','address');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-location-dot w-5 text-center text-slate-400"></i><span>Address Information</span></a>
+            <a href="#" onclick="switchSub('general','login_options');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-right-to-bracket w-5 text-center text-slate-400"></i><span>Login Page Options</span></a>
+            <a href="#" onclick="switchSub('general','language');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-globe w-5 text-center text-slate-400"></i><span>Language &amp; Timezone</span></a>
+            <a href="#" onclick="switchSub('general','system');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-sliders w-5 text-center text-slate-400"></i><span>System Preferences</span></a>
+          </div>
+          <div class="cat-menu hidden" data-cat="email">
+            <a href="#" onclick="switchSub('email','email_settings');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-envelope w-5 text-center text-slate-400"></i><span>Email Settings</span></a>
+            <a href="#" onclick="switchSub('email','email_templates');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-file-code w-5 text-center text-slate-400"></i><span>Email Templates</span></a>
+            <a href="#" onclick="switchSub('email','notification_triggers');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-bell w-5 text-center text-slate-400"></i><span>Notification Triggers</span></a>
+            <a href="#" onclick="switchSub('email','smtp_config');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-server w-5 text-center text-slate-400"></i><span>SMTP Configuration</span></a>
+          </div>
+          <div class="cat-menu hidden" data-cat="payments">
+            <a href="#" onclick="switchSub('payments','gateways');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-credit-card w-5 text-center text-slate-400"></i><span>Payment Gateways</span></a>
+            <a href="#" onclick="switchSub('payments','webhook');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-code w-5 text-center text-slate-400"></i><span>Webhook &amp; API</span></a>
+            <a href="#" onclick="switchSub('payments','woocommerce');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-brands fa-wordpress w-5 text-center text-slate-400"></i><span>WooCommerce</span></a>
+            <a href="#" onclick="switchSub('payments','currency');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-calculator w-5 text-center text-slate-400"></i><span>Currency &amp; Tax</span></a>
+            <a href="#" onclick="switchSub('payments','invoice');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-file-invoice w-5 text-center text-slate-400"></i><span>Invoice Settings</span></a>
+          </div>
+          <div class="cat-menu hidden" data-cat="appearance">
+            <a href="#" onclick="switchSub('appearance','branding');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-palette w-5 text-center text-slate-400"></i><span>Branding</span></a>
+            <a href="#" onclick="switchSub('appearance','colors');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-droplet w-5 text-center text-slate-400"></i><span>Colors &amp; Font</span></a>
+            <a href="#" onclick="switchSub('appearance','logo_favicon');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-image w-5 text-center text-slate-400"></i><span>Logo &amp; Homepage Image</span></a>
+            <a href="#" onclick="switchSub('appearance','login_page');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-right-to-bracket w-5 text-center text-slate-400"></i><span>Login Page Text</span></a>
+          </div>
+          <div class="cat-menu hidden" data-cat="roles">
+            <a href="#" onclick="switchSub('roles','roles_mgmt');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-user-shield w-5 text-center text-slate-400"></i><span>Roles Overview</span></a>
+          </div>
+          <div class="cat-menu hidden" data-cat="security">
+            <a href="#" onclick="switchSub('security','password_login');return false;" class="submenu-link active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-lock w-5 text-center text-slate-400"></i><span>Password &amp; Login</span></a>
+            <a href="#" onclick="switchSub('security','two_factor');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-shield-halved w-5 text-center text-slate-400"></i><span>Two-Factor (OTP)</span></a>
+            <a href="#" onclick="switchSub('security','session_mgmt');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-laptop w-5 text-center text-slate-400"></i><span>Session Management</span></a>
+            <a href="#" onclick="switchSub('security','my_password');return false;" class="submenu-link flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-key w-5 text-center text-slate-400"></i><span>Change My Password</span></a>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="lg:col-span-9 bg-white rounded-xl border border-slate-200 p-6 shadow-sm text-xs">
+
+          <!-- GENERAL: Profile -->
+          <div class="settings-panel active" data-cat="general" data-sub="profile">
+            <form method="post" action="/admin/settings/profile" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Profile Information</h3><p class="text-slate-500 mt-0.5">Update your personal and portal information.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Full Name</label><input type="text" name="name" value="<%= teacherProfile.name %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1"><%= currentUser.role === 'admin' ? 'Admin' : 'Teacher' %> ID</label><input type="text" readonly value="TCH-<%= String(teacherProfile.id).padStart(3,'0') %>" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-500 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Email Address</label><input type="email" value="<%= teacherProfile.email %>" disabled class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-500 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Phone Number</label><input type="text" name="phone" value="<%= teacherProfile.phone || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Department / Faculty</label><input type="text" name="department" value="<%= teacherProfile.department || '' %>" placeholder="e.g. Mathematics & Science Faculty" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">About Me</label><textarea name="bio" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-medium"><%= teacherProfile.bio || '' %></textarea></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- GENERAL: Address -->
+          <div class="settings-panel" data-cat="general" data-sub="address">
+            <form method="post" action="/admin/settings/profile" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Address Information</h3><p class="text-slate-500 mt-0.5">Manage your institutional or personal address.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <input type="hidden" name="name" value="<%= teacherProfile.name %>">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Street Address</label><input type="text" name="address" value="<%= teacherProfile.address || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Address Line 2</label><input type="text" name="address_line2" value="<%= teacherProfile.address_line2 || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">City</label><input type="text" name="city" value="<%= teacherProfile.city || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">State / Province</label><input type="text" name="state" value="<%= teacherProfile.state || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Postal Code</label><input type="text" name="postal_code" value="<%= teacherProfile.postal_code || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Country</label><input type="text" name="country" value="<%= teacherProfile.country || 'Australia' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- GENERAL: Login Options -->
+          <div class="settings-panel" data-cat="general" data-sub="login_options">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Login Page Options</h3><p class="text-slate-500 mt-0.5">Customize authentication options and login page behaviour.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div><h4 class="font-bold text-slate-900">Google SSO Authentication</h4><p class="text-slate-500 text-[11px]">Allow users to sign in with Google accounts (requires separate OAuth setup)</p></div>
+                  <input type="hidden" name="google_sso_enabled" value="0"><input type="checkbox" name="google_sso_enabled" value="1" <%= extra.google_sso_enabled==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div><h4 class="font-bold text-slate-900">Microsoft SSO Authentication</h4><p class="text-slate-500 text-[11px]">Allow users to sign in with Microsoft school accounts</p></div>
+                  <input type="hidden" name="microsoft_sso_enabled" value="0"><input type="checkbox" name="microsoft_sso_enabled" value="1" <%= extra.microsoft_sso_enabled==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div><h4 class="font-bold text-slate-900">Remember Me Checkbox</h4><p class="text-slate-500 text-[11px]">Show 'Remember me' option on the login screen</p></div>
+                  <input type="hidden" name="remember_me_enabled" value="0"><input type="checkbox" name="remember_me_enabled" value="1" <%= extra.remember_me_enabled==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- GENERAL: Language & Timezone -->
+          <div class="settings-panel" data-cat="general" data-sub="language">
+            <form method="post" action="/admin/settings/general" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Language &amp; Timezone</h3><p class="text-slate-500 mt-0.5">Set regional defaults for dates, times and language.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <input type="hidden" name="platform_name" value="<%= general.platform_name %>">
+              <input type="hidden" name="contact_email" value="<%= general.contact_email %>">
+              <input type="hidden" name="website_url" value="<%= general.website_url %>">
+              <input type="hidden" name="portal_description" value="<%= general.portal_description %>">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Timezone</label>
+                  <select name="timezone" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                    <% ['Australia/Sydney','Australia/Perth','Australia/Adelaide','Australia/Brisbane'].forEach(function(tz){ %>
+                    <option value="<%= tz %>" <%= general.timezone===tz?'selected':'' %>><%= tz %></option>
+                    <% }); %>
+                  </select>
+                </div>
+              </div>
+            </form>
+            <form method="post" action="/admin/settings/kv" class="mt-4">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Display Language</label>
+                <select name="display_language" class="custom-select w-full sm:w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                  <option <%= extra.display_language==='English (Australia)'?'selected':'' %>>English (Australia)</option>
+                  <option <%= extra.display_language==='English (US)'?'selected':'' %>>English (US)</option>
+                </select>
+              </div>
+              <button type="submit" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition shadow-md">Save Language</button>
+            </form>
+          </div>
+
+          <!-- GENERAL: System Preferences -->
+          <div class="settings-panel" data-cat="general" data-sub="system">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">System Preferences</h3><p class="text-slate-500 mt-0.5">Configure maintenance mode and logging.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div><h4 class="font-bold text-slate-900">Maintenance Mode</h4><p class="text-slate-500 text-[11px]">Temporarily restrict student portal access</p></div>
+                  <input type="hidden" name="maintenance_mode" value="0"><input type="checkbox" name="maintenance_mode" value="1" <%= extra.maintenance_mode==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div><h4 class="font-bold text-slate-900">Debug Logging</h4><p class="text-slate-500 text-[11px]">Keep detailed audit logs for troubleshooting</p></div>
+                  <input type="hidden" name="debug_logging" value="0"><input type="checkbox" name="debug_logging" value="1" <%= extra.debug_logging==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- EMAIL: Settings -->
+          <div class="settings-panel" data-cat="email" data-sub="email_settings">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Email Settings</h3><p class="text-slate-500 mt-0.5">Configure the sender identity for all system emails.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">From Name</label><input type="text" name="from_name" value="<%= extra.from_name %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">From Email</label><input type="email" name="from_email" value="<%= extra.from_email %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Email Footer</label><textarea name="email_footer" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-medium"><%= extra.email_footer %></textarea></div>
+              </div>
+              <p class="text-slate-400 text-[11px]">Real SMTP host/port/credentials come from your <code>.env</code> file — see <a href="/admin/help" class="text-blue-600 font-semibold">Help &amp; Documentation</a> for setup steps.</p>
+            </form>
+          </div>
+
+          <!-- EMAIL: Templates (real, reusing existing template toggle system) -->
+          <div class="settings-panel" data-cat="email" data-sub="email_templates">
+            <form method="post" action="/admin/settings/email-templates" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Email Templates</h3><p class="text-slate-500 mt-0.5">Enable or disable each automated notification email.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="space-y-3">
+                <% templateStates.forEach(function(t){ %>
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div><h4 class="font-bold text-slate-900"><%= t.label %></h4><p class="text-[11px] text-slate-500">Automated email sent for this event</p></div>
+                  <input type="checkbox" name="enabled_<%= t.key %>" <%= t.enabled ? 'checked' : '' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+                <% }); %>
+              </div>
+            </form>
+          </div>
+
+          <!-- EMAIL: Notification Triggers -->
+          <div class="settings-panel" data-cat="email" data-sub="notification_triggers">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Notification Triggers</h3><p class="text-slate-500 mt-0.5">Choose which events fire a notification email.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <span class="font-bold text-slate-900">Notify on Student Submission</span>
+                  <input type="hidden" name="notify_on_submission" value="0"><input type="checkbox" name="notify_on_submission" value="1" <%= extra.notify_on_submission==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <span class="font-bold text-slate-900">Notify on Result Published</span>
+                  <input type="hidden" name="notify_on_grade_published" value="0"><input type="checkbox" name="notify_on_grade_published" value="1" <%= extra.notify_on_grade_published==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- EMAIL: SMTP status (read-only, real) -->
+          <div class="settings-panel" data-cat="email" data-sub="smtp_config">
+            <div class="space-y-6">
+              <div class="border-b border-slate-100 pb-4"><h3 class="font-bold text-base text-[#091e42]">SMTP Configuration</h3><p class="text-slate-500 mt-0.5">Live status from your server's environment variables.</p></div>
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex justify-between items-center"><span class="font-bold">Status</span><span class="<%= smtpStatus.configured ? 'text-emerald-600' : 'text-amber-600' %> font-bold"><%= smtpStatus.configured ? 'Connected' : 'Not configured — using demo mode (emails logged to Email Logs)' %></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold">From Email</span><span class="text-slate-600"><%= smtpStatus.fromEmail %></span></div>
+              </div>
+              <p class="text-slate-400 text-[11px]">To connect a real SMTP provider, set <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code> in <code>.env</code> and restart — see Help &amp; Documentation.</p>
+            </div>
+          </div>
+
+          <!-- PAYMENTS: Gateways (real Stripe) -->
+          <div class="settings-panel" data-cat="payments" data-sub="gateways">
+            <form method="post" action="/admin/settings/stripe" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Payment Gateway — Stripe</h3><p class="text-slate-500 mt-0.5">Configure real Stripe keys, or leave blank to keep demo mode (plans activate instantly).</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-base"><i class="fa-brands fa-stripe"></i></div>
+                  <div><h4 class="font-bold text-slate-900">Stripe</h4><p class="text-[11px] text-slate-500">Mode: <%= paymentStatus.stripeMode %></p></div>
+                </div>
+                <span class="<%= paymentStatus.stripeConfigured ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' %> border px-2.5 py-1 rounded-full font-bold text-[10px]"><%= paymentStatus.stripeConfigured ? 'Configured' : 'Demo mode' %></span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Publishable Key</label><input type="text" name="stripe_publishable_key" value="<%= stripeKeys.publishableKey %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Secret Key <%= stripeKeys.secretKeySet ? '(ending •••'+stripeKeys.secretKeyMasked+')' : '' %></label><input type="password" name="stripe_secret_key" placeholder="<%= stripeKeys.secretKeySet ? 'Leave blank to keep current key' : 'sk_test_...' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Webhook Secret <%= stripeKeys.webhookSecretSet ? '(set)' : '(not set)' %></label><input type="password" name="stripe_webhook_secret" placeholder="Leave blank to keep current" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- PAYMENTS: Webhook & API -->
+          <div class="settings-panel" data-cat="payments" data-sub="webhook">
+            <div class="space-y-6">
+              <div class="border-b border-slate-100 pb-4"><h3 class="font-bold text-base text-[#091e42]">Webhook &amp; API</h3><p class="text-slate-500 mt-0.5">Your Stripe webhook endpoint.</p></div>
+              <div><label class="block font-semibold text-slate-700 mb-1">Stripe Webhook URL</label><input type="text" readonly value="<%= stripeKeys.webhookUrl %>" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+              <div><label class="block font-semibold text-slate-700 mb-1">WooCommerce Webhook Secret</label><input type="text" readonly value="<%= paymentStatus.webhookSecretConfigured ? 'Configured (see .env WOO_WEBHOOK_SECRET)' : 'Not set' %>" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+            </div>
+          </div>
+
+          <!-- PAYMENTS: WooCommerce -->
+          <div class="settings-panel" data-cat="payments" data-sub="woocommerce">
+            <div class="space-y-6">
+              <div class="border-b border-slate-100 pb-4"><h3 class="font-bold text-base text-[#091e42]">WooCommerce Integration</h3><p class="text-slate-500 mt-0.5">Orders arrive automatically via the webhook bridge plugin, or can be pulled on demand with "Sync Now" on the Orders &amp; Payments page.</p></div>
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div class="flex justify-between items-center"><span class="font-bold">Website</span><span class="text-blue-600"><%= general.website_url %></span></div>
+                <div class="flex justify-between items-center"><span class="font-bold">Webhook Endpoint</span><span class="font-mono text-[11px]">/api/woo/order-complete</span></div>
+              </div>
+              <p class="text-slate-400 text-[11px]">Setup steps are in <code>wordpress-integration/aus-academy-woo-bridge.php</code> and Help &amp; Documentation.</p>
+            </div>
+
+            <form method="post" action="/admin/settings/woocommerce" class="space-y-6 mt-8 pt-6 border-t border-slate-100">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">WooCommerce API Connection</h3><p class="text-slate-500 mt-0.5">Required for the real "Sync Now" REST API pull (Settings &rarr; <code>GET /wp-json/wc/v3/orders</code>).</p></div>
+                <span class="<%= wooSettings.configured ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' %> border px-2.5 py-1 rounded-full font-bold text-[10px]"><%= wooSettings.configured ? 'Configured' : 'Not configured' %></span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Store URL</label><input type="text" name="woo_store_url" value="<%= wooSettings.storeUrl %>" placeholder="https://www.yourstore.com" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Consumer Key <%= wooSettings.consumerKeySet ? '(ending •••'+wooSettings.consumerKeyMasked+')' : '' %></label><input type="password" name="woo_consumer_key" placeholder="<%= wooSettings.consumerKeySet ? 'Leave blank to keep current key' : 'ck_...' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Consumer Secret <%= wooSettings.consumerSecretSet ? '(set)' : '(not set)' %></label><input type="password" name="woo_consumer_secret" placeholder="<%= wooSettings.consumerSecretSet ? 'Leave blank to keep current' : 'cs_...' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono text-[11px]"></div>
+              </div>
+              <p class="text-slate-400 text-[11px]">Generate these under WooCommerce &rarr; Settings &rarr; Advanced &rarr; REST API on your WordPress store (Read permission is enough for Sync Now).</p>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save API Connection</button>
+            </form>
+          </div>
+
+          <!-- PAYMENTS: Currency & Tax -->
+          <div class="settings-panel" data-cat="payments" data-sub="currency">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Currency &amp; Tax</h3><p class="text-slate-500 mt-0.5">Set your storefront currency and GST rate.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Currency</label><input type="text" name="currency" value="<%= extra.currency %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">GST Rate (%)</label><input type="number" step="0.1" name="gst_rate" value="<%= extra.gst_rate %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Order ID Prefix</label><input type="text" name="order_prefix" value="<%= extra.order_prefix %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- PAYMENTS: Invoice -->
+          <div class="settings-panel" data-cat="payments" data-sub="invoice">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Invoice Settings</h3><p class="text-slate-500 mt-0.5">Notes shown on generated invoices/receipts.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div><label class="block font-semibold text-slate-700 mb-1">Invoice Notes</label><textarea name="invoice_notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-medium"><%= extra.invoice_notes %></textarea></div>
+              <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <span class="font-bold text-slate-900">Email me on failed payments</span>
+                <input type="hidden" name="payment_notify_on_failed" value="0"><input type="checkbox" name="payment_notify_on_failed" value="1" <%= extra.payment_notify_on_failed==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+              </div>
+            </form>
+          </div>
+
+          <!-- APPEARANCE: Branding -->
+          <div class="settings-panel" data-cat="appearance" data-sub="branding">
+            <form method="post" action="/admin/settings/general" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Branding Settings</h3><p class="text-slate-500 mt-0.5">Portal name and description shown across the site.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <input type="hidden" name="contact_email" value="<%= general.contact_email %>">
+              <input type="hidden" name="website_url" value="<%= general.website_url %>">
+              <input type="hidden" name="timezone" value="<%= general.timezone %>">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Portal Name</label><input type="text" name="platform_name" value="<%= general.platform_name %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Contact Email</label><input type="email" name="contact_email2" value="<%= general.contact_email %>" onchange="this.form.contact_email.value=this.value" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div class="sm:col-span-2"><label class="block font-semibold text-slate-700 mb-1">Portal Description / Tagline</label><textarea name="portal_description" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-medium"><%= general.portal_description %></textarea></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- APPEARANCE: Colors & Font (kept exactly as the existing working feature) -->
+          <div class="settings-panel" data-cat="appearance" data-sub="colors">
+            <form method="post" action="/admin/settings/theme" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Colors &amp; Font</h3><p class="text-slate-500 mt-0.5">Applies instantly across Admin, Teacher and Student portals.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Primary Color</label>
+                  <div class="flex items-center space-x-3">
+                    <input type="color" name="primary_color" value="<%= currentColor %>" class="w-12 h-10 rounded-lg border border-slate-200 cursor-pointer">
+                    <input type="text" value="<%= currentColor %>" onchange="this.previousElementSibling.value=this.value" oninput="this.previousElementSibling.value=this.value" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-mono">
+                  </div>
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Font Family</label>
+                  <select name="font_family" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                    <% ['Inter','Poppins','Roboto','Nunito','Work Sans','Manrope'].forEach(function(f){ %>
+                    <option value="<%= f %>" <%= currentFont===f?'selected':'' %>><%= f %></option>
+                    <% }); %>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- APPEARANCE: Logo & Homepage Image -->
+          <div class="settings-panel" data-cat="appearance" data-sub="logo_favicon">
+            <div class="space-y-8">
+              <form method="post" action="/admin/settings/logo" enctype="multipart/form-data" class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div><h3 class="font-bold text-base text-[#091e42]">Logo</h3><p class="text-slate-500 mt-0.5">Shown in the sidebar across all portals.</p></div>
+                  <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition shadow-md">Upload</button>
+                </div>
+                <% if (logoUrl) { %><img src="<%= logoUrl %>" class="w-16 h-16 rounded-xl object-cover border border-slate-200"><% } %>
+                <input type="file" name="logo" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+              </form>
+              <form method="post" action="/admin/settings/hero-image" enctype="multipart/form-data" class="space-y-4 pt-6 border-t border-slate-100">
+                <div class="flex items-center justify-between">
+                  <div><h3 class="font-bold text-base text-[#091e42]">Homepage / Login Image</h3><p class="text-slate-500 mt-0.5">Background image on the public homepage &amp; login screen.</p></div>
+                  <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl transition shadow-md">Upload</button>
+                </div>
+                <% if (heroImageUrl) { %><img src="<%= heroImageUrl %>" class="w-full max-w-xs h-24 rounded-xl object-cover border border-slate-200"><% } %>
+                <input type="file" name="hero_image" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+              </form>
+            </div>
+          </div>
+
+          <!-- APPEARANCE: Login Page Text -->
+          <div class="settings-panel" data-cat="appearance" data-sub="login_page">
+            <form method="post" action="/admin/settings/login-text" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Login Page Text</h3><p class="text-slate-500 mt-0.5">Copy shown on the public login screens.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Brand Name</label><input type="text" name="brand_name" value="<%= loginTextForm.brand_name %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Brand Tagline</label><input type="text" name="brand_tagline" value="<%= loginTextForm.brand_tagline %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Student Hero Title</label><input type="text" name="login_student_hero_title" value="<%= loginTextForm.login_student_hero_title %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Staff Hero Title</label><input type="text" name="login_staff_hero_title" value="<%= loginTextForm.login_staff_hero_title %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+              </div>
+              <p class="text-slate-400 text-[11px]">More login copy fields (bullets, subtitles) can be edited directly in Help &amp; Documentation's reference, or ask for the full list to be added here.</p>
+            </form>
+          </div>
+
+          <!-- ROLES: Overview -->
+          <div class="settings-panel" data-cat="roles" data-sub="roles_mgmt">
+            <div class="space-y-6">
+              <div class="border-b border-slate-100 pb-4"><h3 class="font-bold text-base text-[#091e42]">Roles Overview</h3><p class="text-slate-500 mt-0.5">AUS Academy uses two portal roles — Admin/Teacher (staff) and Student. There is no multi-tier role system to configure; this table just shows current headcounts.</p></div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead><tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[11px]"><th class="p-3">Role</th><th class="p-3">Description</th><th class="p-3">Users</th><th class="p-3">Status</th></tr></thead>
+                  <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tr><td class="p-3 font-bold">Admin</td><td class="p-3 text-slate-500">Full portal access, manages teachers</td><td class="p-3"><%= adminCount %></td><td class="p-3"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold text-[10px]">Active</span></td></tr>
+                    <tr><td class="p-3 font-bold">Teacher</td><td class="p-3 text-slate-500">Manages content, assignments &amp; grading</td><td class="p-3"><%= teacherCount %></td><td class="p-3"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold text-[10px]">Active</span></td></tr>
+                    <tr><td class="p-3 font-bold">Student</td><td class="p-3 text-slate-500">Purchases plans, takes exams</td><td class="p-3"><%= studentCount %></td><td class="p-3"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold text-[10px]">Active</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <% if (currentUser.role === 'admin') { %><a href="/admin/teachers" class="inline-block bg-blue-600 text-white font-bold px-4 py-2.5 rounded-xl">Manage Teacher Accounts &rarr;</a><% } %>
+            </div>
+          </div>
+
+          <!-- SECURITY: Password & Login policy -->
+          <div class="settings-panel" data-cat="security" data-sub="password_login">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Password &amp; Login Policy</h3><p class="text-slate-500 mt-0.5">Guidance shown to users when they set a password.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Minimum Password Length</label>
+                  <select name="password_min_length" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                    <% [6,8,10,12].forEach(function(n){ %><option value="<%= n %>" <%= extra.password_min_length==String(n)?'selected':'' %>><%= n %> characters</option><% }); %>
+                  </select>
+                </div>
+                <div><label class="block font-semibold text-slate-700 mb-1">Password Expiry (Days, 0 = never)</label><input type="number" name="password_expiry_days" value="<%= extra.password_expiry_days %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+              </div>
+              <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div><h4 class="font-bold text-slate-900">Require Special Characters</h4><p class="text-slate-500 text-[11px]">Symbols like !@#$%^&amp;*</p></div>
+                <input type="hidden" name="require_special_chars" value="0"><input type="checkbox" name="require_special_chars" value="1" <%= extra.require_special_chars==='1'?'checked':'' %> class="w-5 h-5 rounded text-blue-600">
+              </div>
+            </form>
+          </div>
+
+          <!-- SECURITY: Two-Factor (real — reuses existing OTP settings) -->
+          <div class="settings-panel" data-cat="security" data-sub="two_factor">
+            <%
+              const provLabels = { twilio: 'Twilio (SMS)', twilio_whatsapp: 'Twilio (WhatsApp)', msg91: 'MSG91 (SMS)', whatsapp_business: 'WhatsApp Business API (Meta)' };
+              const fieldLabels = {
+                twilio_account_sid: 'Account SID', twilio_auth_token: 'Auth Token', twilio_from_number: 'From Number (e.g. +1xxxxxxxxxx)',
+                twilio_whatsapp_from: 'WhatsApp From (e.g. whatsapp:+14155238886)',
+                msg91_auth_key: 'Auth Key', msg91_sender_id: 'Sender ID',
+                meta_whatsapp_token: 'Access Token', meta_whatsapp_phone_id: 'Phone Number ID', meta_whatsapp_template_name: 'Template Name (default: otp_code)',
+              };
+            %>
+            <form method="post" action="/admin/settings/otp" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Two-Factor Authentication (Email + SMS OTP)</h3><p class="text-slate-500 mt-0.5">Email OTP is always required at login. SMS/WhatsApp OTP is optional.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div><h4 class="font-bold text-slate-900">Enable SMS/WhatsApp OTP</h4><p class="text-slate-500 text-[11px]">In addition to the always-on email OTP</p></div>
+                <input type="checkbox" name="sms_otp_enabled" <%= otpStatus.smsEnabled ? 'checked' : '' %> class="w-5 h-5 rounded text-blue-600">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Preferred SMS/WhatsApp Provider</label>
+                <select name="sms_provider_choice" id="smsProviderSelect" onchange="showSmsProviderFields(this.value)" class="custom-select w-full sm:w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                  <option value="not_decided" <%= otpStatus.providerChoice==='not_decided'?'selected':'' %>>Not decided yet</option>
+                  <% Object.keys(provLabels).forEach(p => { %>
+                  <option value="<%= p %>" <%= otpStatus.providerChoice===p?'selected':'' %>><%= provLabels[p] %></option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <!-- Credentials: enter directly here — saved to the database, no server/.env access needed.
+                   Only the fields for the currently-selected provider above are shown. -->
+              <% Object.keys(otpStatus.fields).forEach(provider => { %>
+              <div id="smsFields_<%= provider %>" class="sms-provider-fields space-y-3 bg-slate-50 border border-slate-200 rounded-xl p-4 <%= otpStatus.providerChoice === provider ? '' : 'hidden' %>">
+                <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wide"><%= provLabels[provider] %> Credentials</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <% otpStatus.fields[provider].forEach(key => { const fs = otpStatus.fieldStatus[provider][key]; %>
+                  <div>
+                    <label class="block font-semibold text-slate-700 mb-1 text-xs"><%= fieldLabels[key] %><% if (fs.secret && fs.set) { %> <span class="text-emerald-600 font-normal">(ending •••<%= fs.last4 %>)</span><% } %></label>
+                    <% if (fs.secret) { %>
+                    <input type="password" name="<%= key %>" placeholder="<%= fs.set ? 'Leave blank to keep current' : 'Not set' %>" class="form-input text-xs" autocomplete="off">
+                    <% } else { %>
+                    <input type="text" name="<%= key %>" value="<%= fs.value %>" placeholder="<%= fieldLabels[key] %>" class="form-input text-xs">
+                    <% } %>
+                  </div>
+                  <% }) %>
+                </div>
+              </div>
+              <% }) %>
+
+              <div class="flex items-center gap-2 text-[11px] font-semibold">
+                <span class="px-2 py-1 rounded-full <%= otpStatus.providerConfigured ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' %>">
+                  <%= otpStatus.providerConfigured ? ('Connected — credentials from ' + (otpStatus.source === 'settings' ? 'Settings' : '.env')) : 'Demo mode — codes appear in SMS Logs only' %>
+                </span>
+              </div>
+              <p class="text-slate-400 text-[11px]">You can also set these via .env on the server instead (SMS_PROVIDER + matching keys) — Settings here takes priority if both are filled in. See Help &amp; Documentation for details on each provider.</p>
+            </form>
+
+            <% if (otpStatus.providerChoice !== 'not_decided') { %>
+            <form method="post" action="/admin/settings/sms-test" class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-end gap-3">
+              <div class="flex-1 min-w-[200px]">
+                <label class="block font-semibold text-slate-700 mb-1 text-xs">Send a Test Message</label>
+                <input type="tel" name="test_phone" placeholder="+91XXXXXXXXXX" required class="form-input text-xs">
+              </div>
+              <button type="submit" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold px-4 py-2.5 rounded-xl transition shadow-xs text-xs flex items-center space-x-1.5" <%= !otpStatus.providerConfigured ? 'disabled title="Fill in and save credentials first"' : '' %>>
+                <i class="fa-solid fa-paper-plane text-xs"></i><span>Send Test</span>
+              </button>
+            </form>
+            <% } %>
+          </div>
+
+          <!-- SECURITY: Session Management -->
+          <div class="settings-panel" data-cat="security" data-sub="session_mgmt">
+            <form method="post" action="/admin/settings/kv" class="space-y-6">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div><h3 class="font-bold text-base text-[#091e42]">Session Management</h3><p class="text-slate-500 mt-0.5">Auto-logout after inactivity.</p></div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-md">Save Changes</button>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Auto logout after inactivity (minutes)</label>
+                <select name="session_timeout_minutes" class="custom-select w-full sm:w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium">
+                  <% [30,60,120,240].forEach(function(m){ %><option value="<%= m %>" <%= extra.session_timeout_minutes==String(m)?'selected':'' %>><%= m>=60 ? (m/60)+' hour'+(m>60?'s':'') : m+' minutes' %></option><% }); %>
+                </select>
+              </div>
+            </form>
+          </div>
+
+          <!-- SECURITY: My Password -->
+          <div class="settings-panel" data-cat="security" data-sub="my_password">
+            <form method="post" action="/admin/settings/password" class="space-y-6">
+              <div class="border-b border-slate-100 pb-4"><h3 class="font-bold text-base text-[#091e42]">Change My Password</h3><p class="text-slate-500 mt-0.5">Update the password you use to log in.</p></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold text-slate-700 mb-1">Current Password</label><input type="password" name="current_password" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+                <div><label class="block font-semibold text-slate-700 mb-1">New Password</label><input type="password" name="new_password" required minlength="6" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 font-medium"></div>
+              </div>
+              <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl transition">Change Password</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; <%= new Date().getFullYear() %> AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+const firstSub = { general:'profile', email:'email_settings', payments:'gateways', appearance:'branding', roles:'roles_mgmt', security:'password_login' };
+function showSmsProviderFields(provider) {
+  document.querySelectorAll('.sms-provider-fields').forEach((el) => {
+    el.classList.toggle('hidden', el.id !== 'smsFields_' + provider);
+  });
+}
+function switchCategory(cat){
+  ['general','email','payments','appearance','roles','security'].forEach(function(c){
+    document.getElementById('pill-'+c).classList.toggle('active', c===cat);
+    var menu = document.querySelector('.cat-menu[data-cat="'+c+'"]');
+    if (menu) menu.classList.toggle('hidden', c!==cat);
+  });
+  switchSub(cat, firstSub[cat]);
+}
+function switchSub(cat, sub){
+  document.querySelectorAll('.cat-menu[data-cat="'+cat+'"] .submenu-link').forEach(function(a, i){
+    a.classList.toggle('active', a.getAttribute('onclick').indexOf("'"+sub+"'")>-1);
+  });
+  document.querySelectorAll('.settings-panel').forEach(function(p){
+    p.classList.toggle('active', p.dataset.cat===cat && p.dataset.sub===sub);
+  });
+}
+</script>
+</body>
+</html>

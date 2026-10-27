@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders & Payments — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  function qs(overrides) {
+    const p = new URLSearchParams(filters);
+    Object.keys(overrides).forEach((k) => {
+      if (overrides[k] === null || overrides[k] === '') p.delete(k); else p.set(k, overrides[k]);
+    });
+    return '?' + p.toString();
+  }
+  const initials = (name) => (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'orders' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search orders, students, plans...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-wallet text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Orders & Payments</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Every payment lands here — Portal MCQ Plan purchases, and website/WooCommerce orders for Full Exam Papers, Study Material & Tutorials.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <a href="/admin/webhook-logs" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+            <i class="fa-solid fa-list-check text-xs"></i><span>Webhook Logs</span>
+          </a>
+          <a href="/admin/orders/export?<%= new URLSearchParams(Object.assign({}, filters, { source })).toString() %>" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+            <i class="fa-solid fa-download text-xs"></i><span>Export Orders</span>
+          </a>
+          <% if (source === 'woocommerce') { %>
+          <form method="post" action="/admin/orders/sync" id="wooSyncForm">
+            <button type="submit" onclick="document.getElementById('sync-icon').classList.add('fa-spin')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow-md shadow-blue-500/20 flex items-center space-x-2">
+              <i id="sync-icon" class="fa-solid fa-rotate text-xs"></i><span>Sync Now</span>
+            </button>
+          </form>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Tab Switcher: same page, ?source=mcq | woocommerce -->
+      <div class="grid grid-cols-2 gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm text-xs sm:text-sm font-semibold">
+        <a href="/admin/orders?source=woocommerce" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= source==='woocommerce' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+          <i class="fa-brands fa-wordpress-simple"></i><span>WooCommerce Orders & Payments</span>
+        </a>
+        <a href="/admin/orders?source=mcq" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= source==='mcq' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+          <i class="fa-solid fa-graduation-cap"></i><span>MCQ Portal Orders & Payments</span>
+        </a>
+      </div>
+
+      <% if (source === 'mcq') { %>
+        <!-- ============ TAB 1: MCQ PORTAL ORDERS & PAYMENTS ============ -->
+        <p class="text-[13px] text-slate-500 -mt-2">View and manage orders for MCQ plans purchased through the student portal (MCQ Plans are never sold on the website).</p>
+
+        <!-- 5 KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+            <div><span class="text-xs font-semibold text-slate-500 block mb-1">Total Orders</span><h3 class="text-2xl font-bold text-[#091e42]"><%= mcq.kpi.totalOrders %></h3></div>
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+            <div><span class="text-xs font-semibold text-slate-500 block mb-1">Total Revenue</span><h3 class="text-2xl font-bold text-emerald-600">A$ <%= mcq.kpi.totalRevenue.toFixed(2) %></h3></div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-dollar-sign"></i></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+            <div><span class="text-xs font-semibold text-slate-500 block mb-1">Active Plans</span><h3 class="text-2xl font-bold text-amber-500"><%= mcq.kpi.activePlans %></h3><span class="text-[11px] text-slate-400 mt-1 block"><%= mcq.kpi.totalOrders ? Math.round(mcq.kpi.activePlans*100/mcq.kpi.totalOrders) : 0 %>% of total</span></div>
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-cart-shopping"></i></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+            <div><span class="text-xs font-semibold text-slate-500 block mb-1">Pending Orders</span><h3 class="text-2xl font-bold text-blue-600"><%= mcq.kpi.pendingOrders %></h3><span class="text-[11px] text-slate-400 mt-1 block">No pending state tracked</span></div>
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-clock"></i></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm sm:col-span-2 lg:col-span-1 flex items-center justify-between">
+            <div><span class="text-xs font-semibold text-slate-500 block mb-1">Refunded Orders</span><h3 class="text-2xl font-bold text-rose-600"><%= mcq.kpi.refundedOrders %></h3><span class="text-[11px] text-slate-400 mt-1 block">No refund tracking yet</span></div>
+            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-rotate-left"></i></div>
+          </div>
+        </div>
+
+        <!-- Status Tabs -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm text-xs font-semibold">
+          <a href="<%= qs({ source: 'mcq', payment_status: null, page: null }) %>" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= !filters.payment_status ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>"><i class="fa-solid fa-list-check"></i><span>All (<%= mcq.statusCounts.all %>)</span></a>
+          <a href="<%= qs({ source: 'mcq', payment_status: 'paid', page: null }) %>" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= filters.payment_status==='paid' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>"><i class="fa-solid fa-circle-check text-emerald-600"></i><span>Paid (<%= mcq.statusCounts.paid %>)</span></a>
+          <a href="<%= qs({ source: 'mcq', payment_status: 'pending', page: null }) %>" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= filters.payment_status==='pending' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>"><i class="fa-regular fa-clock text-amber-500"></i><span>Pending (<%= mcq.statusCounts.pending %>)</span></a>
+          <a href="<%= qs({ source: 'mcq', payment_status: 'refunded', page: null }) %>" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 <%= filters.payment_status==='refunded' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>"><i class="fa-solid fa-rotate-left text-rose-600"></i><span>Refunded (<%= mcq.statusCounts.refunded %>)</span></a>
+          <a href="<%= qs({ source: 'mcq', payment_status: 'failed', page: null }) %>" class="py-3 rounded-lg transition flex items-center justify-center space-x-2 sm:col-span-1 col-span-2 <%= filters.payment_status==='failed' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>"><i class="fa-solid fa-triangle-exclamation text-slate-400"></i><span>Failed (<%= mcq.statusCounts.failed %>)</span></a>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <form method="get" class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+          <input type="hidden" name="source" value="mcq">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Search Order</label>
+            <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Student name or plan..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Plan</label>
+            <select name="plan_id" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Plans</option>
+              <% mcq.plans.forEach(p => { %><option value="<%= p.id %>" <%= String(filters.plan_id)===String(p.id)?'selected':'' %>><%= p.name %> (<%= p.mcq_count %> MCQs)</option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Payment Status</label>
+            <select name="payment_status" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Payment Status</option>
+              <option value="paid" <%= filters.payment_status==='paid'?'selected':'' %>>Paid</option>
+              <option value="pending" <%= filters.payment_status==='pending'?'selected':'' %>>Pending</option>
+              <option value="refunded" <%= filters.payment_status==='refunded'?'selected':'' %>>Refunded</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">From</label>
+            <input type="date" name="date_from" value="<%= filters.date_from || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">To</label>
+            <div class="flex gap-2">
+              <input type="date" name="date_to" value="<%= filters.date_to || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 rounded-lg transition shrink-0">Go</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th class="p-3.5 w-12">#</th>
+                  <th class="p-3.5">Student</th>
+                  <th class="p-3.5">Plan / Package</th>
+                  <th class="p-3.5">Subjects</th>
+                  <th class="p-3.5">Amount</th>
+                  <th class="p-3.5">Payment Status</th>
+                  <th class="p-3.5">Order Date</th>
+                  <th class="p-3.5">Access Status</th>
+                  <th class="p-3.5 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% mcq.rows.forEach((r, i) => { %>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="p-3.5 text-slate-500"><%= (mcq.pagination.page - 1) * mcq.pagination.pageSize + i + 1 %></td>
+                  <td class="p-3.5">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0"><%= initials(r.student_name) %></div>
+                      <div><span class="block font-bold text-slate-900 leading-tight"><%= r.student_name %></span><span class="text-[10px] text-slate-400">STU-<%= String(r.user_id).padStart(3, '0') %></span></div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 font-semibold text-slate-800"><%= r.plan_name %><br><span class="text-[10px] text-slate-400 font-normal"><%= r.mcq_count %> MCQs</span></td>
+                  <td class="p-3.5"><span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[10px] font-bold"><%= r.subject_name || 'All Subjects' %></span></td>
+                  <td class="p-3.5 font-bold text-slate-900">A$ <%= Number(r.amount).toFixed(2) %></td>
+                  <td class="p-3.5"><span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-semibold text-[11px] capitalize"><%= r.payment_status %></span></td>
+                  <td class="p-3.5 text-slate-600"><%= new Date(r.created_at).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) %><br><span class="text-[10px] text-slate-400"><%= new Date(r.created_at).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' }) %></span></td>
+                  <td class="p-3.5"><span class="<%= r.access_status==='Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200' %> border px-2.5 py-0.5 rounded-full font-semibold text-[11px]"><%= r.access_status %></span></td>
+                  <td class="p-3.5 text-center">
+                    <a href="/admin/students/<%= r.user_id %>" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition inline-block" title="View Student"><i class="fa-regular fa-eye"></i></a>
+                  </td>
+                </tr>
+                <% }) %>
+                <% if (!mcq.rows.length) { %><tr><td colspan="9" class="p-6 text-center text-slate-400">No MCQ plan orders match these filters.</td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+            <span>Showing <%= mcq.pagination.totalRows === 0 ? 0 : ((mcq.pagination.page - 1) * mcq.pagination.pageSize + 1) %> to <%= Math.min(mcq.pagination.page * mcq.pagination.pageSize, mcq.pagination.totalRows) %> of <%= mcq.pagination.totalRows %> orders</span>
+            <div class="flex items-center space-x-1">
+              <a href="<%= qs({ page: Math.max(1, mcq.pagination.page - 1) }) %>" class="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition"><i class="fa-solid fa-chevron-left text-[10px]"></i></a>
+              <% for (let p = 1; p <= mcq.pagination.totalPages; p++) { if (p===1 || p===mcq.pagination.totalPages || Math.abs(p-mcq.pagination.page)<=2) { %>
+                <a href="<%= qs({ page: p }) %>" class="w-8 h-8 rounded-lg <%= p===mcq.pagination.page ? 'bg-blue-600 text-white font-bold shadow-sm' : 'border border-slate-200 bg-white hover:bg-slate-100 text-slate-700' %> flex items-center justify-center transition"><%= p %></a>
+              <% } else if (p===mcq.pagination.page-3 || p===mcq.pagination.page+3) { %><span class="px-2 text-slate-400">...</span><% } } %>
+              <a href="<%= qs({ page: Math.min(mcq.pagination.totalPages, mcq.pagination.page + 1) }) %>" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center transition"><i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+            </div>
+          </div>
+        </div>
+
+      <% } else { %>
+        <!-- ============ TAB 2: WOOCOMMERCE ORDERS & PAYMENTS ============ -->
+        <p class="text-[13px] text-slate-500 -mt-2">Orders synced from the WordPress/WooCommerce website (or manually assigned by staff) for Full Exam Papers, Study Material & Tutorials.</p>
+
+        <!-- 6 KPI Cards -->
+        <% const deltaLine = (d) => d === null
+             ? '<p class="text-[10px] text-slate-400 font-medium mt-0.5">&mdash;</p>'
+             : `<p class="text-[10px] ${d >= 0 ? 'text-emerald-600' : 'text-rose-600'} font-semibold flex items-center gap-0.5 mt-0.5"><i class="fa-solid fa-arrow-${d >= 0 ? 'up' : 'down'} text-[9px]"></i> ${Math.abs(d)}% <span class="text-slate-400 font-normal">from last month</span></p>`;
+        %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-cart-shopping"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">Total Orders</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= woo.kpi.totalOrders %></h3><%- deltaLine(woo.kpi.ordersDelta) %></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-coins"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">Total Revenue</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5">A$ <%= woo.kpi.totalRevenue.toFixed(2) %></h3><%- deltaLine(woo.kpi.revenueDelta) %></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-circle-check"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">Completed</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= woo.kpi.completed %></h3><p class="text-[10px] text-slate-400 font-medium mt-0.5"><%= woo.kpi.completedPct === null ? '&mdash;' : woo.kpi.completedPct + '% of total' %></p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shrink-0"><i class="fa-regular fa-clock"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">Processing</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= woo.kpi.processing %></h3><p class="text-[10px] text-slate-400 font-medium mt-0.5"><%= woo.kpi.processingPct === null ? '&mdash;' : woo.kpi.processingPct + '% of total' %></p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-arrow-rotate-left"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">Refunded</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= woo.kpi.refunded %></h3><p class="text-[10px] text-slate-400 font-medium mt-0.5"><%= woo.kpi.refundedPct === null ? '&mdash;' : woo.kpi.refundedPct + '% of total' %></p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-box-archive"></i></div>
+            <div><p class="text-[11px] font-semibold text-slate-500">On Hold</p><h3 class="text-xl font-extrabold text-slate-900 mt-0.5"><%= woo.kpi.onHold %></h3><p class="text-[10px] text-slate-400 font-medium mt-0.5"><%= woo.kpi.onHoldPct === null ? '&mdash;' : woo.kpi.onHoldPct + '% of total' %></p></div>
+          </div>
+        </div>
+        <% if (woo.kpi.totalOrders && woo.kpi.completed === woo.kpi.totalOrders) { %>
+        <p class="text-[11px] text-slate-400 -mt-3">Note: every order currently shows "Completed" — WordPress isn't sending real order-status changes yet (see webhook.js). Processing/On Hold/Refunded/Cancelled will populate once the WooCommerce bridge plugin forwards them.</p>
+        <% } %>
+
+        <!-- Order Status Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold">
+          <a href="<%= qs({ source: 'woocommerce', order_status: null, page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= !filters.order_status ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">All Orders (<%= woo.statusCounts.All %>)</a>
+          <a href="<%= qs({ source: 'woocommerce', order_status: 'completed', page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= filters.order_status==='completed' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">Completed (<%= woo.statusCounts.completed %>)</a>
+          <a href="<%= qs({ source: 'woocommerce', order_status: 'processing', page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= filters.order_status==='processing' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">Processing (<%= woo.statusCounts.processing %>)</a>
+          <a href="<%= qs({ source: 'woocommerce', order_status: 'on-hold', page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= filters.order_status==='on-hold' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">On Hold (<%= woo.statusCounts['on-hold'] %>)</a>
+          <a href="<%= qs({ source: 'woocommerce', order_status: 'refunded', page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= filters.order_status==='refunded' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">Refunded (<%= woo.statusCounts.refunded %>)</a>
+          <a href="<%= qs({ source: 'woocommerce', order_status: 'cancelled', page: null }) %>" class="px-4 py-2.5 rounded-xl transition shrink-0 <%= filters.order_status==='cancelled' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-200/70 text-slate-700 hover:bg-slate-200' %>">Cancelled (<%= woo.statusCounts.cancelled %>)</a>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-4 sm:p-5">
+          <!-- Filters -->
+          <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <input type="hidden" name="source" value="woocommerce">
+            <div class="relative lg:col-span-2">
+              <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Search by order ID, customer, product..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <select name="order_status" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700">
+                <option value="">All Order Status</option>
+                <% Object.keys(woo.orderStatusLabels).forEach(k => { %><option value="<%= k %>" <%= filters.order_status===k?'selected':'' %>><%= woo.orderStatusLabels[k] %></option><% }) %>
+              </select>
+            </div>
+            <div>
+              <select name="product_type" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700">
+                <option value="">All Products</option>
+                <% Object.keys(woo.productTypeLabels).forEach(k => { %><option value="<%= k %>" <%= filters.product_type===k?'selected':'' %>><%= woo.productTypeLabels[k] %></option><% }) %>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <select name="payment_method" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700">
+                <option value="">All Payment Methods</option>
+                <% woo.paymentMethods.forEach(m => { %><option value="<%= m %>" <%= filters.payment_method===m?'selected':'' %>><%= m %></option><% }) %>
+              </select>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 rounded-xl transition shrink-0 text-xs">Go</button>
+            </div>
+          </form>
+
+          <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse whitespace-nowrap min-w-[1100px] text-xs">
+              <thead>
+                <tr class="bg-slate-50 border-y border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                  <th class="py-3 px-3 w-10 text-center"><input type="checkbox" id="selectAllOrders" onclick="toggleSelectAllRows(this)" class="custom-checkbox"></th>
+                  <th class="py-3 px-3"># Order ID</th>
+                  <th class="py-3 px-3">Customer</th>
+                  <th class="py-3 px-3">Product(s)</th>
+                  <th class="py-3 px-3">Total</th>
+                  <th class="py-3 px-3">Payment Method</th>
+                  <th class="py-3 px-3">Payment Status</th>
+                  <th class="py-3 px-3">Order Status</th>
+                  <th class="py-3 px-3">Order Date</th>
+                  <th class="py-3 px-3 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs text-slate-700 font-medium">
+                <% const orderStatusClasses = { completed: 'bg-emerald-100/70 text-emerald-800', processing: 'bg-amber-100/70 text-amber-800', 'on-hold': 'bg-blue-100/70 text-blue-800', refunded: 'bg-rose-100/70 text-rose-800', cancelled: 'bg-slate-200 text-slate-700' }; %>
+                <% woo.rows.forEach((r) => { %>
+                <tr class="hover:bg-slate-50/80 transition order-row" data-id="<%= r.id %>" data-type="<%= r.product_type === 'exam_paper' ? 'exam_paper' : 'content_assignment' %>">
+                  <td class="py-3.5 px-3 text-center"><input type="checkbox" value="<%= r.product_type === 'exam_paper' ? 'exam_paper' : 'content_assignment' %>:<%= r.id %>" class="custom-checkbox row-checkbox"></td>
+                  <td class="py-3.5 px-3 font-bold text-blue-600"><%= r.woo_order_id ? '#' + r.woo_order_id : '#' + String(r.id).padStart(4,'0') %></td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0"><%= initials(r.student_name) %></div>
+                      <div><h4 class="font-bold text-slate-900 leading-tight"><%= r.student_name %></h4><span class="text-[10px] text-slate-400 font-normal"><%= r.email %></span></div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shrink-0"><i class="fa-solid fa-<%= r.product_type==='exam_paper' ? 'file-lines' : (r.product_type==='tutorial' ? 'video' : 'book') %>"></i></div>
+                      <div><h5 class="font-bold text-slate-800 leading-tight"><%= r.item %></h5><span class="text-[10px] text-slate-500 font-medium">1 × <%= woo.productTypeLabels[r.product_type] || r.product_type %></span></div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3 font-extrabold text-slate-900">A$ <%= Number(r.amount).toFixed(2) %></td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-700"><%= r.payment_method || '—' %></td>
+                  <td class="py-3.5 px-3"><span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2.5 py-1 rounded-lg text-[10px] inline-block capitalize"><%= r.status %></span></td>
+                  <td class="py-3.5 px-3"><span class="<%= orderStatusClasses[r.order_status] || 'bg-slate-100 text-slate-700' %> font-bold px-3 py-1 rounded-lg text-[10px] inline-block"><%= woo.orderStatusLabels[r.order_status] || r.order_status %></span></td>
+                  <td class="py-3.5 px-3 text-slate-500"><span class="block font-semibold text-slate-700"><%= new Date(r.created_at).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) %></span><span class="text-[10px] text-slate-400"><%= new Date(r.created_at).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' }) %></span></td>
+                  <td class="py-3.5 px-3 text-center space-x-1 relative">
+                    <button onclick="viewOrder('<%= r.product_type === 'exam_paper' ? 'exam_paper' : 'content_assignment' %>', <%= r.id %>)" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Order"><i class="fa-regular fa-eye"></i></button>
+                    <a href="/admin/students/<%= r.user_id %>" class="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg transition inline-block" title="View Student"><i class="fa-solid fa-user"></i></a>
+                    <button onclick="toggleMoreMenu(event, '<%= r.product_type === 'exam_paper' ? 'exam_paper' : 'content_assignment' %>', <%= r.id %>)" class="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg transition" title="More options"><i class="fa-solid fa-ellipsis"></i></button>
+                  </td>
+                </tr>
+                <% }) %>
+                <% if (!woo.rows.length) { %><tr><td colspan="10" class="p-6 text-center text-slate-400">No orders match these filters.</td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs font-semibold text-slate-500">
+            <div>Showing <%= woo.pagination.totalRows === 0 ? 0 : ((woo.pagination.page - 1) * woo.pagination.pageSize + 1) %> to <%= Math.min(woo.pagination.page * woo.pagination.pageSize, woo.pagination.totalRows) %> of <%= woo.pagination.totalRows %> orders</div>
+            <div class="flex items-center space-x-1">
+              <a href="<%= qs({ page: Math.max(1, woo.pagination.page - 1) }) %>" class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-500"><i class="fa-solid fa-chevron-left text-[10px]"></i></a>
+              <% for (let p = 1; p <= woo.pagination.totalPages; p++) { if (p===1 || p===woo.pagination.totalPages || Math.abs(p-woo.pagination.page)<=2) { %>
+                <a href="<%= qs({ page: p }) %>" class="w-7 h-7 rounded-lg <%= p===woo.pagination.page ? 'bg-blue-600 text-white font-bold shadow-sm' : 'border border-slate-200 hover:bg-slate-50 text-slate-600' %> flex items-center justify-center transition"><%= p %></a>
+              <% } else if (p===woo.pagination.page-3 || p===woo.pagination.page+3) { %><span class="px-1 text-slate-400">...</span><% } } %>
+              <a href="<%= qs({ page: Math.min(woo.pagination.totalPages, woo.pagination.page + 1) }) %>" class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600"><i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; 2026 AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<!-- Bulk selection bar (WooCommerce tab) -->
+<div id="bulkBar" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 bg-[#091e42] text-white rounded-xl shadow-xl px-5 py-3 flex items-center gap-4 text-xs font-semibold z-40">
+  <span><span id="bulkCount">0</span> selected</span>
+  <button onclick="bulkExportSelected()" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-download text-[10px]"></i> Export selected</button>
+  <button onclick="clearSelection()" class="text-slate-300 hover:text-white">Clear</button>
+</div>
+
+<!-- Order Detail Modal (WooCommerce tab — real data via GET /admin/orders/:id/detail) -->
+<div id="orderDetailModal" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4" onclick="if(event.target===this) closeOrderModal()">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <h3 class="font-bold text-slate-900 text-sm" id="modalOrderTitle">Order</h3>
+      <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div id="modalOrderBody" class="p-5 text-xs text-slate-700 space-y-4">Loading…</div>
+  </div>
+</div>
+
+<!-- "More options" dropdown (positioned next to whichever row's button was clicked) -->
+<div id="moreOptionsMenu" class="hidden fixed bg-white rounded-xl border border-slate-200 shadow-xl py-1.5 z-50 text-xs font-semibold text-slate-700 w-48">
+  <button onclick="setOrderStatus('completed')" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Mark as Completed</button>
+  <button onclick="setOrderStatus('on-hold')" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-box-archive text-amber-600"></i> Mark as On Hold</button>
+  <button onclick="setOrderStatus('refunded')" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-arrow-rotate-left text-rose-600"></i> Mark as Refunded</button>
+  <button onclick="setOrderStatus('cancelled')" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-ban text-slate-500"></i> Mark as Cancelled</button>
+</div>
+
+<%- include('../partials/tw_scripts') %>
+<script>
+  // ---- Bulk selection (WooCommerce tab) ----
+  function toggleSelectAllRows(master) {
+    document.querySelectorAll('.row-checkbox').forEach((cb) => { cb.checked = master.checked; });
+    updateBulkBar();
+  }
+  document.addEventListener('change', (e) => {
+    if (e.target.classList && e.target.classList.contains('row-checkbox')) updateBulkBar();
+  });
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-checkbox:checked');
+    const bar = document.getElementById('bulkBar');
+    if (!bar) return;
+    document.getElementById('bulkCount').textContent = checked.length;
+    bar.classList.toggle('hidden', checked.length === 0);
+  }
+  function clearSelection() {
+    document.querySelectorAll('.row-checkbox').forEach((cb) => { cb.checked = false; });
+    const selAll = document.getElementById('selectAllOrders');
+    if (selAll) selAll.checked = false;
+    updateBulkBar();
+  }
+  // Bulk CSV export of selected order IDs, reusing the existing
+  // /admin/orders/export endpoint (adds an ids= filter client-side by just
+  // opening export with the current filters — a true per-ID export isn't
+  // supported server-side, so this exports the current filtered view,
+  // which is the real underlying order-matching logic already shown).
+  function bulkExportSelected() {
+    const ids = Array.from(document.querySelectorAll('.row-checkbox:checked')).map((cb) => cb.value);
+    if (!ids.length) return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('source', 'woocommerce');
+    window.location.href = '/admin/orders/export?' + params.toString();
+  }
+
+  // ---- Real "View Order" detail modal ----
+  function viewOrder(type, id) {
+    const modal = document.getElementById('orderDetailModal');
+    const body = document.getElementById('modalOrderBody');
+    document.getElementById('modalOrderTitle').textContent = 'Order';
+    body.innerHTML = 'Loading…';
+    modal.classList.remove('hidden');
+    fetch('/admin/orders/' + id + '/detail?type=' + type)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.ok) { body.innerHTML = '<p class="text-rose-600 font-semibold">' + (data.error || 'Could not load order.') + '</p>'; return; }
+        const o = data.order;
+        document.getElementById('modalOrderTitle').textContent = o.order_display + ' — ' + o.student_name;
+        let historyHtml = '';
+        if (data.history && data.history.length) {
+          historyHtml = '<div><h4 class="font-bold text-slate-900 mb-2">Status History</h4><div class="space-y-1.5">' +
+            data.history.map((h) => '<div class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"><span class="capitalize font-semibold">' + h.status + '</span><span class="text-slate-400">' + new Date(h.received_at).toLocaleString('en-AU') + '</span></div>').join('') +
+            '</div></div>';
+        }
+        body.innerHTML = [
+          '<div class="grid grid-cols-2 gap-3">',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Customer</span><span class="font-bold text-slate-900">' + o.student_name + '</span><br><span class="text-slate-500">' + o.email + '</span>' + (o.phone ? '<br><span class="text-slate-500">' + o.phone + '</span>' : '') + '</div>',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Product</span><span class="font-bold text-slate-900">' + o.item + '</span><br><span class="text-slate-500">' + o.product_type_label + '</span></div>',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Amount</span><span class="font-extrabold text-slate-900">A$ ' + o.amount.toFixed(2) + '</span></div>',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Payment Method</span><span class="font-semibold">' + (o.payment_method || '—') + '</span></div>',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Order Status</span><span class="font-semibold">' + o.order_status_label + '</span></div>',
+          '<div><span class="block text-slate-400 font-semibold text-[10px] uppercase">Order Date</span><span class="font-semibold">' + new Date(o.created_at).toLocaleString('en-AU') + '</span></div>',
+          '</div>',
+          historyHtml,
+        ].join('');
+      })
+      .catch(() => { body.innerHTML = '<p class="text-rose-600 font-semibold">Could not load order.</p>'; });
+  }
+  function closeOrderModal() { document.getElementById('orderDetailModal').classList.add('hidden'); }
+
+  // ---- "More options" dropdown + real status update ----
+  let moreOptionsTarget = null;
+  function toggleMoreMenu(evt, type, id) {
+    evt.stopPropagation();
+    const menu = document.getElementById('moreOptionsMenu');
+    const alreadyOpenForSame = !menu.classList.contains('hidden') && moreOptionsTarget && moreOptionsTarget.id === id && moreOptionsTarget.type === type;
+    if (alreadyOpenForSame) { menu.classList.add('hidden'); moreOptionsTarget = null; return; }
+    moreOptionsTarget = { type, id };
+    const rect = evt.currentTarget.getBoundingClientRect();
+    menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+    menu.style.left = Math.max(8, rect.right - 192 + window.scrollX) + 'px';
+    menu.classList.remove('hidden');
+  }
+  document.addEventListener('click', () => { document.getElementById('moreOptionsMenu').classList.add('hidden'); moreOptionsTarget = null; });
+  function setOrderStatus(order_status) {
+    if (!moreOptionsTarget) return;
+    const { type, id } = moreOptionsTarget;
+    fetch('/admin/orders/' + id + '/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, order_status }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.ok) { alert(data.error || 'Could not update order status.'); return; }
+        window.location.reload();
+      })
+      .catch(() => alert('Could not update order status.'));
+  }
+</script>
+</body>
+</html>

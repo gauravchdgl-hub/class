@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit MCQ — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'mcq-bank' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+            <i class="fa-solid fa-list-check text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Edit MCQ</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Correcting this updates it everywhere it's already been assigned.</p>
+          </div>
+        </div>
+        <a href="/admin/mcqs" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+          <i class="fa-solid fa-arrow-left text-xs"></i><span>Back to MCQ Bank</span>
+        </a>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-3xl">
+        <form method="post" action="/admin/mcqs/<%= mcq.id %>/edit" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Subject</label>
+            <select name="subject_id" required class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= s.id===mcq.subject_id?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Year</label>
+            <select name="year" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option <%= mcq.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option <%= mcq.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Topic</label>
+            <input type="text" name="topic" value="<%= mcq.topic || '' %>" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Difficulty</label>
+            <select name="difficulty" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="easy" <%= mcq.difficulty==='easy'?'selected':'' %>>Easy</option>
+              <option value="medium" <%= mcq.difficulty==='medium'?'selected':'' %>>Medium</option>
+              <option value="hard" <%= mcq.difficulty==='hard'?'selected':'' %>>Hard</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-slate-600 mb-1">Question</label>
+            <textarea name="question" required rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><%= mcq.question %></textarea>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Option A</label>
+            <input name="option_a" value="<%= mcq.option_a %>" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Option B</label>
+            <input name="option_b" value="<%= mcq.option_b %>" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Option C</label>
+            <input name="option_c" value="<%= mcq.option_c %>" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Option D</label>
+            <input name="option_d" value="<%= mcq.option_d %>" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Correct Option</label>
+            <select name="correct_option" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <% ['A','B','C','D'].forEach(o => { %><option <%= mcq.correct_option===o?'selected':'' %>><%= o %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Status</label>
+            <select name="status" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="published" <%= mcq.status==='published'?'selected':'' %>>Published</option>
+              <option value="draft" <%= mcq.status==='draft'?'selected':'' %>>Draft</option>
+              <option value="needs_review" <%= mcq.status==='needs_review'?'selected':'' %>>Needs Review</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2 flex items-center justify-end gap-2 pt-2">
+            <a href="/admin/mcqs" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition shadow-md shadow-blue-600/30">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= subject ? 'Edit Subject' : 'Add Subject' %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: subject ? 'subject-edit' : 'subject-new' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search...' }) %>
+
+    <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <a href="/admin/subjects" class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition shrink-0 mt-0.5" title="Go Back"><i class="fa-solid fa-arrow-left"></i></a>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight"><%= subject ? 'Edit Subject' : 'Add Subject' %></h1>
+            <p class="text-sm text-slate-500 mt-1">Create a new subject and organize content like tutorials, study material, MCQs, and exam papers.</p>
+          </div>
+        </div>
+        <nav class="flex text-sm text-slate-500 space-x-2 pt-2 md:pt-0 shrink-0">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span class="text-slate-400">&gt;</span>
+          <a href="/admin/subjects" class="hover:text-blue-600 transition">Subjects</a><span class="text-slate-400">&gt;</span>
+          <span class="text-slate-900 font-semibold"><%= subject ? 'Edit Subject' : 'Add Subject' %></span>
+        </nav>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" action="<%= subject ? '/admin/subjects/' + encodeURIComponent(subject.name) + '/edit' : '/admin/subjects/new' %>" id="subjectForm">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 xl:gap-8 items-start">
+
+          <div class="xl:col-span-2 space-y-6">
+
+            <!-- Basic Information -->
+            <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex items-center space-x-2">
+                <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-book"></i></div>
+                <h2 class="text-base font-bold text-slate-800">Basic Information</h2>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-6">
+                  <div class="space-y-5">
+                    <div>
+                      <label class="block text-[13px] font-semibold text-slate-700 mb-1.5">Subject Name <span class="text-red-500">*</span></label>
+                      <input type="text" name="name" id="fName" required value="<%= subject ? subject.name : '' %>" placeholder="Enter subject name (e.g. Mathematics, Biology)" class="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                      <label class="block text-[13px] font-semibold text-slate-700 mb-1.5">Description</label>
+                      <div class="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition bg-white">
+                        <div class="bg-slate-50 border-b border-slate-200 px-2 py-1.5 flex flex-wrap items-center gap-1">
+                          <button type="button" class="rt-btn font-bold">B</button>
+                          <button type="button" class="rt-btn italic font-serif">I</button>
+                          <button type="button" class="rt-btn underline">U</button>
+                          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                          <button type="button" class="rt-btn"><i class="fa-solid fa-list-ul"></i></button>
+                          <button type="button" class="rt-btn"><i class="fa-solid fa-list-ol"></i></button>
+                          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                          <button type="button" class="rt-btn"><i class="fa-solid fa-align-left"></i></button>
+                          <button type="button" class="rt-btn"><i class="fa-solid fa-link"></i></button>
+                        </div>
+                        <textarea name="description" id="fDesc" rows="4" maxlength="1000" placeholder="Write a short description about this subject..." class="w-full p-3.5 text-[13px] text-slate-700 placeholder-slate-400 outline-none resize-y min-h-[120px]"><%= subject ? subject.description : '' %></textarea>
+                        <div class="px-3.5 py-2 text-right text-[11px] text-slate-400 font-medium border-t border-slate-100"><span id="descCount"><%= subject && subject.description ? subject.description.length : 0 %></span>/1000</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-col">
+                    <label class="block text-[13px] font-semibold text-slate-700 mb-1.5">Subject Icon</label>
+                    <label class="flex-1 bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-lg flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition group text-center min-h-[160px]" id="iconDrop">
+                      <input type="file" name="icon" id="fIcon" accept=".jpg,.jpeg,.png,.svg" class="hidden" onchange="previewIcon(this)">
+                      <% if (subject && subject.icon_url) { %>
+                        <img src="<%= subject.icon_url %>" id="iconPreviewImg" class="w-14 h-14 object-cover rounded-lg mb-2">
+                      <% } else { %>
+                        <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-500 flex items-center justify-center text-xl mb-3 shadow-sm group-hover:scale-105 transition-transform"><i class="fa-solid fa-book-open"></i></div>
+                      <% } %>
+                      <span class="text-sm font-bold text-slate-800">Upload Icon</span>
+                      <span class="text-[11px] text-slate-500 mt-1 block px-2">JPG, PNG or SVG (max 2MB)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Class & Year Level (dynamic — managed at /admin/class-year-levels) -->
+            <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-users"></i></div>
+                  <div><h2 class="text-base font-bold text-slate-800">Class &amp; Year Level</h2><p class="text-[11px] text-slate-500 mt-0.5">Select from your Class &amp; Year Level records below.</p></div>
+                </div>
+                <a href="/admin/class-year-levels" class="text-blue-600 hover:text-blue-700 text-xs font-bold flex items-center gap-1.5 shrink-0"><i class="fa-solid fa-plus-circle"></i> Add New</a>
+              </div>
+              <div class="p-6">
+                <label class="block text-[13px] font-semibold text-slate-700 mb-2.5">Select Applicable Class &amp; Year Levels <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <% classYearLevels.forEach(item => { %>
+                    <% const itemYears = item.year_level.split(',').map(y => y.trim()).filter(Boolean); %>
+                    <% const isChecked = subject ? itemYears.every(y => subject.years.includes(y)) : (classYearLevels.length === 1); %>
+                    <label class="flex items-center space-x-3 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 p-3 rounded-xl border border-slate-200 hover:border-blue-400 transition">
+                      <input type="checkbox" name="class_year_ids" value="<%= item.id %>" <%= isChecked ? 'checked' : '' %> class="w-5 h-5 rounded border-2 border-slate-300 text-blue-600 focus:ring-blue-500">
+                      <div>
+                        <span class="block font-bold text-slate-900"><%= item.curriculum %></span>
+                        <span class="text-[10px] text-slate-500 font-medium">Year: <%= item.year_level %></span>
+                      </div>
+                    </label>
+                  <% }) %>
+                  <% if (!classYearLevels.length) { %>
+                    <p class="text-xs text-slate-400 italic col-span-2">No class/year levels found yet. <a href="/admin/class-year-levels" class="text-blue-600 font-semibold hover:underline">Add one first</a> — it will instantly show up here.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subject Content Type -->
+            <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex items-center space-x-2">
+                <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-layer-group"></i></div>
+                <div><h2 class="text-base font-bold text-slate-800">Subject Content Type</h2><p class="text-[11px] text-slate-500 mt-0.5">Select which types of content will be available for this subject.</p></div>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <label class="content-card relative block border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-blue-50/50 transition <%= (!subject || subject.enable_mcq) ? 'checked' : '' %>">
+                    <input type="checkbox" name="enable_mcq" <%= (!subject || subject.enable_mcq) ? 'checked' : '' %> onchange="this.closest('label').classList.toggle('checked', this.checked)" class="peer sr-only">
+                    <div class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded flex items-center justify-center peer-checked:flex hidden peer-checked:!flex" style="display:<%= (!subject || subject.enable_mcq) ? 'flex' : 'none' %>"><i class="fa-solid fa-check text-white text-[11px]"></i></div>
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-circle-question"></i></div>
+                    <h3 class="text-[13px] font-bold text-slate-800 mb-1">MCQ Questions</h3>
+                    <p class="text-[11px] text-slate-500 leading-snug">Add MCQ question bank for this subject</p>
+                  </label>
+                  <label class="content-card relative block border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-blue-50/50 transition <%= (!subject || subject.enable_tutorials) ? 'checked' : '' %>">
+                    <input type="checkbox" name="enable_tutorials" <%= (!subject || subject.enable_tutorials) ? 'checked' : '' %> onchange="this.closest('label').classList.toggle('checked', this.checked)" class="peer sr-only">
+                    <div style="display:<%= (!subject || subject.enable_tutorials) ? 'flex' : 'none' %>" class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded items-center justify-center"><i class="fa-solid fa-check text-white text-[11px]"></i></div>
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-play"></i></div>
+                    <h3 class="text-[13px] font-bold text-slate-800 mb-1">Tutorials</h3>
+                    <p class="text-[11px] text-slate-500 leading-snug">Add tutorial videos for this subject</p>
+                  </label>
+                  <label class="content-card relative block border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-blue-50/50 transition <%= (!subject || subject.enable_material) ? 'checked' : '' %>">
+                    <input type="checkbox" name="enable_material" <%= (!subject || subject.enable_material) ? 'checked' : '' %> onchange="this.closest('label').classList.toggle('checked', this.checked)" class="peer sr-only">
+                    <div style="display:<%= (!subject || subject.enable_material) ? 'flex' : 'none' %>" class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded items-center justify-center"><i class="fa-solid fa-check text-white text-[11px]"></i></div>
+                    <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-500 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-file-lines"></i></div>
+                    <h3 class="text-[13px] font-bold text-slate-800 mb-1">Study Material</h3>
+                    <p class="text-[11px] text-slate-500 leading-snug">Upload study material (PDF, Notes, etc.)</p>
+                  </label>
+                  <label class="content-card relative block border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-blue-50/50 transition <%= (!subject || subject.enable_exams) ? 'checked' : '' %>">
+                    <input type="checkbox" name="enable_exams" <%= (!subject || subject.enable_exams) ? 'checked' : '' %> onchange="this.closest('label').classList.toggle('checked', this.checked)" class="peer sr-only">
+                    <div style="display:<%= (!subject || subject.enable_exams) ? 'flex' : 'none' %>" class="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded items-center justify-center"><i class="fa-solid fa-check text-white text-[11px]"></i></div>
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-file-signature"></i></div>
+                    <h3 class="text-[13px] font-bold text-slate-800 mb-1">Full Exam Papers</h3>
+                    <p class="text-[11px] text-slate-500 leading-snug">Add full exam papers for this subject</p>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Settings -->
+            <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+              <div class="p-5 border-b border-slate-100 flex items-center space-x-2">
+                <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-gear"></i></div>
+                <h2 class="text-base font-bold text-slate-800">Additional Settings</h2>
+              </div>
+              <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <label class="flex items-start space-x-3 cursor-pointer">
+                    <input type="checkbox" name="is_active" <%= (!subject || subject.is_active) ? 'checked' : '' %> class="mt-1 w-9 h-5 accent-blue-600">
+                    <div><h4 class="text-[13px] font-bold text-slate-800">Set as Active</h4><p class="text-[11px] text-slate-500 mt-0.5 leading-snug">Subject will be visible to students</p></div>
+                  </label>
+                  <label class="flex items-start space-x-3 cursor-pointer">
+                    <input type="checkbox" name="is_featured" <%= subject && subject.is_featured ? 'checked' : '' %> class="mt-1 w-9 h-5 accent-blue-600">
+                    <div><h4 class="text-[13px] font-bold text-slate-800">Mark as Featured</h4><p class="text-[11px] text-slate-500 mt-0.5 leading-snug">Show on homepage / featured section</p></div>
+                  </label>
+                  <label class="flex items-start space-x-3 cursor-pointer">
+                    <input type="checkbox" name="allow_comments" <%= subject && subject.allow_comments ? 'checked' : '' %> class="mt-1 w-9 h-5 accent-blue-600">
+                    <div><h4 class="text-[13px] font-bold text-slate-800">Allow Comments</h4><p class="text-[11px] text-slate-500 mt-0.5 leading-snug">Allow students to comment</p></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="space-y-6">
+
+            <div class="bg-slate-50/80 rounded-xl border border-slate-200 overflow-hidden card-shadow">
+              <div class="p-4 border-b border-slate-200 bg-white flex items-center space-x-2"><i class="fa-regular fa-eye text-blue-600"></i><h2 class="text-sm font-bold text-slate-800">Preview</h2></div>
+              <div class="p-5">
+                <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-5">
+                  <div class="flex items-start space-x-4">
+                    <div class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-layer-group"></i></div>
+                    <div>
+                      <h3 class="text-base font-bold text-[#091e42] leading-tight" id="pvName"><%= subject ? subject.name : 'Subject Name' %></h3>
+                      <div class="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5 mb-2">Year 11 - 12</div>
+                      <p class="text-[10px] text-slate-500 leading-snug" id="pvDesc"><%= subject ? subject.description : 'Short description will appear here.' %></p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-sm"><i class="fa-solid fa-circle-question"></i></div>
+                      <div><p class="text-[10px] font-semibold text-slate-500 leading-none mb-1">MCQs</p><p class="text-sm font-bold text-slate-800 leading-none"><%= subject ? subject.mcqs || 0 : 0 %></p></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 text-sm"><i class="fa-solid fa-play"></i></div>
+                      <div><p class="text-[10px] font-semibold text-slate-500 leading-none mb-1">Tutorials</p><p class="text-sm font-bold text-slate-800 leading-none"><%= subject ? subject.tutorials || 0 : 0 %></p></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-500 flex items-center justify-center shrink-0 text-sm"><i class="fa-solid fa-file-lines"></i></div>
+                      <div><p class="text-[10px] font-semibold text-slate-500 leading-none mb-1">Study Material</p><p class="text-sm font-bold text-slate-800 leading-none"><%= subject ? subject.materials || 0 : 0 %></p></div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-sm"><i class="fa-solid fa-file-signature"></i></div>
+                      <div><p class="text-[10px] font-semibold text-slate-500 leading-none mb-1">Exam Papers</p><p class="text-sm font-bold text-slate-800 leading-none"><%= subject ? subject.papers || 0 : 0 %></p></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow">
+              <div class="flex items-center space-x-2 mb-4"><div class="text-blue-600 text-sm font-bold"><i class="fa-solid fa-arrow-down-up-across-line"></i></div><h2 class="text-sm font-bold text-slate-800">Subject Order</h2></div>
+              <div>
+                <label class="block text-[13px] font-semibold text-slate-700 mb-1.5">Display Order</label>
+                <input type="number" name="order_no" value="<%= subject ? subject.order_no : 1 %>" min="1" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                <p class="text-[10px] text-slate-500 mt-1.5">Lower number will appear first in the list.</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-5 card-shadow">
+              <div class="flex items-center space-x-2 mb-4"><div class="text-blue-600 text-sm font-bold"><i class="fa-solid fa-tags"></i></div><h2 class="text-sm font-bold text-slate-800">Tags (Optional)</h2></div>
+              <div>
+                <input type="text" name="tags" value="<%= subject ? subject.tags : '' %>" placeholder="Add tags (e.g. Algebra, Calculus, Trigonometry)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                <p class="text-[10px] text-slate-500 mt-1.5">Comma-separated, e.g. Algebra, Calculus, Trigonometry</p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-3 pt-2">
+              <a href="/admin/subjects" class="flex-1 bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 font-bold text-sm px-4 py-2.5 rounded-lg transition text-center">Cancel</a>
+              <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-4 py-2.5 rounded-lg transition shadow-sm text-center flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-save text-sm"></i><span><%= subject ? 'Save Changes' : 'Create Subject' %></span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  const fName = document.getElementById('fName'), fDesc = document.getElementById('fDesc');
+  const pvName = document.getElementById('pvName'), pvDesc = document.getElementById('pvDesc'), descCount = document.getElementById('descCount');
+  fName.addEventListener('input', () => { pvName.textContent = fName.value || 'Subject Name'; });
+  fDesc.addEventListener('input', () => { pvDesc.textContent = fDesc.value || 'Short description will appear here.'; descCount.textContent = fDesc.value.length; });
+  function previewIcon(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let img = document.getElementById('iconPreviewImg');
+      if (!img) {
+        img = document.createElement('img');
+        img.id = 'iconPreviewImg';
+        img.className = 'w-14 h-14 object-cover rounded-lg mb-2';
+        document.getElementById('iconDrop').prepend(img);
+      }
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+</script>
+</body>
+</html>

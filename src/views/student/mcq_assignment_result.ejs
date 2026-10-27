@@ -1,0 +1,17 @@
+<%- include('../partials/portal_top', { title: 'MCQ Result', crumb: 'Student / MCQ / Result', active: 'mcqmy' }) %>
+<div class="portal-title"><div><h1>Batch Complete</h1><p><%= assignment.subject_name || 'General' %><% if (assignment.topic) { %> · <%= assignment.topic %><% } %></p></div></div>
+<div class="grid g2">
+  <div class="card card-pad score-box" style="text-align:center;">
+    <div class="progress" style="--pct:<%= score %>;"><strong style="font-size:34px;"><%= score %>%</strong></div>
+    <p class="muted">Score</p>
+  </div>
+  <div class="card card-pad">
+    <div class="grid" style="gap:10px">
+      <div style="display:flex;justify-content:space-between;"><span class="muted">Total Questions</span><b><%= total %></b></div>
+      <div style="display:flex;justify-content:space-between;"><span class="muted">Correct Answers</span><b style="color:#1a9b5c"><%= correct %></b></div>
+      <div style="display:flex;justify-content:space-between;"><span class="muted">Wrong Answers</span><b style="color:#c23838"><%= wrong %></b></div>
+    </div>
+    <a class="btn btn-primary btn-block" style="margin-top:20px" href="/student/mcq/my">Back to My MCQs →</a>
+  </div>
+</div>
+<%- include('../partials/portal_bottom') %>

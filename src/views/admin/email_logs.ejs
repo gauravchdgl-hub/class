@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Logs — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  const STATUS_PILL = (s) => s === 'sent' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : s === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200'
+    : 'bg-amber-50 text-amber-700 border-amber-200';
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'email-logs' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search email logs...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-envelope text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Email Logs</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Every raw email send attempt — in demo mode (no SMTP configured yet), this is where you read verification links, password reset links, and login OTP codes.</p>
+          </div>
+        </div>
+        <a href="/admin/email-notifications" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-blue-600/30 flex items-center space-x-2">
+          <i class="fa-solid fa-inbox text-xs"></i><span>Open Email Notifications</span>
+        </a>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5">Sent At</th>
+                <th class="p-3.5">Recipient</th>
+                <th class="p-3.5">Template</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5">Body Preview</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% logs.forEach(l => { %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-slate-500 text-[11px] whitespace-nowrap"><%= l.sent_at ? new Date(l.sent_at).toLocaleString() : '—' %></td>
+                <td class="p-3.5 font-semibold text-slate-900"><%= l.recipient %></td>
+                <td class="p-3.5"><span class="bg-blue-50 text-blue-700 border-blue-200 border px-2 py-0.5 rounded text-[10px] font-bold"><%= l.template %></span></td>
+                <td class="p-3.5"><span class="<%= STATUS_PILL(l.status) %> border px-2.5 py-0.5 rounded-full font-semibold text-[10px]"><%= l.status %></span></td>
+                <td class="p-3.5 text-slate-500 text-[11px] max-w-md truncate" title="<%= l.body_preview || l.error || '' %>"><%= l.body_preview || l.error || '—' %></td>
+              </tr>
+              <% }) %>
+              <% if (!logs.length) { %>
+              <tr><td colspan="5" class="p-6 text-center text-slate-400">No emails sent yet.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %> | AUS Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900\&family=Poppins:wght@400;500;600;700;800;900\&family=Roboto:wght@400;500;600;700;800;900\&family=Nunito:wght@400;500;600;700;800;900\&family=Work+Sans:wght@400;500;600;700;800;900\&family=Manrope:wght@400;500;600;700;800;900\&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/smart-portal.css">
+<style>
+  :root { --primary: <%= themeColor %>; --primary2: <%= themeColor2 %>; }
+  body { font-family: '<%= themeFont %>', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div class="smart-layout">
+<aside class="sidebar">
+  <div class="brand">
+    <% if (typeof siteLogo !== 'undefined' && siteLogo) { %>
+      <img src="<%= siteLogo %>" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;">
+    <% } else { %><span class="brand-mark">A</span><% } %>
+    <div><b>AUS Academy</b><span>Australia • Year 11–12</span></div>
+  </div>
+  <div class="profile">
+    <% if (currentUser.profile_image) { %><div class="avatar" style="background-image:url('<%= currentUser.profile_image %>');background-size:cover;background-position:center;"></div><% } else { %><div class="avatar"><%= currentUser.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() %></div><% } %>
+    <div><b><%= currentUser.name %></b><span><%= currentUser.role === 'student' ? 'Student' : (currentUser.role === 'admin' ? 'Admin' : 'Teacher') %></span></div>
+  </div>
+
+  <% if (currentUser.role === 'student') {
+       const acc = typeof moduleAccess !== 'undefined' ? moduleAccess : { subjects:false, tutorials:false, material:false };
+  %>
+  <div class="nav-title">Main menu</div>
+  <nav class="nav">
+    <a class="<%= active==='dashboard'?'active':'' %>" href="/student/dashboard"><span class="ico">⌂</span>Dashboard</a>
+    <% if (acc.subjects) { %>
+      <a class="<%= active==='subjects'?'active':'' %>" href="/student/subjects"><span class="ico">▦</span>My Subjects</a>
+    <% } else { %>
+      <a class="locked" href="#" data-reason="This module is not assigned yet by your Admin / Teacher."><span class="ico">▦</span>My Subjects<span class="lock">🔒</span></a>
+    <% } %>
+    <% if (acc.tutorials) { %>
+      <a class="<%= active==='tutorials'?'active':'' %>" href="/student/tutorials"><span class="ico">▶</span>Tutorials</a>
+    <% } else { %>
+      <a class="locked" href="#" data-reason="This module is not assigned yet by your Admin / Teacher."><span class="ico">▶</span>Tutorials<span class="lock">🔒</span></a>
+    <% } %>
+    <% if (acc.material) { %>
+      <a class="<%= active==='material'?'active':'' %>" href="/student/material"><span class="ico">▤</span>Study Material</a>
+    <% } else { %>
+      <a class="locked" href="#" data-reason="This module is not assigned yet by your Admin / Teacher."><span class="ico">▤</span>Study Material<span class="lock">🔒</span></a>
+    <% } %>
+    <div class="nav-group <%= ['mcq','mcqplans','mcqmy','mcqpractice','mcqresult'].includes(active) ? 'expanded has-active' : '' %>">
+      <div class="nav-parent"><span class="ico">✓</span>MCQ<span class="chev">›</span></div>
+      <nav class="sub-nav">
+        <a class="<%= active==='mcqplans'?'active':'' %>" href="/student/mcq/plans"><span class="dot"></span>MCQ Plans</a>
+        <a class="<%= active==='mcqmy'?'active':'' %>" href="/student/mcq/my"><span class="dot"></span>My MCQs</a>
+        <a class="<%= active==='mcqresult'?'active':'' %>" href="/student/mcq/my"><span class="dot"></span>MCQ Results</a>
+        <a class="<%= active==='progress'?'active':'' %>" href="/student/progress"><span class="dot"></span>MCQ Progress</a>
+      </nav>
+    </div>
+    <a class="<%= active==='dashboard'&&false?'active':'' %>" href="/student/dashboard"><span class="ico">□</span>Purchased Papers</a>
+    <a class="<%= active==='exams'?'active':'' %>" href="/student/exams"><span class="ico">◫</span>My Exam Papers</a>
+    <a class="<%= active==='submissions'?'active':'' %>" href="/student/submissions"><span class="ico">⇧</span>My Submissions</a>
+    <a class="<%= active==='results'?'active':'' %>" href="/student/results"><span class="ico">▥</span>Results & Feedback</a>
+    <a class="<%= active==='progress'?'active':'' %>" href="/student/progress"><span class="ico">↗</span>Progress & Analytics</a>
+    <a class="<%= active==='profile'?'active':'' %>" href="/student/profile"><span class="ico">⚙</span>Profile & Settings</a>
+    <a href="/student/help"><span class="ico">❓</span>Help & Documentation</a>
+  </nav>
+  <div class="nav-title">Account</div>
+  <nav class="nav"><a href="/logout"><span class="ico">⇥</span>Sign out</a></nav>
+  <div class="sidebar-note">Access appears only after Admin / Teacher assignment. A plan purchase gives a quota — it does not unlock the entire question bank.</div>
+  <% } else { %>
+  <div class="nav-title">Main menu</div>
+  <nav class="nav">
+    <a class="<%= active==='dashboard'?'active':'' %>" href="/admin/dashboard"><span class="ico">⌂</span>Dashboard</a>
+    <a class="<%= active==='students'?'active':'' %>" href="/admin/students"><span class="ico">●</span>Students</a>
+    <a class="<%= active==='assign'?'active':'' %>" href="/admin/assign"><span class="ico">↗</span>Assign Paper</a>
+    <a class="<%= active==='subjects'?'active':'' %>" href="/admin/subjects"><span class="ico">▦</span>Subjects</a>
+    <a class="<%= active==='tutorials'?'active':'' %>" href="/admin/tutorials"><span class="ico">▶</span>Tutorials</a>
+    <a class="<%= active==='material'?'active':'' %>" href="/admin/material"><span class="ico">▤</span>Study Material</a>
+    <a class="<%= active==='mcq-bank'?'active':'' %>" href="/admin/mcqs"><span class="ico">✓</span>MCQ Question Bank</a>
+    <a class="<%= active==='mcq-plans'?'active':'' %>" href="/admin/mcq-plans"><span class="ico">◇</span>MCQ Plans</a>
+    <a class="<%= active==='papers'?'active':'' %>" href="/admin/papers"><span class="ico">□</span>Full Exam Papers</a>
+    <a class="<%= active==='submissions'?'active':'' %>" href="/admin/submissions"><span class="ico">◫</span>Submissions</a>
+    <a class="<%= active==='question-issues'?'active':'' %>" href="/admin/question-issues"><span class="ico">⚑</span>Question Issues</a>
+    <a class="<%= active==='review'?'active':'' %>" href="/admin/submissions"><span class="ico">✎</span>Review & Feedback</a>
+    <a class="<%= active==='results'?'active':'' %>" href="/admin/results"><span class="ico">▥</span>Results</a>
+    <a class="<%= active==='orders'?'active':'' %>" href="/admin/orders"><span class="ico">◷</span>Orders & Payments</a>
+    <a class="<%= active==='audit'?'active':'' %>" href="/admin/audit-logs"><span class="ico">⏱</span>Audit Log</a>
+    <a class="<%= active==='reports'?'active':'' %>" href="/admin/reports"><span class="ico">↗</span>Reports & Analytics</a>
+    <% if (currentUser.role === 'admin') { %>
+      <a class="<%= active==='teachers'?'active':'' %>" href="/admin/teachers"><span class="ico">●</span>Teachers</a>
+    <% } %>
+    <a class="<%= active==='settings'?'active':'' %>" href="/admin/settings"><span class="ico">⚙</span>Settings</a>
+  </nav>
+  <div class="nav-title">Account</div>
+  <nav class="nav"><a href="/logout"><span class="ico">⇥</span>Sign out</a></nav>
+  <div class="sidebar-note">You control student access. Verify purchases, assign MCQs/papers, set timing and publish feedback.</div>
+  <% } %>
+</aside>
+<div class="mobile-overlay"></div>
+<div class="main">
+  <header class="top">
+    <div class="top-left"><button class="hamb">☰</button><div class="breadcrumb"><%= crumb %></div></div>
+    <div class="top-actions">
+      <details class="topbar-dropdown">
+        <summary style="list-style:none;cursor:pointer;position:relative;display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:10px;color:#55708c;" title="Notifications">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <% if (unreadNotifications > 0) { %><span class="pill red" style="position:absolute;top:-7px;right:-7px;font-size:9px;padding:1px 5px;min-height:auto;"><%= unreadNotifications %></span><% } %>
+        </summary>
+        <div class="dropdown-panel">
+          <div class="dropdown-head">Notifications</div>
+          <% (typeof recentNotifications !== 'undefined' ? recentNotifications : []).forEach(n => { %>
+            <a class="dropdown-item" href="<%= n.link || '/notifications' %>"><b><%= n.title %></b><span><%= new Date(n.created_at).toLocaleString() %></span></a>
+          <% }) %>
+          <% if (!(typeof recentNotifications !== 'undefined' && recentNotifications.length)) { %><div class="dropdown-item muted">No notifications yet.</div><% } %>
+          <a class="dropdown-foot" href="/notifications">View all →</a>
+        </div>
+      </details>
+      <details class="topbar-dropdown">
+        <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;">
+          <% if (currentUser.profile_image) { %><div class="avatar" style="background-image:url('<%= currentUser.profile_image %>');background-size:cover;background-position:center;"></div><% } else { %><div class="avatar"><%= currentUser.name.charAt(0).toUpperCase() %></div><% } %>
+        </summary>
+        <div class="dropdown-panel" style="right:0;left:auto;min-width:190px;">
+          <div class="dropdown-head"><%= currentUser.name %><br><span style="font-weight:600;color:var(--muted);font-size:11px;"><%= currentUser.email %></span></div>
+          <a class="dropdown-item" href="<%= currentUser.role==='student' ? '/student/profile' : '/admin/profile' %>">👤 My Profile</a>
+          <a class="dropdown-item" href="<%= currentUser.role==='student' ? '/student/dashboard' : '/admin/settings' %>">⚙ Settings</a>
+          <a class="dropdown-item" href="/logout" style="color:#c23838;">⇥ Logout</a>
+        </div>
+      </details>
+    </div>
+  </header>
+  <section class="content">
+    <% if (success && success.length) { %><div class="callout good" style="margin-bottom:14px;">✔ <%= success[0] %></div><% } %>
+    <% if (error && error.length) { %><div class="callout warn" style="margin-bottom:14px;">⚠ <%= error[0] %></div><% } %>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Subject — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'subjects' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+            <i class="fa-solid fa-book text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Edit <%= subjectName %></h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Changes apply to both Year 11 and Year 12 for this subject.</p>
+          </div>
+        </div>
+        <a href="/admin/subjects" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+          <i class="fa-solid fa-arrow-left text-xs"></i><span>Back to Subjects</span>
+        </a>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-xl">
+        <form method="post" action="/admin/subjects/<%= encodeURIComponent(subjectName) %>/edit" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Description</label>
+            <textarea name="description" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"><%= description %></textarea>
+          </div>
+          <label class="flex items-center gap-2.5 font-semibold text-slate-700 cursor-pointer">
+            <input type="checkbox" name="is_active" <%= is_active ? 'checked' : '' %> class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+            Active (visible across the portal)
+          </label>
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <a href="/admin/subjects" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition shadow-md shadow-blue-600/30">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

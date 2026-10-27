@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Log — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  function qs(overrides) {
+    const p = new URLSearchParams();
+    Object.keys(filters).forEach((k) => { if (filters[k]) p.set(k, filters[k]); });
+    Object.keys(overrides).forEach((k) => { if (overrides[k] === null || overrides[k] === '') p.delete(k); else p.set(k, overrides[k]); });
+    const out = p.toString();
+    return out ? '?' + out : '?';
+  }
+  const ACTION_PILL = (a) => /delete/.test(a) ? 'bg-rose-50 text-rose-700 border-rose-200'
+    : /login/.test(a) ? 'bg-slate-100 text-slate-700 border-slate-200'
+    : /publish|result|sent|verif/.test(a) ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : 'bg-blue-50 text-blue-700 border-blue-200';
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'audit-logs' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search audit log...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-clipboard-list text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Audit Log</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Who did what, to which record, and when — logins, assignments, marks changes, and result publishing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="lg:col-span-2">
+            <label class="block font-semibold text-slate-600 mb-1">Search</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Search by user, action or record..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Action</label>
+            <select name="action" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Actions</option>
+              <% actions.forEach(a => { %><option value="<%= a %>" <%= filters.action===a?'selected':'' %>><%= a %></option><% }) %>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">Filter</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5">When</th>
+                <th class="p-3.5">Who</th>
+                <th class="p-3.5">Action</th>
+                <th class="p-3.5">Record</th>
+                <th class="p-3.5">Details</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% rows.forEach(l => { %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-slate-500 text-[11px] whitespace-nowrap"><%= new Date(l.created_at).toLocaleString() %></td>
+                <td class="p-3.5 font-semibold text-slate-900"><%= l.user_label || 'system' %></td>
+                <td class="p-3.5"><span class="<%= ACTION_PILL(l.action) %> border px-2 py-0.5 rounded text-[10px] font-bold"><%= l.action %></span></td>
+                <td class="p-3.5 text-slate-500 text-[11px]"><%= l.record_type || '' %><% if (l.record_id) { %> #<%= l.record_id %><% } %></td>
+                <td class="p-3.5 text-slate-500 text-[11px] max-w-xs truncate" title="<%= l.new_value || '' %>"><%= l.new_value ? l.new_value.slice(0, 160) : '—' %></td>
+              </tr>
+              <% }) %>
+              <% if (!rows.length) { %>
+              <tr><td colspan="5" class="p-6 text-center text-slate-400">No audit entries match these filters.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 font-medium">
+          Showing the most recent <%= rows.length %> of <%= totalCount %> entries.
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

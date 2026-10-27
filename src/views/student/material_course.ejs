@@ -1,0 +1,68 @@
+<%- include('../partials/portal_top', { title: subject.name, active: 'material', crumb: 'Student / Study Material / ' + subject.name }) %>
+<div class="portal-title"><div><h1><%= subject.name %></h1><p><%= subject.year %> · Australian Curriculum · <%= lessons.length %> lesson(s)</p></div>
+  <a class="btn btn-outline" href="/student/material">← All Subjects</a>
+</div>
+
+<div class="grid-12" style="display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;">
+  <div class="card card-pad" style="max-height:640px;overflow:auto;">
+    <% modules.forEach(mod => { %>
+      <div style="margin-bottom:14px;">
+        <b style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;"><%= mod.title %></b>
+        <div style="margin-top:8px;display:grid;gap:4px;">
+          <% lessons.filter(l => l.module_id === mod.id).forEach(l => { %>
+            <a href="/student/material/course/<%= subject.id %>?lesson=<%= l.id %>"
+               style="display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;font-size:13px;text-decoration:none;color:<%= activeLesson && activeLesson.id===l.id ? '#fff' : 'var(--text)' %>;background:<%= activeLesson && activeLesson.id===l.id ? 'var(--primary)' : 'transparent' %>;">
+              <span><%= l.content_type === 'pdf' ? '📄' : '▶' %></span>
+              <span style="flex:1;"><%= l.title %></span>
+              <small style="opacity:.75;"><%= l.duration_minutes %>m</small>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% }) %>
+    <% const unassigned = lessons.filter(l => !l.module_id); %>
+    <% if (unassigned.length) { %>
+      <div>
+        <b style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Other Lessons</b>
+        <div style="margin-top:8px;display:grid;gap:4px;">
+          <% unassigned.forEach(l => { %>
+            <a href="/student/material/course/<%= subject.id %>?lesson=<%= l.id %>"
+               style="display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;font-size:13px;text-decoration:none;color:<%= activeLesson && activeLesson.id===l.id ? '#fff' : 'var(--text)' %>;background:<%= activeLesson && activeLesson.id===l.id ? 'var(--primary)' : 'transparent' %>;">
+              <span><%= l.content_type === 'pdf' ? '📄' : '▶' %></span>
+              <span style="flex:1;"><%= l.title %></span>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+    <% if (!lessons.length) { %><p class="muted small">No lessons published yet.</p><% } %>
+  </div>
+
+  <div class="card card-pad">
+    <% if (!activeLesson) { %>
+      <p class="muted">Select a lesson from the left to begin.</p>
+    <% } else { %>
+      <h3 style="margin:0 0 14px;"><%= activeLesson.title %></h3>
+
+      <% if (activeLesson.video_path) { %>
+        <video controls controlsList="nodownload" style="width:100%;border-radius:12px;background:#000;max-height:440px;" src="/student/material/lesson/<%= activeLesson.id %>/video"></video>
+      <% } %>
+
+      <% if (activeLesson.pdf_path) { %>
+        <div style="margin-top:<%= activeLesson.video_path ? '18px' : '0' %>;">
+          <iframe src="/student/material/lesson/<%= activeLesson.id %>/pdf" style="width:100%;height:520px;border:1px solid var(--line);border-radius:12px;"></iframe>
+        </div>
+      <% } %>
+
+      <% if (!activeLesson.video_path && !activeLesson.pdf_path && activeLesson.file_url) { %>
+        <a class="btn btn-primary" href="<%= activeLesson.file_url %>" target="_blank" rel="noopener">Open Link →</a>
+      <% } %>
+
+      <div class="tabs" style="margin-top:18px;">
+        <a class="active">Notes</a>
+      </div>
+      <p class="muted small"><%= activeLesson.notes || 'No description for this lesson.' %></p>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/portal_bottom') %>

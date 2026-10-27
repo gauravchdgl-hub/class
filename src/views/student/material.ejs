@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Material - AUS Academy Student Portal</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1e293b}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+  .custom-select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right .75rem center;background-repeat:no-repeat;background-size:1.1em 1.1em;padding-right:2.2rem;-webkit-appearance:none;appearance:none}
+</style>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden">
+<div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+<div class="flex flex-1 min-h-screen relative">
+
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#071330] text-slate-300 flex flex-col justify-between shrink-0 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out h-screen overflow-y-auto border-r border-slate-800">
+    <div>
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-[#040a1d]">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div><h1 class="font-bold text-base leading-tight tracking-wide text-white">AUS Academy</h1><p class="text-[10px] text-slate-400 mt-0.5">Australia Year 11–12 Student Portal</p></div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <nav class="p-3 space-y-1 text-sm font-medium">
+        <a href="/student/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-house w-5 text-center text-slate-400"></i><span>Dashboard</span></a>
+        <a href="/student/subjects" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-book-open w-5 text-center text-slate-400"></i><span>My Subjects</span></a>
+        <a href="/student/mcq-plans" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-id-card w-5 text-center text-slate-400"></i><span>My Plan</span></a>
+        <a href="/student/mcq/my" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-circle-question w-5 text-center text-slate-400"></i><span>Practice MCQs</span></a>
+        <a href="/student/tutorials" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-video w-5 text-center text-slate-400"></i><span>Tutorials</span></a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-md font-semibold shadow-blue-600/30"><i class="fa-solid fa-book w-5 text-center text-white"></i><span>Study Material</span></a>
+        <a href="/student/results" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-chart-pie w-5 text-center text-slate-400"></i><span>Results</span></a>
+        <a href="/student/profile" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-gear w-5 text-center text-slate-400"></i><span>Profile &amp; Settings</span></a>
+      </nav>
+    </div>
+    <div class="p-4 bg-[#040a1d] border-t border-slate-800 space-y-3">
+      <div class="flex items-center space-x-3 text-xs text-slate-400 pt-1">
+        <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset text-sm"></i></div>
+        <div><h4 class="text-xs font-semibold text-white leading-tight">Need Help?</h4><a href="/student/help" class="text-[10px] text-slate-400">Contact Support</a></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 min-h-screen relative">
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center space-x-3 w-full max-w-2xl">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-bars text-lg"></i></button>
+      </div>
+      <div class="flex items-center space-x-3 sm:space-x-4 pl-2 shrink-0">
+        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs"><%= currentUser.name.charAt(0) %></div>
+        <div class="hidden sm:block text-left"><h4 class="text-xs font-bold text-slate-800 leading-none mb-0.5"><%= currentUser.name %></h4></div>
+      </div>
+    </header>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30"><i class="fa-solid fa-book text-lg"></i></div>
+          <div><h2 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Study Material</h2><p class="text-[13px] text-slate-500 mt-0.5">Access study materials assigned by your teachers to help you learn and prepare for your exams.</p></div>
+        </div>
+      </div>
+
+      <% if (!moduleUnlocked) { %>
+      <div class="bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold rounded-xl px-4 py-3 flex items-center gap-2">
+        <i class="fa-solid fa-lock"></i><span>Showing only study material assigned to you. Unlock the full library from your plan.</span>
+      </div>
+      <% } %>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Total Materials</span><h3 class="text-2xl font-bold text-[#091e42]"><%= stats.total %></h3><span class="text-[11px] text-slate-400 mt-1 block">assigned to you</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-book"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Notes</span><h3 class="text-2xl font-bold text-emerald-600"><%= stats.notes %></h3><span class="text-[11px] text-slate-400 mt-1 block">PDF &amp; Docs</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-lines"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Videos</span><h3 class="text-2xl font-bold text-rose-500"><%= stats.videos %></h3><span class="text-[11px] text-slate-400 mt-1 block">Video Lessons</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-video"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Links</span><h3 class="text-2xl font-bold text-purple-600"><%= stats.links %></h3><span class="text-[11px] text-slate-400 mt-1 block">External Resources</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-link"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Others</span><h3 class="text-2xl font-bold text-amber-500"><%= stats.others %></h3><span class="text-[11px] text-slate-400 mt-1 block">PPT, ZIP, etc.</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
+        </div>
+      </div>
+
+      <form method="get" class="flex items-center space-x-2 overflow-x-auto pb-2">
+        <% if (selectedType) { %><input type="hidden" name="type" value="<%= selectedType %>"><% } %>
+        <button type="submit" name="subject_id" value="" class="px-4 py-2 <%= !selectedSubject ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200' %> font-bold rounded-xl text-xs shrink-0 transition">
+          All Materials <span class="ml-1 <%= !selectedSubject ? 'bg-white/20' : 'bg-slate-100 text-slate-600' %> px-1.5 py-0.5 rounded-full text-[10px]"><%= stats.total %></span>
+        </button>
+        <% subjects.forEach(s => { %>
+          <button type="submit" name="subject_id" value="<%= s.id %>" class="px-4 py-2 <%= String(selectedSubject)===String(s.id) ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200' %> font-semibold rounded-xl text-xs shrink-0 transition">
+            <%= s.name %> <span class="ml-1 <%= String(selectedSubject)===String(s.id) ? 'bg-white/20' : 'bg-slate-100 text-slate-600' %> px-1.5 py-0.5 rounded-full text-[10px]"><%= bySubject[s.name] || 0 %></span>
+          </button>
+        <% }) %>
+      </form>
+
+      <form method="get" class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <% if (selectedSubject) { %><input type="hidden" name="subject_id" value="<%= selectedSubject %>"><% } %>
+        <div class="relative w-full sm:w-96">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" name="q" value="<%= q %>" placeholder="Search study materials..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex items-center space-x-3 w-full sm:w-auto justify-end text-xs">
+          <select name="type" onchange="this.form.submit()" class="custom-select bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none">
+            <option value="" <%= !selectedType ? 'selected' : '' %>>All Types</option>
+            <% ['PDF','Video','Doc','PPT','Link','ZIP'].forEach(t => { %><option value="<%= t %>" <%= selectedType===t ? 'selected' : '' %>><%= t %></option><% }) %>
+          </select>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">Search</button>
+        </div>
+      </form>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% materials.forEach(m => { %>
+          <% const badge = m.fileMeta.badge; %>
+          <% const badgeColor = { PDF:'bg-red-600', Video:'bg-rose-600', Doc:'bg-blue-600', PPT:'bg-amber-600', Link:'bg-purple-600', ZIP:'bg-amber-500' }[badge] || 'bg-slate-600'; %>
+          <% const icon = { PDF:'fa-file-pdf', Video:'fa-video', Doc:'fa-file-word', PPT:'fa-file-powerpoint', Link:'fa-link', ZIP:'fa-file-zipper' }[badge] || 'fa-file'; %>
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="relative h-40 bg-slate-100 border-b border-slate-100 flex items-center justify-center overflow-hidden">
+                <span class="absolute top-3 left-3 <%= badgeColor %> text-white px-2.5 py-0.5 rounded font-bold text-[10px] shadow-sm z-10"><%= badge %></span>
+                <i class="fa-solid <%= icon %> text-slate-300 text-4xl"></i>
+              </div>
+              <div class="p-5 space-y-3">
+                <div>
+                  <span class="inline-block bg-blue-50 text-blue-700 font-bold text-[10px] px-2.5 py-0.5 rounded mb-1.5"><%= m.subject_name || 'General' %></span>
+                  <h4 class="font-bold text-slate-900 text-base leading-snug"><%= m.title %></h4>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-2"><%= m.notes || '' %></p>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                  <div><span class="text-[10px] text-slate-400 block leading-none">Assigned by</span><span class="font-semibold text-slate-700 text-[11px]"><%= m.assigned_by_name || 'AUS Academy' %></span></div>
+                  <span class="text-[11px] text-slate-400"><%= new Date(m.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></span>
+                </div>
+              </div>
+            </div>
+            <div class="p-5 pt-0">
+              <% if (badge === 'Video') { %>
+                <a href="/student/material/<%= m.id %>" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-md shadow-blue-600/30"><i class="fa-solid fa-play text-xs"></i><span>Watch Now</span></a>
+              <% } else if (badge === 'Link') { %>
+                <a href="<%= m.file_url %>" target="_blank" rel="noopener" class="w-full bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 border border-purple-200"><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i><span>Open Link</span></a>
+              <% } else if (m.allow_download) { %>
+                <a href="/student/material/<%= m.id %>/file?dl=1" class="w-full bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 border border-blue-200"><i class="fa-solid fa-download text-xs"></i><span>Download (<%= m.fileMeta.sizeLabel %>)</span></a>
+              <% } else { %>
+                <a href="/student/material/<%= m.id %>" class="w-full bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 border border-blue-200"><i class="fa-solid fa-eye text-xs"></i><span>View</span></a>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+        <% if (!materials.length) { %><p class="text-slate-400 col-span-full text-center py-10">No study material assigned yet.</p><% } %>
+      </div>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; 2026 AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    document.getElementById('sidebar-backdrop').classList.toggle('hidden');
+  }
+</script>
+</body>
+</html>

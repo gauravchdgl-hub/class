@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorials - AUS Academy Student Portal</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1e293b}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+  .custom-select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right .75rem center;background-repeat:no-repeat;background-size:1.1em 1.1em;padding-right:2.2rem;-webkit-appearance:none;appearance:none}
+</style>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden">
+<div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+<div class="flex flex-1 min-h-screen relative">
+
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#071330] text-slate-300 flex flex-col justify-between shrink-0 transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out h-screen overflow-y-auto border-r border-slate-800">
+    <div>
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-[#040a1d]">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div><h1 class="font-bold text-base leading-tight tracking-wide text-white">AUS Academy</h1><p class="text-[10px] text-slate-400 mt-0.5">Australia Year 11–12 Student Portal</p></div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <nav class="p-3 space-y-1 text-sm font-medium">
+        <a href="/student/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-house w-5 text-center text-slate-400"></i><span>Dashboard</span></a>
+        <a href="/student/subjects" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-book-open w-5 text-center text-slate-400"></i><span>My Subjects</span></a>
+        <a href="/student/mcq-plans" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-id-card w-5 text-center text-slate-400"></i><span>My Plan</span></a>
+        <a href="/student/mcq/my" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-circle-question w-5 text-center text-slate-400"></i><span>Practice MCQs</span></a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-blue-600 text-white shadow-md font-semibold shadow-blue-600/30"><i class="fa-solid fa-video w-5 text-center text-white"></i><span>Tutorials</span></a>
+        <a href="/student/material" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-book w-5 text-center text-slate-400"></i><span>Study Material</span></a>
+        <a href="/student/results" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-chart-pie w-5 text-center text-slate-400"></i><span>Results</span></a>
+        <a href="/student/profile" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition"><i class="fa-solid fa-gear w-5 text-center text-slate-400"></i><span>Profile &amp; Settings</span></a>
+      </nav>
+    </div>
+    <div class="p-4 bg-[#040a1d] border-t border-slate-800 space-y-3">
+      <div class="flex items-center space-x-3 text-xs text-slate-400 pt-1">
+        <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-headset text-sm"></i></div>
+        <div><h4 class="text-xs font-semibold text-white leading-tight">Need Help?</h4><a href="/student/help" class="text-[10px] text-slate-400">Contact Support</a></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50 min-h-screen relative">
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center space-x-3 w-full max-w-2xl">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-bars text-lg"></i></button>
+        <form method="get" class="flex items-center w-full bg-slate-50 rounded-lg px-3 py-2 border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition hidden sm:flex">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2 text-sm"></i>
+          <input type="text" name="q" value="<%= q %>" placeholder="Search tutorials, subjects, or topics..." class="bg-transparent border-none text-xs sm:text-sm w-full outline-none text-slate-700 placeholder-slate-400">
+        </form>
+      </div>
+      <div class="flex items-center space-x-3 sm:space-x-4 pl-2 shrink-0">
+        <a href="/student/notifications" class="relative p-2 text-slate-600 hover:bg-slate-100 rounded-full transition" title="Notifications"><i class="fa-regular fa-bell text-lg"></i></a>
+        <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+        <div class="flex items-center space-x-2.5 p-1">
+          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs"><%= currentUser.name.charAt(0) %></div>
+          <div class="hidden sm:block text-left"><h4 class="text-xs font-bold text-slate-800 leading-none mb-0.5"><%= currentUser.name %></h4><span class="text-[11px] text-slate-500 font-medium"><%= selectedYear || 'Student' %></span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30"><i class="fa-solid fa-video text-lg"></i></div>
+          <div><h2 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Tutorials</h2><p class="text-[13px] text-slate-500 mt-0.5">Video lessons and tutorials assigned by your teachers to help you learn and prepare better.</p></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Total Tutorials</span><h3 class="text-2xl font-bold text-[#091e42]"><%= stats.total %></h3><span class="text-[11px] text-slate-400 mt-1 block">assigned by teachers</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-video"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Completed</span><h3 class="text-2xl font-bold text-emerald-600"><%= stats.completed %></h3><span class="text-[11px] text-emerald-600 font-semibold mt-1 block"><%= stats.total ? Math.round(stats.completed/stats.total*100) : 0 %>% completed</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-circle-check"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">In Progress</span><h3 class="text-2xl font-bold text-amber-500"><%= stats.inProgress %></h3><span class="text-[11px] text-slate-400 mt-1 block">continue watching</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-clock"></i></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div><span class="text-xs font-semibold text-slate-500 block mb-1">Not Started</span><h3 class="text-2xl font-bold text-slate-700"><%= stats.notStarted %></h3><span class="text-[11px] text-slate-400 mt-1 block">start learning</span></div>
+          <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl shrink-0"><i class="fa-regular fa-calendar"></i></div>
+        </div>
+      </div>
+
+      <form method="get" class="flex items-center space-x-2 overflow-x-auto pb-2">
+        <button type="submit" name="subject_id" value="" class="px-4 py-2 <%= !selectedSubject ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200' %> font-bold rounded-xl text-xs shrink-0 transition">
+          All Tutorials <span class="ml-1 <%= !selectedSubject ? 'bg-white/20' : 'bg-slate-100 text-slate-600' %> px-1.5 py-0.5 rounded-full text-[10px]"><%= stats.total %></span>
+        </button>
+        <% subjects.forEach(s => { %>
+          <button type="submit" name="subject_id" value="<%= s.id %>" class="px-4 py-2 <%= String(selectedSubject)===String(s.id) ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200' %> font-semibold rounded-xl text-xs shrink-0 transition">
+            <%= s.name %> <span class="ml-1 <%= String(selectedSubject)===String(s.id) ? 'bg-white/20' : 'bg-slate-100 text-slate-600' %> px-1.5 py-0.5 rounded-full text-[10px]"><%= bySubject[s.name] || 0 %></span>
+          </button>
+        <% }) %>
+      </form>
+
+      <form method="get" class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="relative w-full sm:w-96">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" name="q" value="<%= q %>" placeholder="Search tutorials..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl">Search</button>
+      </form>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% tutorials.forEach(t => { %>
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+            <div>
+              <a href="/student/tutorials/<%= t.id %>" class="relative h-48 bg-slate-900 bg-cover bg-center flex items-center justify-center group cursor-pointer block" style="background-image:url('<%= t.thumbnail_url || 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80' %>')">
+                <div class="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/20 transition"></div>
+                <span class="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-lg font-bold text-[10px] shadow-md"><%= t.subject_name || 'General' %></span>
+                <span class="absolute bottom-3 right-3 bg-slate-900/80 text-white px-2 py-1 rounded-md font-bold text-[10px]"><%= t.duration_minutes %> min</span>
+                <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg shadow-xl relative z-10 group-hover:scale-110 transition"><i class="fa-solid fa-play pl-0.5"></i></div>
+              </a>
+              <div class="p-5 space-y-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-base leading-snug"><%= t.title %></h4>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-2"><%= t.description || '' %></p>
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                  <div><span class="text-[10px] text-slate-400 block leading-none">Assigned by</span><span class="font-semibold text-xs text-slate-800"><%= t.assigned_by_name || 'AUS Academy' %></span></div>
+                  <span class="font-bold text-xs <%= t.completed ? 'text-emerald-600' : 'text-slate-700' %>"><%= t.progress_percent || 0 %>%</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full <%= t.completed ? 'bg-emerald-500' : 'bg-amber-500' %> rounded-full" style="width: <%= t.progress_percent || 0 %>%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="p-5 pt-0 grid grid-cols-2 gap-3">
+              <a href="/student/tutorials/<%= t.id %>" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/30 text-center"><%= t.completed ? 'Watch Again' : 'Watch Now' %></a>
+              <% if (t.completed) { %>
+                <span class="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold py-2.5 rounded-xl text-xs transition text-center flex items-center justify-center space-x-1.5"><i class="fa-solid fa-check text-emerald-600"></i><span>Completed</span></span>
+              <% } else { %>
+                <form method="post" action="/student/tutorials/<%= t.id %>/complete"><button type="submit" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition text-center flex items-center justify-center space-x-1.5"><i class="fa-regular fa-circle-check text-blue-600"></i><span>Mark as Completed</span></button></form>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+        <% if (!tutorials.length) { %><p class="text-slate-400 col-span-full text-center py-10">No tutorials assigned yet.</p><% } %>
+      </div>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; 2026 AUS Academy. All rights reserved.</p>
+      </footer>
+    </div>
+  </main>
+</div>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    document.getElementById('sidebar-backdrop').classList.toggle('hidden');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Question Issues — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'question-issues' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search question issues...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-rose-600/30">
+          <i class="fa-solid fa-flag text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Question Issues</h1>
+          <p class="text-[13px] text-slate-500 mt-0.5">Problems students have flagged — wrong answer keys, typos, or unclear questions.</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <% issues.forEach(issue => { %>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="<%= issue.status==='resolved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' %> border px-2.5 py-0.5 rounded-full font-semibold text-[10px]"><%= issue.status %></span>
+                <span class="bg-blue-50 text-blue-700 border-blue-200 border px-2 py-0.5 rounded text-[10px] font-bold"><%= issue.issue_type %></span>
+              </div>
+              <h3 class="font-bold text-sm text-[#091e42]"><%= issue.questionText ? issue.questionText.question : '(question not found — may have been deleted)' %></h3>
+              <p class="text-[11px] text-slate-500 mt-1">Reported by <%= issue.reporter_name || 'Unknown' %> (<%= issue.reporter_email || '' %>) on <%= new Date(issue.created_at).toLocaleString() %></p>
+              <% if (issue.description) { %><p class="text-[11px] text-slate-500 italic mt-1">"<%= issue.description %>"</p><% } %>
+            </div>
+            <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap"><%= issue.question_type %> #<%= issue.question_id %></span>
+          </div>
+
+          <% if (issue.status === 'open') { %>
+          <form method="post" action="/admin/question-issues/<%= issue.id %>/resolve" class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-end gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Resolution</label>
+              <select name="resolution_action" required onchange="this.closest('form').querySelector('.correct-key-field').style.display = this.value==='correct_answer_key' ? 'block' : 'none'" class="custom-select bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Choose action...</option>
+                <option value="correct_answer_key">Correct the Answer Key</option>
+                <option value="exclude_from_scoring">Exclude from Scoring</option>
+                <option value="give_full_marks">Give Full Marks to Everyone</option>
+                <option value="edit_question">Mark Resolved (edited manually elsewhere)</option>
+              </select>
+            </div>
+            <div class="correct-key-field" style="display:none;">
+              <label class="block font-semibold text-slate-600 mb-1">New Correct Option</label>
+              <select name="new_correct_option" class="custom-select bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+              </select>
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition shadow-md shadow-blue-600/30">Resolve</button>
+          </form>
+          <% } else { %>
+          <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500">Resolved: <span class="font-bold text-slate-700"><%= issue.resolution_action %></span> on <%= new Date(issue.resolved_at).toLocaleString() %></div>
+          <% } %>
+        </div>
+        <% }) %>
+        <% if (!issues.length) { %>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-10 text-center text-slate-400 text-sm">No issues reported yet.</div>
+        <% } %>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

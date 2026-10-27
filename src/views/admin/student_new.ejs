@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= student ? 'Edit Student' : 'Add Student' %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col">
+<div class="flex flex-1 min-h-screen relative">
+  <%- include('../partials/tw_sidebar', { active: student ? 'student-edit' : 'student-new' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students...' }) %>
+
+
+    <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div>
+        <nav class="flex text-xs text-slate-500 space-x-2 mb-1">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span>&gt;</span>
+          <a href="/admin/students" class="hover:text-blue-600 transition">Students</a><span>&gt;</span>
+          <span class="text-slate-800 font-semibold"><%= student ? 'Edit Student' : 'Add Student' %></span>
+        </nav>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight"><%= student ? 'Edit Student' : 'Add Student' %></h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5"><%= student ? `Update ${student.name}'s profile information.` : 'Create a new student account with complete profile information.' %></p>
+      </div>
+
+      <% if (success && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= error[0] %></div><% } %>
+
+      <form action="<%= student ? `/admin/students/${student.id}/edit` : '/admin/students/new' %>" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <div class="lg:col-span-8 space-y-6">
+          <!-- SECTION 1: Personal Information -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-2.5 mb-4">
+              <span class="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">1</span>
+              <h3 class="text-sm font-bold text-slate-800">Personal Information</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">First Name <span class="text-rose-500">*</span></label>
+                <input type="text" name="firstName" required value="<%= student ? student.name.split(' ')[0] : '' %>" placeholder="Enter first name" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Last Name <span class="text-rose-500">*</span></label>
+                <input type="text" name="lastName" required value="<%= student ? student.name.split(' ').slice(1).join(' ') : '' %>" placeholder="Enter last name" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Date of Birth</label>
+                <input type="date" name="dob" value="<%= student && student.dob ? student.dob : '' %>" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Gender</label>
+                <select name="gender" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-600">
+                  <option value="" <%= !(student&&student.gender)?'selected':'' %> disabled>Select gender</option>
+                  <option value="male" <%= student&&student.gender==='male'?'selected':'' %>>Male</option>
+                  <option value="female" <%= student&&student.gender==='female'?'selected':'' %>>Female</option>
+                  <option value="other" <%= student&&student.gender==='other'?'selected':'' %>>Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nationality</label>
+                <select name="nationality" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-600">
+                  <option value="Australian" <%= !student||student.nationality==='Australian'?'selected':'' %>>Australian</option>
+                  <option value="Other" <%= student&&student.nationality==='Other'?'selected':'' %>>Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Student ID (Optional)</label>
+                <input type="text" name="studentId" value="<%= student ? (student.student_code||'') : '' %>" placeholder="Enter student ID" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: Contact Information -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-2.5 mb-4">
+              <span class="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+              <h3 class="text-sm font-bold text-slate-800">Contact Information</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
+                <input type="email" name="email" required value="<%= student ? student.email : '' %>" placeholder="Enter email address" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+                <input type="tel" name="phone" value="<%= student ? (student.phone||'') : '' %>" placeholder="Enter phone number" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Address</label>
+                <input type="text" name="address" value="<%= student ? (student.address||'') : '' %>" placeholder="Enter full address" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div class="grid grid-cols-3 gap-2 sm:col-span-2">
+                <div><label class="block text-[11px] font-semibold text-slate-700 mb-1">City</label><input type="text" name="city" value="<%= student ? (student.city||'') : '' %>" placeholder="Enter city" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+                <div><label class="block text-[11px] font-semibold text-slate-700 mb-1">State</label><input type="text" name="state" value="<%= student ? (student.state||'') : '' %>" placeholder="Enter state" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+                <div><label class="block text-[11px] font-semibold text-slate-700 mb-1">Postcode</label><input type="text" name="postcode" value="<%= student ? (student.postal_code||'') : '' %>" placeholder="Enter postcode" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Country</label>
+                <select name="country" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-800 font-medium">
+                  <option value="Australia" <%= !student||student.country==='Australia'?'selected':'' %>>Australia</option>
+                  <option value="New Zealand" <%= student&&student.country==='New Zealand'?'selected':'' %>>New Zealand</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: Academic Information -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-2.5 mb-4">
+              <span class="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">3</span>
+              <h3 class="text-sm font-bold text-slate-800">Academic Information</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Year Level <span class="text-rose-500">*</span></label>
+                <select name="yearLevel" required class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-600">
+                  <option value="" disabled <%= !(student&&student.class_year)?'selected':'' %>>Select year level</option>
+                  <option value="11" <%= student&&student.class_year==='Year 11'?'selected':'' %>>Year 11</option>
+                  <option value="12" <%= student&&student.class_year==='Year 12'?'selected':'' %>>Year 12</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Class</label>
+                <input type="text" name="class" value="<%= student ? (student.class_section||'') : '' %>" placeholder="e.g. 12A" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Subjects (Optional)</label>
+                <select name="subjects" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-600">
+                  <option value="" <%= !(student&&student.interested_subject_id)?'selected':'' %>>Select subject</option>
+                  <% subjects.forEach(sub => { %><option value="<%= sub.id %>" <%= student&&student.interested_subject_id==sub.id?'selected':'' %>><%= sub.name %> (<%= sub.year %>)</option><% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Enrollment Date</label>
+                <input type="date" name="enrollmentDate" value="<%= student && student.enrolled_at ? student.enrolled_at.slice(0,10) : new Date().toISOString().slice(0,10) %>" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: Account Access -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-2.5 mb-4">
+              <span class="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">4</span>
+              <h3 class="text-sm font-bold text-slate-800">Account Access</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Username</label>
+                <input type="text" name="username" value="<%= student ? (student.username||'') : '' %>" placeholder="Enter username" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Password <%= student ? '' : '<span class="text-rose-500">*</span>' %></label>
+                <div class="relative">
+                  <input id="passwordInput" type="password" name="password" <%= student ? '' : 'required' %> placeholder="<%= student ? 'Leave blank to keep current password' : 'Enter password' %>" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 pr-8 outline-none focus:border-blue-500 focus:bg-white transition">
+                  <button type="button" id="togglePasswordBtn" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"><i class="fa-regular fa-eye text-xs"></i></button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Account Status</label>
+                <select name="accountStatus" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-800 font-medium">
+                  <option value="active" <%= !student||student.account_status==='active'?'selected':'' %>>Active</option>
+                  <option value="inactive" <%= student&&student.account_status==='inactive'?'selected':'' %>>Inactive</option>
+                  <option value="pending" <%= student&&student.account_status==='pending'?'selected':'' %>>Pending</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: Parent / Guardian Information -->
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-2.5 mb-4">
+              <span class="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">5</span>
+              <h3 class="text-sm font-bold text-slate-800">Parent / Guardian Information <span class="text-slate-400 font-normal text-xs">(Optional)</span></h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div><label class="block text-xs font-semibold text-slate-700 mb-1">Parent Name</label><input type="text" name="parentName" value="<%= student ? (student.father_name||'') : '' %>" placeholder="Enter parent name" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+              <div><label class="block text-xs font-semibold text-slate-700 mb-1">Parent Email</label><input type="email" name="parentEmail" value="<%= student ? (student.parent_email||'') : '' %>" placeholder="Enter parent email" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Relationship</label>
+                <select name="parentRelationship" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-600">
+                  <option value="" <%= !(student&&student.parent_relationship)?'selected':'' %> disabled>Select relationship</option>
+                  <option value="father" <%= student&&student.parent_relationship==='father'?'selected':'' %>>Father</option>
+                  <option value="mother" <%= student&&student.parent_relationship==='mother'?'selected':'' %>>Mother</option>
+                  <option value="guardian" <%= student&&student.parent_relationship==='guardian'?'selected':'' %>>Guardian</option>
+                </select>
+              </div>
+              <div><label class="block text-xs font-semibold text-slate-700 mb-1">Parent Phone</label><input type="tel" name="parentPhone" value="<%= student ? (student.father_phone||'') : '' %>" placeholder="Enter phone number" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow text-center">
+            <div class="flex items-center space-x-2 mb-4 text-left"><i class="fa-solid fa-user-circle text-blue-600"></i><h3 class="text-sm font-bold text-slate-800">Profile Photo</h3></div>
+            <div class="py-4 flex flex-col items-center">
+              <% if (student && student.profile_image) { %>
+              <img src="<%= student.profile_image %>" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-blue-200">
+              <% } else { %>
+              <div class="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 mb-3 border-2 border-dashed border-blue-200"><i class="fa-solid fa-user text-4xl text-blue-400"></i></div>
+              <% } %>
+              <h4 class="text-xs font-bold text-slate-800 mb-0.5">Click to upload photo</h4>
+              <p class="text-[10px] text-slate-400 mb-4">PNG, JPG up to 2MB</p>
+              <label class="cursor-pointer border border-blue-500 text-blue-600 font-semibold text-xs px-4 py-2 rounded-lg hover:bg-blue-50 transition inline-block">
+                <span>Upload Photo</span>
+                <input type="file" name="profilePhoto" class="hidden" accept="image/png, image/jpeg">
+              </label>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow space-y-4">
+            <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-info text-blue-600"></i><h3 class="text-sm font-bold text-slate-800">Additional Information</h3></div>
+            <div><label class="block text-xs font-semibold text-slate-700 mb-1">Bio / Notes <span class="text-slate-400 font-normal">(Optional)</span></label>
+              <textarea name="bio" rows="3" placeholder="Enter any additional notes about the student..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition resize-none"><%= student ? (student.bio||'') : '' %></textarea>
+            </div>
+            <div><label class="block text-xs font-semibold text-slate-700 mb-1">Medical Information <span class="text-slate-400 font-normal">(if any)</span></label>
+              <textarea name="medicalInfo" rows="3" placeholder="Enter medical information (e.g. allergies, conditions)..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition resize-none"><%= student ? (student.medical_info||'') : '' %></textarea>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow space-y-4">
+            <div class="flex items-center space-x-2"><i class="fa-solid fa-sliders text-blue-600"></i><h3 class="text-sm font-bold text-slate-800">Preferences &amp; Settings</h3></div>
+            <div><label class="block text-xs font-semibold text-slate-700 mb-1">Preferred Language</label>
+              <select name="preferredLanguage" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-800"><option value="English" selected>English</option></select>
+            </div>
+            <div><label class="block text-xs font-semibold text-slate-700 mb-1">Timezone</label>
+              <select name="timezone" class="custom-select w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:border-blue-500 focus:bg-white transition text-slate-800"><option value="(GMT+10:00) Australia/Sydney" selected>(GMT+10:00) Australia/Sydney</option></select>
+            </div>
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-700">Send email notifications to student</span>
+                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="notifStudent" <%= !student||student.notif_student ? 'checked' : '' %> class="sr-only peer"><div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div></label>
+              </div>
+              <div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-700">Send notifications to parent/guardian</span>
+                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="notifParent" <%= !student||student.notif_parent ? 'checked' : '' %> class="sr-only peer"><div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div></label>
+              </div>
+              <div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-700">Allow student to download study material</span>
+                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="allowDownload" <%= !student||student.allow_download ? 'checked' : '' %> class="sr-only peer"><div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div></label>
+              </div>
+              <div class="flex items-center justify-between"><span class="text-xs font-medium text-slate-700">Allow student to access full exam papers</span>
+                <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="allowExams" <%= student&&student.allow_exams ? 'checked' : '' %> class="sr-only peer"><div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div></label>
+              </div>
+            </div>
+          </div>
+
+          <% if (!student) { %>
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow space-y-4">
+            <div class="flex items-center space-x-2"><i class="fa-solid fa-user-check text-blue-600"></i><h3 class="text-sm font-bold text-slate-800">Create Account &amp; Notify</h3></div>
+            <div class="space-y-2">
+              <label class="flex items-start space-x-2.5 cursor-pointer"><input type="checkbox" name="sendWelcomeEmail" checked class="mt-0.5 rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-slate-300"><span class="text-xs text-slate-700">Send welcome email to student with login details</span></label>
+              <label class="flex items-start space-x-2.5 cursor-pointer"><input type="checkbox" name="sendParentNotification" checked class="mt-0.5 rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-slate-300"><span class="text-xs text-slate-700">Send notification to parent/guardian</span></label>
+            </div>
+          </div>
+          <% } %>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200/80 card-shadow">
+            <div class="flex items-center space-x-3 pt-0">
+              <a href="/admin/students<%= student ? '/'+student.id : '' %>" class="w-1/2 py-2.5 px-4 text-xs font-bold text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition text-center">Cancel</a>
+              <button type="submit" class="w-1/2 py-2.5 px-4 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md transition text-center"><%= student ? 'Save Changes' : 'Create Student' %></button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <footer class="mt-auto bg-white border-t border-slate-200 px-6 py-4 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+      <div class="flex items-center space-x-2"><div class="w-5 h-5 rounded bg-slate-800 text-white flex items-center justify-center font-bold text-[10px]">A</div><span class="font-bold text-slate-700">AUS Academy</span></div>
+      <div>&copy; <%= new Date().getFullYear() %> AUS Academy. All rights reserved.</div>
+    </footer>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const passwordInput = document.getElementById('passwordInput');
+  if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      const icon = togglePasswordBtn.querySelector('i');
+      icon.className = type === 'text' ? 'fa-regular fa-eye-slash text-xs' : 'fa-regular fa-eye text-xs';
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<%
+// Shared Tailwind sidebar for all "new design" admin pages (Dashboard, Students,
+// Add/Edit Student, Student Details, Settings, ...). Pass `active` to highlight
+// the current top-level item. Values: dashboard | students | subjects | tutorials |
+// material | mcq-bank | mcq-plans | papers | assign | submissions | question-issues |
+// results | reports | leaderboard | announcements | orders | email-logs | email-notifications | audit-logs |
+// webhook-logs | teachers | settings | help
+const studentsGroupActive = ['students', 'student-new', 'student-edit', 'student-detail'].includes(typeof active !== 'undefined' ? active : '');
+const subjectsGroupActive = ['subjects', 'subject-new', 'subject-edit', 'class-year-levels'].includes(typeof active !== 'undefined' ? active : '');
+const tutorialsGroupActive = ['tutorials', 'tutorial-new', 'tutorial-edit', 'tutorial-assign'].includes(typeof active !== 'undefined' ? active : '');
+const materialGroupActive = ['material', 'material-new', 'material-edit', 'material-assign', 'material-module'].includes(typeof active !== 'undefined' ? active : '');
+const mcqGroupActive = ['mcq-bank', 'mcq-set-new', 'mcq-set-assign', 'mcq-plans', 'mcq-plan-new', 'mcq-plan-questions'].includes(typeof active !== 'undefined' ? active : '');
+const papersGroupActive = ['papers', 'paper-new', 'submissions', 'question-issues'].includes(typeof active !== 'undefined' ? active : '');
+%>
+<div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient text-white flex flex-col justify-between transform -translate-x-full lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out shrink-0">
+  <div class="flex flex-col h-full overflow-y-auto">
+    <div class="p-5 border-b border-slate-700/50 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30 shrink-0">
+          <% if (siteLogo) { %><img src="<%= siteLogo %>" class="w-full h-full object-cover rounded-xl"><% } else { %><i class="fa-solid fa-graduation-cap text-white"></i><% } %>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-wide">AUS Academy</h1>
+          <p class="text-[10px] text-slate-300 font-medium leading-tight">Australia Year 11-12<br>Online Exam Platform</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white focus:outline-none"><i class="fa-solid fa-xmark text-xl"></i></button>
+    </div>
+    <nav class="p-3 space-y-1 text-sm font-medium flex-1">
+      <a href="/admin/dashboard" class="nav-link <%= active==='dashboard'?'active':'' %> flex items-center space-x-3 px-3 py-2.5 rounded-xl <%= active==='dashboard'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-house w-5 text-center"></i><span>Dashboard</span></a>
+
+      <div>
+        <button type="button" onclick="toggleStudentsMenu()" class="w-full nav-link <%= studentsGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= studentsGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-user-graduate w-5 text-center"></i><span>Students</span></span>
+          <i id="studentsChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= studentsGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="studentsSubmenu" class="<%= studentsGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/students" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='students'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">All Students</a>
+          <a href="/admin/students/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='student-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Student</a>
+          <% if (active === 'student-detail' || active === 'student-edit') { %>
+          <a href="#" class="block px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white font-bold transition">Student Details</a>
+          <% } %>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" onclick="toggleSubjectsMenu()" class="w-full nav-link <%= subjectsGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= subjectsGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-book w-5 text-center"></i><span>Subjects</span></span>
+          <i id="subjectsChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= subjectsGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="subjectsSubmenu" class="<%= subjectsGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/subjects" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='subjects'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Subjects</a>
+          <a href="/admin/subjects/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='subject-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Subject</a>
+          <a href="/admin/class-year-levels" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='class-year-levels'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Class & Year Level</a>
+        </div>
+      </div>
+      <div>
+        <button type="button" onclick="toggleTutorialsMenu()" class="w-full nav-link <%= tutorialsGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= tutorialsGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-video w-5 text-center"></i><span>Tutorials</span></span>
+          <i id="tutorialsChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= tutorialsGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="tutorialsSubmenu" class="<%= tutorialsGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/tutorials" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='tutorials'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">All Tutorials</a>
+          <a href="/admin/tutorials/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='tutorial-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Tutorial</a>
+        </div>
+      </div>
+      <div>
+        <button type="button" onclick="toggleMaterialMenu()" class="w-full nav-link <%= materialGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= materialGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-folder-open w-5 text-center"></i><span>Study Material</span></span>
+          <i id="materialChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= materialGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="materialSubmenu" class="<%= materialGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/material" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='material'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Study Materials</a>
+          <a href="/admin/material/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='material-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Study Material</a>
+          <a href="/admin/material/module/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='material-module'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Class Module/ Topic/ Year</a>
+        </div>
+      </div>
+      <div>
+        <button type="button" onclick="toggleMcqMenu()" class="w-full nav-link <%= mcqGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= mcqGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-list-check w-5 text-center"></i><span>MCQ Question Bank</span></span>
+          <i id="mcqChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= mcqGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="mcqSubmenu" class="<%= mcqGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/mcqs" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='mcq-bank'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">All MCQs</a>
+          <a href="/admin/mcq-sets/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='mcq-set-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Multiple MCQs</a>
+          <a href="/admin/material/module/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition">Add Class Module/Topic/Year</a>
+          <a href="/admin/mcq-plans" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='mcq-plans'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">MCQ Plans</a>
+          <a href="/admin/mcq-plans/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='mcq-plan-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add MCQ Plan</a>
+          <a href="/admin/mcq-plans" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='mcq-plan-questions'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Assign MCQs to Plan</a>
+        </div>
+      </div>
+      <div>
+        <button type="button" onclick="togglePapersMenu()" class="w-full nav-link <%= papersGroupActive?'active':'' %> flex items-center justify-between px-3 py-2.5 rounded-xl <%= papersGroupActive?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>">
+          <span class="flex items-center space-x-3"><i class="fa-solid fa-file-signature w-5 text-center"></i><span>Full Exam Papers</span></span>
+          <i id="papersChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform <%= papersGroupActive?'rotate-180':'' %>"></i>
+        </button>
+        <div id="papersSubmenu" class="<%= papersGroupActive?'':'hidden' %> pl-8 mt-1 space-y-1">
+          <a href="/admin/papers" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='papers'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Full Exam Papers</a>
+          <a href="/admin/papers/new" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='paper-new'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Add Exam Paper</a>
+          <a href="/admin/papers#exam-types" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition">Manage Exam Types</a>
+          <a href="/admin/papers#modules" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition">Manage Modules</a>
+          <a href="/admin/papers#topics" class="block px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition">Manage Topics</a>
+          <a href="/admin/submissions" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='submissions'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">All Exam Paper Submissions</a>
+          <a href="/admin/question-issues" class="block px-3 py-1.5 rounded-lg text-xs font-medium <%= active==='question-issues'?'bg-white/10 text-white font-bold':'text-slate-300 hover:bg-white/10 hover:text-white' %> transition">Question Issues</a>
+        </div>
+      </div>
+      <a href="/admin/assign" class="nav-link <%= active==='assign'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='assign'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-clipboard-list w-5 text-center"></i><span>Assign</span></a>
+      <a href="/admin/assign-content" class="nav-link <%= active==='assign-content'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='assign-content'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-users-rectangle w-5 text-center"></i><span>Assign Content</span></a>
+      <a href="/admin/email-notifications" class="nav-link <%= active==='email-notifications'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='email-notifications'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Email Notifications</span></a>
+      <a href="/admin/results" class="nav-link <%= active==='results'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='results'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-square-poll-vertical w-5 text-center"></i><span>Results</span></a>
+      <a href="/admin/reports" class="nav-link <%= active==='reports'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='reports'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-chart-line w-5 text-center"></i><span>Reports &amp; Analytics</span></a>
+      <a href="/admin/leaderboard" class="nav-link <%= active==='leaderboard'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='leaderboard'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Leaderboard</span></a>
+      <a href="/admin/announcements" class="nav-link <%= active==='announcements'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='announcements'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-bullhorn w-5 text-center"></i><span>Announcements</span></a>
+      <a href="/admin/orders" class="nav-link <%= active==='orders'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='orders'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-credit-card w-5 text-center"></i><span>Orders &amp; Payments</span></a>
+      <a href="/admin/email-logs" class="nav-link <%= active==='email-logs'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='email-logs'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Email Logs</span></a>
+      <a href="/admin/audit-logs" class="nav-link <%= active==='audit-logs'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='audit-logs'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-clipboard-list w-5 text-center"></i><span>Audit Log</span></a>
+      <% if (currentUser.role === 'admin') { %>
+      <a href="/admin/webhook-logs" class="nav-link <%= active==='webhook-logs'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='webhook-logs'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-list-check w-5 text-center"></i><span>Webhook Logs</span></a>
+      <a href="/admin/teachers" class="nav-link <%= active==='teachers'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='teachers'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-chalkboard-user w-5 text-center"></i><span>Teachers</span></a>
+      <% } %>
+      <a href="/admin/settings" class="nav-link <%= active==='settings'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='settings'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-gear w-5 text-center"></i><span>Settings</span></a>
+      <a href="/admin/help" class="nav-link <%= active==='help'?'active':'' %> flex items-center space-x-3 px-3 py-2 rounded-xl <%= active==='help'?'':'text-slate-300 hover:bg-white/10 hover:text-white transition' %>"><i class="fa-solid fa-circle-question w-5 text-center"></i><span>Help</span></a>
+      <a href="/logout" class="flex items-center space-x-3 px-3 py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i><span>Logout</span></a>
+    </nav>
+    <div class="p-4 m-3 rounded-2xl bg-gradient-to-r from-blue-900/90 to-indigo-900/90 border border-blue-400/20 text-center relative overflow-hidden shrink-0">
+      <div class="relative z-10"><h3 class="text-xs font-bold text-white mb-1">Empowering Australian Students</h3><p class="text-[10px] text-blue-200">Practice &amp; Excel Year 11-12</p></div>
+      <div class="mt-3 flex justify-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-400/30"><i class="fa-solid fa-graduation-cap text-xl text-blue-300"></i></div></div>
+    </div>
+  </div>
+</aside>

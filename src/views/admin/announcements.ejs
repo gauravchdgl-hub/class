@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Announcements — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'announcements' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+          <i class="fa-solid fa-bullhorn text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Announcements</h1>
+          <p class="text-[13px] text-slate-500 mt-0.5">Post a notice to the student dashboard — everyone, or just Year 11 / Year 12.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+        <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200 card-shadow p-5 space-y-4">
+          <h3 class="font-bold text-sm text-[#091e42]">New Announcement</h3>
+          <form method="post" action="/admin/announcements" class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 mb-1">Title</label>
+              <input type="text" name="title" required maxlength="150" class="form-input" placeholder="e.g. Term 4 exam schedule released">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-800 mb-1">Message</label>
+              <textarea name="body" required rows="5" class="form-input resize-y" placeholder="Write the announcement..."></textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-800 mb-1">Audience</label>
+              <select name="audience" class="custom-select form-input">
+                <option value="all">Everyone</option>
+                <option value="Year 11">Year 11 only</option>
+                <option value="Year 12">Year 12 only</option>
+              </select>
+            </div>
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <input type="checkbox" name="pinned" class="custom-checkbox"> Pin to top
+            </label>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-md shadow-blue-600/30">Post Announcement</button>
+          </form>
+        </div>
+
+        <div class="lg:col-span-2 space-y-3">
+          <% announcements.forEach(a => { %>
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <% if (a.pinned) { %><span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full"><i class="fa-solid fa-thumbtack text-[9px]"></i>Pinned</span><% } %>
+                  <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"><%= a.audience === 'all' ? 'Everyone' : a.audience %></span>
+                </div>
+                <h4 class="font-bold text-sm text-[#091e42] mt-1.5"><%= a.title %></h4>
+                <p class="text-xs text-slate-600 mt-1 whitespace-pre-line"><%= a.body %></p>
+                <p class="text-[10px] text-slate-400 mt-2"><%= a.author_name || 'Staff' %> · <%= new Date(a.created_at).toLocaleString() %></p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <form method="post" action="/admin/announcements/<%= a.id %>/pin">
+                  <button class="w-7 h-7 rounded bg-slate-50 hover:bg-amber-50 hover:text-amber-600 text-slate-500 transition inline-flex items-center justify-center" title="<%= a.pinned ? 'Unpin' : 'Pin' %>"><i class="fa-solid fa-thumbtack text-xs"></i></button>
+                </form>
+                <form method="post" action="/admin/announcements/<%= a.id %>/delete" onsubmit="return confirm('Delete this announcement?');">
+                  <button class="w-7 h-7 rounded bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-500 transition inline-flex items-center justify-center"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+          <% if (!announcements.length) { %>
+          <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-400 text-xs">No announcements yet.</div>
+          <% } %>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

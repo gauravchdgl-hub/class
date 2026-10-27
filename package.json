@@ -1,0 +1,35 @@
+{
+  "name": "class",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gauravchdgl-hub/class.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gauravchdgl-hub/class/issues"
+  },
+  "homepage": "https://github.com/gauravchdgl-hub/class#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^18.0.3",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.10",
+    "session-file-store": "^1.5.0",
+    "stripe": "^22.6.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All MCQ Questions — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'mcq-bank' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, MCQs, or anything...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">All MCQ Questions</h1>
+          <p class="text-[13px] text-slate-500 mt-1">View, search and manage all multiple choice questions.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <nav class="flex text-[13px] text-slate-500 space-x-2 font-medium pr-2">
+            <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a>
+            <span class="text-slate-400">&gt;</span>
+            <span class="text-[#091e42] font-semibold">All MCQs</span>
+          </nav>
+          <div class="flex items-center space-x-2.5">
+            <a href="/admin/mcq-sets/new" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-lg transition shadow-md shadow-blue-600/30 flex items-center space-x-2">
+              <i class="fa-solid fa-plus text-xs"></i><span>Add Multiple MCQs</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <% if (typeof success !== 'undefined' && success.length) { %>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %>
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div>
+      <% } %>
+
+      <!-- Summary Stat Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-slate-500 block">Total MCQs</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-0.5"><%= stats.total %></h3>
+            <span class="text-[10px] text-slate-400 mt-1 block">All questions in bank</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-base shrink-0"><i class="fa-solid fa-circle-question"></i></div>
+        </div>
+        <% subjectCounts.slice(0,5).forEach(sc => { %>
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-500 block"><%= sc.name %> (<%= sc.year %>)</span>
+              <h3 class="text-xl font-bold text-slate-900 mt-0.5"><%= sc.c %></h3>
+              <span class="text-[10px] text-blue-600 font-semibold mt-1 block"><%= stats.total ? Math.round(sc.c / stats.total * 100) : 0 %>% of total</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-base shrink-0"><i class="fa-solid fa-book"></i></div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Filters -->
+      <form method="get" class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div class="flex items-center space-x-2 text-slate-700 font-bold text-xs uppercase tracking-wider pb-2 border-b border-slate-100">
+          <i class="fa-solid fa-filter text-blue-600"></i><span>Filters</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Subject</label>
+            <select name="subject_id" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Subjects</option>
+              <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Year Level</label>
+            <select name="year" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Years</option>
+              <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Module</label>
+            <select name="module_id" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Modules</option>
+              <% modules.forEach(m => { %><option value="<%= m.id %>" <%= String(filters.module_id)===String(m.id)?'selected':'' %>><%= m.title %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Topic</label>
+            <select name="topic" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Topics</option>
+              <% topics.forEach(t => { %><option value="<%= t %>" <%= filters.topic===t?'selected':'' %>><%= t %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Difficulty Level</label>
+            <select name="difficulty" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Levels</option>
+              <option value="easy" <%= filters.difficulty==='easy'?'selected':'' %>>Easy</option>
+              <option value="medium" <%= filters.difficulty==='medium'?'selected':'' %>>Medium</option>
+              <option value="hard" <%= filters.difficulty==='hard'?'selected':'' %>>Hard</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Status</label>
+            <select name="status" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+              <option value="">All Status</option>
+              <option value="published" <%= filters.status==='published'?'selected':'' %>>Published</option>
+              <option value="draft" <%= filters.status==='draft'?'selected':'' %>>Draft</option>
+              <option value="needs_review" <%= filters.status==='needs_review'?'selected':'' %>>Needs Review</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">Search</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" name="q" value="<%= filters.q %>" placeholder="Search questions, keywords..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-2 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="hidden"></button>
+      </form>
+
+      <!-- Subject Tabs -->
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        <a href="/admin/mcqs" class="<%= !filters.subject_id ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-700' %> font-semibold text-xs px-4 py-2 rounded-lg transition">All MCQs (<%= stats.total %>)</a>
+        <% subjectCounts.forEach(sc => { %>
+          <a href="/admin/mcqs?subject_id=<%= sc.id %>" class="<%= String(filters.subject_id)===String(sc.id) ? 'bg-blue-600 text-white shadow-sm' : 'bg-white hover:bg-slate-100 border border-slate-200 text-slate-700' %> font-medium text-xs px-4 py-2 rounded-lg transition"><%= sc.name %> (<%= sc.year %>) · <%= sc.c %></a>
+        <% }) %>
+      </div>
+
+      <!-- MCQ Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+              <tr>
+                <th class="py-3 px-2 w-10">#</th>
+                <th class="py-3 px-3">Question</th>
+                <th class="py-3 px-3">Subject</th>
+                <th class="py-3 px-3">Year</th>
+                <th class="py-3 px-3">Module / Topic</th>
+                <th class="py-3 px-3">Difficulty</th>
+                <th class="py-3 px-3 text-center">Correct</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3">Created On</th>
+                <th class="py-3.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+              <% mcqs.forEach((m, i) => { %>
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-2 text-slate-400"><%= i + 1 %></td>
+                  <td class="py-3 px-3 font-bold text-slate-900 max-w-[280px] truncate" title="<%= m.question %>">
+                    <%= m.question %>
+                    <% if (m.set_title) { %><span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-50 text-purple-600 align-middle">Set: <%= m.set_title %></span><% } %>
+                  </td>
+                  <td class="py-3 px-3"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold"><%= m.subject_name %></span></td>
+                  <td class="py-3 px-3 text-slate-600"><%= m.year %></td>
+                  <td class="py-3 px-3 text-slate-500 leading-tight"><%= m.module_title || '—' %><br><span class="text-[10px] text-slate-400"><%= m.topic || '' %></span></td>
+                  <td class="py-3 px-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold <%= m.difficulty==='easy'?'bg-emerald-50 text-emerald-600':(m.difficulty==='hard'?'bg-rose-50 text-rose-600':'bg-amber-50 text-amber-600') %>"><%= m.difficulty.charAt(0).toUpperCase()+m.difficulty.slice(1) %></span></td>
+                  <td class="py-3 px-3 text-center font-bold text-slate-800"><%= m.correct_option %></td>
+                  <td class="py-3 px-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold <%= m.status==='published'?'bg-emerald-50 text-emerald-600':(m.status==='needs_review'?'bg-orange-50 text-orange-600':'bg-slate-100 text-slate-500') %>"><%= m.status.replace('_',' ') %></span></td>
+                  <td class="py-3 px-3 text-slate-500"><%= m.created_at ? new Date(m.created_at).toLocaleDateString() : '—' %></td>
+                  <td class="py-3.5 px-3 text-right space-x-1 whitespace-nowrap">
+                    <a href="/admin/mcqs/<%= m.id %>/edit" class="w-7 h-7 rounded bg-slate-50 hover:bg-blue-50 hover:text-blue-600 text-slate-500 transition inline-flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen-to-square text-xs"></i></a>
+                    <form method="post" action="/admin/mcqs/<%= m.id %>/delete" class="inline" onsubmit="return confirm('Delete this MCQ?');">
+                      <button class="w-7 h-7 rounded bg-slate-50 hover:bg-rose-50 hover:text-rose-600 text-slate-500 transition inline-flex items-center justify-center" title="Delete"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+              <% if (!mcqs.length) { %><tr><td colspan="10" class="p-6 text-center text-slate-400">No MCQs match these filters.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="px-6 py-4 bg-white border-t border-slate-200 text-xs text-slate-500 font-medium">
+          Showing <%= mcqs.length %> of <%= stats.total %> questions
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

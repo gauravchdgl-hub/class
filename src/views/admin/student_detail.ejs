@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= student.name %> — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="bg-[#f4f6fa] text-slate-800 antialiased min-h-screen flex flex-col">
+<div class="flex flex-1 min-h-screen relative">
+  <%- include('../partials/tw_sidebar', { active: 'student-detail' }) %>
+
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students...' }) %>
+
+
+    <div class="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <nav class="flex text-xs text-slate-500 space-x-2 mb-1">
+            <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a><span>&gt;</span>
+            <a href="/admin/students" class="hover:text-blue-600 transition">Students</a><span>&gt;</span>
+            <span class="text-slate-800 font-semibold"><%= student.name %></span>
+          </nav>
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Student Details</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">View complete profile, assignments, progress and activity details.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <a href="/admin/students/<%= student.id %>/edit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition shadow-sm flex items-center space-x-1.5"><i class="fa-solid fa-pen text-xs"></i><span>Edit Student</span></a>
+          <form method="post" action="/admin/students/<%= student.id %>/reset-password" onsubmit="return confirm('Reset this student\'s password and email them a new temporary one?')">
+            <button class="bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold text-xs px-4 py-2 rounded-lg transition" type="submit">Reset Password</button>
+          </form>
+        </div>
+      </div>
+
+      <% if (success && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold px-4 py-3 rounded-xl"><%= error[0] %></div><% } %>
+
+      <!-- PROFILE CARD -->
+      <div class="bg-white rounded-xl border border-slate-200/80 p-5 card-shadow flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 w-full lg:w-auto">
+          <% if (student.profile_image) { %><img src="<%= student.profile_image %>" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-slate-100 shadow-sm shrink-0">
+          <% } else { %><div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-3xl font-bold border-4 border-slate-100 shrink-0"><%= student.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() %></div><% } %>
+          <div class="space-y-2 text-center sm:text-left">
+            <div class="flex items-center justify-center sm:justify-start space-x-3">
+              <h2 class="text-xl font-bold text-slate-900"><%= student.name %></h2>
+              <span class="<%= student.account_status==='active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700' %> font-bold px-2.5 py-0.5 rounded-full text-[10px] flex items-center gap-1">
+                <i class="fa-solid fa-check text-[9px]"></i> <%= student.account_status==='active' ? 'Active' : (student.account_status==='pending'?'Pending':'Inactive') %>
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">
+              Student ID: <span class="text-slate-800 font-semibold"><%= student.student_code || ('STU'+String(student.id).padStart(5,'0')) %></span> &nbsp;|&nbsp;
+              <%= student.class_year || '—' %> &nbsp;|&nbsp;
+              Class: <span class="text-slate-800 font-semibold"><%= student.class_section || '—' %></span>
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-slate-600 pt-1">
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-regular fa-envelope text-slate-400"></i><span><%= student.email %></span></div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-solid fa-phone text-slate-400"></i><span><%= student.phone || '—' %></span></div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-solid fa-location-dot text-slate-400"></i><span><%= [student.city, student.country].filter(Boolean).join(', ') || '—' %></span></div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-regular fa-calendar text-slate-400"></i><span>Date of Birth: <%= student.dob ? new Date(student.dob).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—' %></span></div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-regular fa-flag text-slate-400"></i><span>Nationality: <%= student.nationality || '—' %></span></div>
+              <div class="flex items-center justify-center sm:justify-start space-x-2"><i class="fa-regular fa-clock text-slate-400"></i><span>Enrolled On: <%= new Date(student.enrolled_at || student.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-blue-50/60 border border-blue-100 rounded-xl p-4 w-full lg:w-56 shrink-0 flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-sm"><i class="fa-solid fa-chart-column"></i></div>
+          <div><p class="text-[11px] font-semibold text-slate-500">Average Score</p><h3 class="text-2xl font-extrabold text-slate-900 leading-tight"><%= avgScore !== null ? avgScore+'%' : '—' %></h3><p class="text-[10px] text-slate-400">Across all assessments</p></div>
+        </div>
+      </div>
+
+      <!-- METRIC CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 card-shadow space-y-2">
+          <div class="flex items-center space-x-2.5"><div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-base"><i class="fa-solid fa-play"></i></div><span class="text-xs font-semibold text-slate-600">Assigned Tutorials</span></div>
+          <h3 class="text-2xl font-extrabold text-slate-900"><%= metrics.tutorialsTotal %></h3>
+          <p class="text-[11px] text-slate-500"><%= metrics.tutorialsTotal ? Math.round(metrics.tutorialsDone/metrics.tutorialsTotal*100) : 0 %>% active access</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 card-shadow space-y-2">
+          <div class="flex items-center space-x-2.5"><div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-base"><i class="fa-regular fa-file-lines"></i></div><span class="text-xs font-semibold text-slate-600">Study Material</span></div>
+          <h3 class="text-2xl font-extrabold text-slate-900"><%= metrics.materialTotal %></h3>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 card-shadow space-y-2">
+          <div class="flex items-center space-x-2.5"><div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center text-base"><i class="fa-solid fa-circle-question"></i></div><span class="text-xs font-semibold text-slate-600">MCQ Practice</span></div>
+          <h3 class="text-2xl font-extrabold text-slate-900"><%= metrics.mcqTotal %></h3>
+          <p class="text-[11px] text-slate-500"><%= metrics.mcqDone %> answered</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200/80 card-shadow space-y-2">
+          <div class="flex items-center space-x-2.5"><div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-base"><i class="fa-solid fa-file-signature"></i></div><span class="text-xs font-semibold text-slate-600">Full Exam Papers</span></div>
+          <h3 class="text-2xl font-extrabold text-slate-900"><%= metrics.papersTotal %></h3>
+          <p class="text-[11px] text-slate-500"><%= metrics.papersDone %> completed</p>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="border-b border-slate-200 flex items-center space-x-6 text-xs font-semibold overflow-x-auto whitespace-nowrap">
+        <a href="#" onclick="showTab('profile');return false;" data-tab="profile" class="tab-link active pb-3 border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-regular fa-user"></i><span>Profile</span></a>
+        <a href="#" onclick="showTab('tutorials');return false;" data-tab="tutorials" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-solid fa-play"></i><span>Assigned Tutorials</span></a>
+        <a href="#" onclick="showTab('material');return false;" data-tab="material" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-regular fa-folder"></i><span>Study Material</span></a>
+        <a href="#" onclick="showTab('mcq');return false;" data-tab="mcq" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-solid fa-circle-question"></i><span>MCQ</span></a>
+        <a href="#" onclick="showTab('papers');return false;" data-tab="papers" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-solid fa-file-signature"></i><span>Full Exam Papers</span></a>
+        <a href="#" onclick="showTab('access');return false;" data-tab="access" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-solid fa-lock-open"></i><span>Module Access</span></a>
+        <a href="#" onclick="showTab('orders');return false;" data-tab="orders" class="tab-link pb-3 text-slate-500 hover:text-slate-800 transition border-b-2 border-transparent flex items-center space-x-1.5"><i class="fa-solid fa-credit-card"></i><span>Orders</span></a>
+      </div>
+
+      <!-- PROFILE TAB -->
+      <div id="tab-profile" class="tab-panel active bg-white rounded-xl border border-slate-200/80 card-shadow p-5">
+        <h3 class="text-sm font-bold text-slate-800 mb-4">Full Profile</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <div><span class="block text-slate-400 font-semibold">Username</span><span class="text-slate-800 font-medium"><%= student.username || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Gender</span><span class="text-slate-800 font-medium capitalize"><%= student.gender || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Address</span><span class="text-slate-800 font-medium"><%= student.address || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">City / State / Postcode</span><span class="text-slate-800 font-medium"><%= [student.city, student.state, student.postal_code].filter(Boolean).join(', ') || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">School</span><span class="text-slate-800 font-medium"><%= student.school_name || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Parent / Guardian</span><span class="text-slate-800 font-medium"><%= student.father_name || '—' %> <% if (student.parent_relationship) { %>(<%= student.parent_relationship %>)<% } %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Parent Email</span><span class="text-slate-800 font-medium"><%= student.parent_email || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Parent Phone</span><span class="text-slate-800 font-medium"><%= student.father_phone || '—' %></span></div>
+          <div><span class="block text-slate-400 font-semibold">Emergency Contact</span><span class="text-slate-800 font-medium"><%= student.emergency_name || '—' %> <%= student.emergency_phone ? '· '+student.emergency_phone : '' %></span></div>
+          <div class="sm:col-span-2 lg:col-span-3"><span class="block text-slate-400 font-semibold">Bio / Notes</span><span class="text-slate-800 font-medium"><%= student.bio || '—' %></span></div>
+          <div class="sm:col-span-2 lg:col-span-3"><span class="block text-slate-400 font-semibold">Medical Information</span><span class="text-slate-800 font-medium"><%= student.medical_info || '—' %></span></div>
+        </div>
+      </div>
+
+      <!-- ASSIGNED TUTORIALS TAB -->
+      <div id="tab-tutorials" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow overflow-hidden space-y-4 p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <h3 class="text-sm font-bold text-slate-800">Assigned Tutorials (<%= assignedTutorials.length %>)</h3>
+          <form method="post" action="/admin/students/<%= student.id %>/assign-tutorial" class="flex items-center gap-2">
+            <select name="tutorial_id" required class="custom-select bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer">
+              <option value="" disabled selected>Select a tutorial...</option>
+              <% allTutorials.forEach(t => { %><option value="<%= t.id %>"><%= t.title %></option><% }) %>
+            </select>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition shadow-sm flex items-center space-x-1.5" type="submit"><i class="fa-solid fa-plus text-xs"></i><span>Assign Tutorial</span></button>
+          </form>
+        </div>
+        <div class="overflow-x-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
+              <th class="py-3 px-3 w-8">#</th><th class="py-3 px-4">Title</th><th class="py-3 px-3">Subject</th><th class="py-3 px-3">Assigned On</th><th class="py-3 px-3">Status</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% assignedTutorials.forEach((t, i) => { %>
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-2.5 px-3 font-semibold text-slate-500"><%= i+1 %></td>
+                <td class="py-2.5 px-4 font-bold text-slate-900"><%= t.title %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= t.subject_name || '—' %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= new Date(t.assigned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></td>
+                <td class="py-2.5 px-3"><span class="<%= t.ca_status==='assigned'?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500' %> font-bold px-2.5 py-0.5 rounded-full text-[10px]"><%= t.ca_status==='assigned'?'Active':'Revoked' %></span></td>
+              </tr>
+              <% }) %>
+              <% if (!assignedTutorials.length) { %><tr><td colspan="5" class="py-6 text-center text-slate-400">No tutorials assigned yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STUDY MATERIAL TAB -->
+      <div id="tab-material" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow overflow-hidden space-y-4 p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <h3 class="text-sm font-bold text-slate-800">Assigned Study Material (<%= assignedMaterial.length %>)</h3>
+          <form method="post" action="/admin/students/<%= student.id %>/assign-material" class="flex items-center gap-2">
+            <select name="material_id" required class="custom-select bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer">
+              <option value="" disabled selected>Select study material...</option>
+              <% allMaterial.forEach(m => { %><option value="<%= m.id %>"><%= m.title %></option><% }) %>
+            </select>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition shadow-sm flex items-center space-x-1.5" type="submit"><i class="fa-solid fa-plus text-xs"></i><span>Assign</span></button>
+          </form>
+        </div>
+        <div class="overflow-x-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
+              <th class="py-3 px-3 w-8">#</th><th class="py-3 px-4">Title</th><th class="py-3 px-3">Subject</th><th class="py-3 px-3">Assigned On</th><th class="py-3 px-3">Status</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% assignedMaterial.forEach((m, i) => { %>
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-2.5 px-3 font-semibold text-slate-500"><%= i+1 %></td>
+                <td class="py-2.5 px-4 font-bold text-slate-900"><%= m.title %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= m.subject_name || '—' %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= new Date(m.assigned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></td>
+                <td class="py-2.5 px-3"><span class="<%= m.ca_status==='assigned'?'bg-emerald-100 text-emerald-800':'bg-slate-100 text-slate-500' %> font-bold px-2.5 py-0.5 rounded-full text-[10px]"><%= m.ca_status==='assigned'?'Active':'Revoked' %></span></td>
+              </tr>
+              <% }) %>
+              <% if (!assignedMaterial.length) { %><tr><td colspan="5" class="py-6 text-center text-slate-400">No study material assigned yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MCQ TAB -->
+      <div id="tab-mcq" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow overflow-hidden space-y-4 p-5">
+        <h3 class="text-sm font-bold text-slate-800">Assigned MCQ Batches (<%= mcqAssignments.length %>)</h3>
+        <div class="overflow-x-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
+              <th class="py-3 px-3 w-8">#</th><th class="py-3 px-4">Subject / Topic</th><th class="py-3 px-3">Questions</th><th class="py-3 px-3">Answered</th><th class="py-3 px-3">Score</th><th class="py-3 px-3">Status</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% mcqAssignments.forEach((m, i) => { %>
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-2.5 px-3 font-semibold text-slate-500"><%= i+1 %></td>
+                <td class="py-2.5 px-4 font-bold text-slate-900"><%= m.subject_name || 'Mixed' %><% if (m.topic) { %> — <span class="text-slate-500 font-medium"><%= m.topic %></span><% } %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= m.total_q %></td>
+                <td class="py-2.5 px-3 text-slate-500"><%= m.answered_q %>/<%= m.total_q %></td>
+                <td class="py-2.5 px-3"><% if (m.answered_q) { %><span class="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded text-[9px]"><%= Math.round(m.correct_q/m.answered_q*100) %>%</span><% } else { %><span class="text-slate-400">—</span><% } %></td>
+                <td class="py-2.5 px-3"><span class="bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full text-[10px] capitalize"><%= m.status.replace('_',' ') %></span></td>
+              </tr>
+              <% }) %>
+              <% if (!mcqAssignments.length) { %><tr><td colspan="6" class="py-6 text-center text-slate-400">No MCQs assigned yet. Use <a href="/admin/assign" class="text-blue-600 font-semibold">Assign Paper / MCQ</a> to assign a batch.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+        <div class="pt-2">
+          <h4 class="text-xs font-bold text-slate-700 mb-2">MCQ Plans (Purchased Quota)</h4>
+          <div class="overflow-x-auto border border-slate-100 rounded-lg">
+            <table class="w-full text-left text-xs">
+              <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider"><th class="py-2 px-3">Plan</th><th class="py-2 px-3">Purchased</th><th class="py-2 px-3">Assigned</th><th class="py-2 px-3">Remaining</th><th class="py-2 px-3">Expires</th></tr></thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% plans.forEach(p => { %><tr><td class="py-2 px-3"><%= p.plan_name %></td><td class="py-2 px-3"><%= p.mcq_count || '—' %></td><td class="py-2 px-3"><%= p.assigned_mcqs %></td><td class="py-2 px-3"><%= p.remaining_mcqs %></td><td class="py-2 px-3"><%= new Date(p.expires_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></td></tr><% }) %>
+                <% if (!plans.length) { %><tr><td colspan="5" class="py-4 text-center text-slate-400">No MCQ plans purchased.</td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL EXAM PAPERS TAB -->
+      <div id="tab-papers" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow overflow-hidden space-y-4 p-5">
+        <h3 class="text-sm font-bold text-slate-800">Assigned Exam Papers (<%= assignments.length %>)</h3>
+        <div class="overflow-x-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider"><th class="py-3 px-3 w-8">#</th><th class="py-3 px-4">Paper</th><th class="py-3 px-3">Status</th><th class="py-3 px-3">Score</th></tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% assignments.forEach((a, i) => { %>
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-2.5 px-3 font-semibold text-slate-500"><%= i+1 %></td>
+                <td class="py-2.5 px-4 font-bold text-slate-900"><%= a.title %></td>
+                <td class="py-2.5 px-3"><span class="bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full text-[10px] capitalize"><%= (a.sub_status || a.status).replace('_',' ') %></span></td>
+                <td class="py-2.5 px-3"><% if (a.total_marks) { %><span class="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded text-[9px]"><%= a.total_score %>/<%= a.total_marks %></span><% } else { %><span class="text-slate-400">—</span><% } %></td>
+              </tr>
+              <% }) %>
+              <% if (!assignments.length) { %><tr><td colspan="4" class="py-6 text-center text-slate-400">No exam papers assigned yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MODULE ACCESS TAB -->
+      <div id="tab-access" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow p-5 space-y-4">
+        <h3 class="text-sm font-bold text-slate-800">Module Access</h3>
+        <p class="text-xs text-slate-500">Unlock free/promotional access to whole modules (separate from paid purchases).</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form method="post" action="/admin/students/<%= student.id %>/access/subjects"><button class="w-full py-3 rounded-xl text-xs font-bold transition <%= access.subjects ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>" type="submit">Subjects: <%= access.subjects ? '✓ Unlocked' : 'Locked' %></button></form>
+          <form method="post" action="/admin/students/<%= student.id %>/access/tutorials"><button class="w-full py-3 rounded-xl text-xs font-bold transition <%= access.tutorials ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>" type="submit">Tutorials: <%= access.tutorials ? '✓ Unlocked' : 'Locked' %></button></form>
+          <form method="post" action="/admin/students/<%= student.id %>/access/material"><button class="w-full py-3 rounded-xl text-xs font-bold transition <%= access.material ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>" type="submit">Study Material: <%= access.material ? '✓ Unlocked' : 'Locked' %></button></form>
+        </div>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div id="tab-orders" class="tab-panel bg-white rounded-xl border border-slate-200/80 card-shadow p-5">
+        <h3 class="text-sm font-bold text-slate-800 mb-4">Order History</h3>
+        <div class="overflow-x-auto border border-slate-100 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead><tr class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider"><th class="py-3 px-4">Item</th><th class="py-3 px-3">Amount</th><th class="py-3 px-3">Date</th></tr></thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% orders.forEach(o => { %><tr><td class="py-2.5 px-4 font-bold text-slate-900"><%= o.item %></td><td class="py-2.5 px-3">A$<%= Number(o.amount).toFixed(2) %></td><td class="py-2.5 px-3 text-slate-500"><%= new Date(o.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) %></td></tr><% }) %>
+              <% if (!orders.length) { %><tr><td colspan="3" class="py-6 text-center text-slate-400">No orders yet.</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-auto bg-white border-t border-slate-200 px-6 py-4 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+      <div class="flex items-center space-x-2"><div class="w-5 h-5 rounded bg-slate-800 text-white flex items-center justify-center font-bold text-[10px]">A</div><span class="font-bold text-slate-700">AUS Academy</span></div>
+      <div>&copy; <%= new Date().getFullYear() %> AUS Academy. All rights reserved.</div>
+    </footer>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-'+name));
+  document.querySelectorAll('.tab-link').forEach(l => l.classList.toggle('active', l.dataset.tab === name));
+}
+// Deep-link support: /admin/students/123#tutorials opens that tab directly.
+const hash = window.location.hash.replace('#','');
+if (hash && document.getElementById('tab-'+hash)) showTab(hash);
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook Logs — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  const STATUS_PILL = (s) => s === 'processed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : s === 'duplicate' ? 'bg-amber-50 text-amber-700 border-amber-200'
+    : s === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200'
+    : 'bg-blue-50 text-blue-700 border-blue-200';
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'webhook-logs' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search webhook events...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-list-check text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Webhook Logs</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Every WooCommerce webhook delivery — including duplicates and failures — so nothing silently double-charges or double-assigns.</p>
+          </div>
+        </div>
+        <a href="/admin/orders?source=woocommerce" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center space-x-2">
+          <i class="fa-solid fa-wallet text-xs"></i><span>Orders &amp; Payments</span>
+        </a>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5">Event ID</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5">Source</th>
+                <th class="p-3.5">Error</th>
+                <th class="p-3.5">Received</th>
+                <th class="p-3.5">Processed</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% events.forEach(e => { %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 font-mono text-[11px] text-slate-600"><%= e.event_id %></td>
+                <td class="p-3.5"><span class="<%= STATUS_PILL(e.status) %> border px-2.5 py-0.5 rounded-full font-semibold text-[10px]"><%= e.status %></span></td>
+                <td class="p-3.5 text-slate-600"><%= e.source %></td>
+                <td class="p-3.5 text-slate-500 text-[11px] max-w-xs truncate" title="<%= e.error || '' %>"><%= e.error || '—' %></td>
+                <td class="p-3.5 text-slate-500 text-[11px] whitespace-nowrap"><%= new Date(e.received_at).toLocaleString() %></td>
+                <td class="p-3.5 text-slate-500 text-[11px] whitespace-nowrap"><%= e.processed_at ? new Date(e.processed_at).toLocaleString() : '—' %></td>
+              </tr>
+              <% }) %>
+              <% if (!events.length) { %>
+              <tr><td colspan="6" class="p-6 text-center text-slate-400">No webhook events received yet.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

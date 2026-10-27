@@ -1,0 +1,21 @@
+<%- include('../partials/portal_top', { title: 'Results', crumb: 'Student / Results & Feedback', active: 'results' }) %>
+<div class="portal-title"><div><h1>Results & Feedback</h1><p>Final results are published once Admin/Teacher completes review.</p></div></div>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Paper</th><th>Status</th><th>MCQ</th><th>Written</th><th>Essay</th><th>Total</th></tr></thead>
+    <tbody>
+      <% results.forEach(r => { %>
+        <tr>
+          <td><%= r.title %></td>
+          <td><span class="pill <%= r.status==='published' ? 'green' : 'orange' %>"><%= r.status %></span></td>
+          <td><%= r.mcq_score ?? '-' %>/<%= r.mcq_total ?? '-' %></td>
+          <td><%= r.written_score ?? 'Pending' %><%= r.written_total ? '/'+r.written_total : '' %></td>
+          <td><%= r.essay_score ?? 'Pending' %><%= r.essay_total ? '/'+r.essay_total : '' %></td>
+          <td><b><%= r.total_score ?? '-' %>/<%= r.total_marks ?? '-' %></b></td>
+        </tr>
+      <% }) %>
+      <% if (!results.length) { %><tr><td colspan="6" class="muted">No submitted exams yet.</td></tr><% } %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/portal_bottom') %>

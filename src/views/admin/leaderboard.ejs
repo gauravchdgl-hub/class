@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  const initials = (name) => (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const medalColor = (rank) => rank === 0 ? 'bg-amber-400' : rank === 1 ? 'bg-slate-300' : rank === 2 ? 'bg-amber-700' : 'bg-slate-100 text-slate-500';
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'leaderboard' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-amber-500/30">
+            <i class="fa-solid fa-trophy text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Leaderboard</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">Ranked by average score across published results.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Year Level</label>
+            <select name="year" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium">
+              <option value="">All Years</option>
+              <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+              <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Subject</label>
+            <select name="subject_id" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium">
+              <option value="">All Subjects</option>
+              <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3.5 w-14">Rank</th>
+                <th class="p-3.5">Student</th>
+                <th class="p-3.5">Exams Taken</th>
+                <th class="p-3.5">Average Score</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+              <% leaders.forEach((l, i) => { %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5">
+                  <span class="w-7 h-7 rounded-full <%= medalColor(i) %> text-white font-bold text-[11px] flex items-center justify-center"><%= i + 1 %></span>
+                </td>
+                <td class="p-3.5">
+                  <div class="flex items-center space-x-2.5">
+                    <% if (l.profile_image) { %>
+                      <img src="<%= l.profile_image %>" alt="" class="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0">
+                    <% } else { %>
+                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0"><%= initials(l.name) %></div>
+                    <% } %>
+                    <span class="font-bold text-slate-900"><%= l.name %></span>
+                  </div>
+                </td>
+                <td class="p-3.5 text-slate-500"><%= l.exams_taken %></td>
+                <td class="p-3.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-600" style="width:<%= Math.min(100, l.avg_pct) %>%"></div></div>
+                    <span class="font-bold text-slate-800"><%= l.avg_pct %>%</span>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% if (!leaders.length) { %>
+              <tr><td colspan="4" class="p-6 text-center text-slate-400">No published results yet for this filter.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

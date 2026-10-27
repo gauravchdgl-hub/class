@@ -1,0 +1,21 @@
+<%- include('../partials/portal_top', { title: 'Notifications', crumb: 'Notifications', active: 'notifications' }) %>
+<div class="portal-title">
+  <div><h1>Notifications</h1><p>Purchases, assignments, reviews and results — everything that needs your attention.</p></div>
+  <form method="post" action="/notifications/mark-all-read"><button class="btn btn-outline" type="submit">Mark all as read</button></form>
+</div>
+<div class="grid" style="gap:10px;">
+  <% notifications.forEach(n => { %>
+    <form method="post" action="/notifications/<%= n.id %>/read">
+      <input type="hidden" name="link" value="<%= n.link || base %>">
+      <button type="submit" class="card card-pad" style="width:100%;text-align:left;border:none;cursor:pointer;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;<%= n.is_read ? 'opacity:.6;' : 'border-left:3px solid var(--blue);' %>">
+        <div>
+          <b style="font-size:13px;"><%= n.title %></b>
+          <% if (n.body) { %><div class="muted small" style="margin-top:4px;"><%= n.body %></div><% } %>
+        </div>
+        <span class="muted small" style="white-space:nowrap;"><%= new Date(n.created_at).toLocaleString() %></span>
+      </button>
+    </form>
+  <% }) %>
+  <% if (!notifications.length) { %><p class="muted">No notifications yet.</p><% } %>
+</div>
+<%- include('../partials/portal_bottom') %>

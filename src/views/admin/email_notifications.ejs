@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Notifications — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  // Builds a URL for this page that keeps the active filters/page. `u` (keep-unread flag) never carries over.
+  function qs(overrides) {
+    const p = new URLSearchParams();
+    Object.keys(filters).forEach((k) => { if (filters[k] && k !== 'u') p.set(k, filters[k]); });
+    Object.keys(overrides).forEach((k) => {
+      if (overrides[k] === null || overrides[k] === '' || overrides[k] === undefined) p.delete(k); else p.set(k, overrides[k]);
+    });
+    const out = p.toString();
+    return out ? '?' + out : '?';
+  }
+  const back = qs({});                      // current view, posted back by every action form
+  const initials = (name) => (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const TYPE_PILL = {
+    Assignment: 'bg-blue-50 text-blue-700 border-blue-200',
+    Submission: 'bg-purple-50 text-purple-700 border-purple-200',
+    Feedback: 'bg-amber-50 text-amber-700 border-amber-200',
+    Reminder: 'bg-rose-50 text-rose-700 border-rose-200',
+    Result: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    Payment: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    Account: 'bg-slate-100 text-slate-700 border-slate-200',
+    System: 'bg-slate-100 text-slate-700 border-slate-200',
+  };
+  const STATUS_PILL = {
+    Sent: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    Scheduled: 'bg-blue-50 text-blue-700 border-blue-200',
+    Failed: 'bg-rose-50 text-rose-700 border-rose-200',
+    Draft: 'bg-purple-50 text-purple-700 border-purple-200',
+  };
+  const pct = (n) => (kpi.total ? Math.round(n * 100 / kpi.total) : 0);
+  const tabBtn = 'py-2.5 px-4 rounded-lg transition flex items-center justify-center space-x-2 ';
+  const tabOn = 'bg-blue-600 text-white shadow-sm';
+  const tabOff = 'bg-slate-100 hover:bg-slate-200 text-slate-700';
+  const rangeValue = filters.date_from ? (filters.date_to && filters.date_to !== filters.date_from ? filters.date_from + ' to ' + filters.date_to : filters.date_from) : '';
+  const hasHeading = selected && /<h4/i.test(selected.body || '');
+  const frameDoc = selected ? '<base target="_blank"><style>body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:12px;line-height:1.6;color:#475569}a{color:#2563eb}img{max-width:100%;height:auto}p{margin:0 0 8px}</style>' + (selected.body || '<p style="color:#94a3b8">(no body was stored for this message)</p>') : '';
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'email-notifications' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, papers, submissions, or anything...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <!-- Page Title -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+            <i class="fa-solid fa-envelope text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Email Notifications</h1>
+            <p class="text-[13px] text-slate-500 mt-0.5">View and manage all email notifications related to your students, assignments, submissions, and system updates.</p>
+          </div>
+        </div>
+        <nav class="hidden xl:flex text-[13px] text-slate-500 space-x-2 font-medium">
+          <a href="/admin/dashboard" class="hover:text-blue-600 transition">Home</a>
+          <span class="text-slate-400">&gt;</span>
+          <span class="text-[#091e42] font-semibold">Email Notifications</span>
+        </nav>
+      </div>
+
+      <% if (success && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 text-xs font-semibold"><i class="fa-solid fa-circle-check mr-2"></i><%= success[0] %></div><% } %>
+      <% if (error && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-2"></i><%= error[0] %></div><% } %>
+
+      <!-- 5 Stat Cards (live counts) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Total Emails</span>
+            <h3 class="text-2xl font-bold text-[#091e42]"><%= kpi.total %></h3>
+            <% if (kpi.trendPct !== null) { %>
+              <span class="text-[11px] <%= kpi.trendPct >= 0 ? 'text-emerald-600' : 'text-rose-600' %> font-bold mt-1 block"><%= kpi.trendPct >= 0 ? '+' : '' %><%= kpi.trendPct %>% <span class="text-slate-400 font-normal">from last month</span></span>
+            <% } else { %>
+              <span class="text-[11px] text-slate-400 mt-1 block"><%= kpi.thisMonth %> this month</span>
+            <% } %>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-envelope"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Sent</span>
+            <h3 class="text-2xl font-bold text-emerald-600"><%= kpi.sent %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block"><%= pct(kpi.sent) %>% of total</span>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-paper-plane"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Scheduled</span>
+            <h3 class="text-2xl font-bold text-amber-500"><%= kpi.scheduled %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block"><%= pct(kpi.scheduled) %>% of total</span>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-lg shrink-0"><i class="fa-regular fa-clock"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Failed</span>
+            <h3 class="text-2xl font-bold text-rose-600"><%= kpi.failed %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block"><%= pct(kpi.failed) %>% of total</span>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-circle-exclamation"></i></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm sm:col-span-2 lg:col-span-1 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-500 block mb-1">Drafts</span>
+            <h3 class="text-2xl font-bold text-purple-600"><%= kpi.drafts %></h3>
+            <span class="text-[11px] text-slate-400 mt-1 block"><%= pct(kpi.drafts) %>% of total</span>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-file-lines"></i></div>
+        </div>
+      </div>
+
+      <!-- Tabs & Filter Toolbar -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-4">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-semibold border-b border-slate-100 pb-4">
+          <a href="<%= qs({ tab: null, page: null, id: null, status: null }) %>" class="<%= tabBtn %><%= activeTab==='all' ? tabOn : tabOff %>"><span>All Emails (<%= kpi.total %>)</span></a>
+          <a href="<%= qs({ tab: 'sent', page: null, id: null, status: null }) %>" class="<%= tabBtn %><%= activeTab==='sent' ? tabOn : tabOff %>"><span>Sent (<%= kpi.sent %>)</span></a>
+          <a href="<%= qs({ tab: 'scheduled', page: null, id: null, status: null }) %>" class="<%= tabBtn %><%= activeTab==='scheduled' ? tabOn : tabOff %>"><span>Scheduled (<%= kpi.scheduled %>)</span></a>
+          <a href="<%= qs({ tab: 'failed', page: null, id: null, status: null }) %>" class="<%= tabBtn %><%= activeTab==='failed' ? tabOn : tabOff %>"><span>Failed (<%= kpi.failed %>)</span></a>
+          <a href="<%= qs({ tab: 'drafts', page: null, id: null, status: null }) %>" class="<%= tabBtn %>sm:col-span-1 col-span-2 <%= activeTab==='drafts' ? tabOn : tabOff %>"><span>Drafts (<%= kpi.drafts %>)</span></a>
+        </div>
+
+        <form method="get" id="filterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <% if (activeTab !== 'all') { %><input type="hidden" name="tab" value="<%= activeTab %>"><% } %>
+          <input type="hidden" name="date_from" id="dateFrom" value="<%= filters.date_from || '' %>">
+          <input type="hidden" name="date_to" id="dateTo" value="<%= filters.date_to || '' %>">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Search Email</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" name="search" value="<%= filters.search || '' %>" placeholder="Search by subject, student, or email..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Type</label>
+            <select name="type" onchange="this.form.submit()" class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Types</option>
+              <% types.forEach(t => { if (t === 'System') return; %><option value="<%= t %>" <%= filters.type===t?'selected':'' %>><%= t %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Status</label>
+            <select name="status" onchange="this.form.submit()" <%= activeTab !== 'all' ? 'disabled title="The status tab above is already filtering"' : '' %> class="custom-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60">
+              <option value="">All Status</option>
+              <option value="Sent" <%= filters.status==='Sent'?'selected':'' %>>Sent</option>
+              <option value="Scheduled" <%= filters.status==='Scheduled'?'selected':'' %>>Scheduled</option>
+              <option value="Failed" <%= filters.status==='Failed'?'selected':'' %>>Failed</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Date Range</label>
+            <div class="relative">
+              <i class="fa-regular fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="dateRange" value="<%= rangeValue %>" placeholder="Select date range" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Two-Column Split: Table (Left) + Preview (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left: Table -->
+        <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th class="p-3.5 w-10 text-center"><input type="checkbox" id="checkAll" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"></th>
+                  <th class="p-3.5">Subject</th>
+                  <th class="p-3.5">Recipient</th>
+                  <th class="p-3.5">Type</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5">Date &amp; Time</th>
+                  <th class="p-3.5 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% rows.forEach(r => { const isSelected = selected && selected.id === r.id; %>
+                <tr class="<%= isSelected ? 'bg-blue-50/50' : '' %> hover:bg-slate-50 transition">
+                  <td class="p-3.5 text-center"><input type="checkbox" value="<%= r.id %>" class="row-check rounded border-slate-300 text-blue-600 focus:ring-blue-500"></td>
+                  <td class="p-3.5">
+                    <a href="<%= qs({ id: r.id }) %>" class="block font-bold <%= isSelected ? 'text-blue-600' : 'text-slate-900' %> leading-tight"><% if (r.unread) { %><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5 align-middle" title="Unread"></span><% } %><%= r.subject || '(no subject)' %></a>
+                    <span class="text-[10px] text-slate-400"><%= r.related_title || r.type %></span>
+                  </td>
+                  <td class="p-3.5">
+                    <div class="flex items-center space-x-2">
+                      <% if (r.recipient_image) { %>
+                        <img src="<%= r.recipient_image %>" alt="<%= r.recipient_name %>" class="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0">
+                      <% } else { %>
+                        <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0"><%= initials(r.recipient_name) %></div>
+                      <% } %>
+                      <div>
+                        <span class="block font-bold text-slate-900 leading-tight"><%= r.recipient_name || '—' %></span>
+                        <span class="text-[10px] text-slate-400"><%= r.recipient_email || '—' %></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-3.5"><span class="<%= TYPE_PILL[r.type] || TYPE_PILL.System %> border px-2 py-0.5 rounded text-[10px] font-bold"><%= r.type || 'System' %></span></td>
+                  <td class="p-3.5"><span class="<%= STATUS_PILL[r.status] || STATUS_PILL.Sent %> border px-2.5 py-0.5 rounded-full font-semibold text-[10px]"><%= r.status %></span></td>
+                  <td class="p-3.5 text-slate-600 text-[11px]"><%= r.when.date %><br><span class="text-[10px] text-slate-400"><%= r.when.time %></span></td>
+                  <td class="p-3.5 text-center">
+                    <details class="relative inline-block text-left">
+                      <summary class="list-none p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"><i class="fa-solid fa-ellipsis"></i></summary>
+                      <div class="absolute right-0 mt-1 w-40 bg-white rounded-xl border border-slate-200 shadow-lg z-20 overflow-hidden text-xs font-semibold text-left">
+                        <a href="<%= qs({ id: r.id }) %>" class="block px-3 py-2 text-slate-700 hover:bg-slate-50"><i class="fa-regular fa-eye w-4 mr-1"></i>View</a>
+                        <% if (!r.sensitive) { %>
+                        <form method="post" action="/admin/email-notifications/resend"><input type="hidden" name="back" value="<%= back %>"><input type="hidden" name="ids" value="<%= r.id %>"><button class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-rotate-right w-4 mr-1"></i><%= ['Draft','Scheduled'].includes(r.status) ? 'Send now' : 'Resend' %></button></form>
+                        <% } %>
+                        <form method="post" action="/admin/email-notifications/mark-unread"><input type="hidden" name="back" value="<%= back %>"><input type="hidden" name="ids" value="<%= r.id %>"><button class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50"><i class="fa-regular fa-envelope w-4 mr-1"></i>Mark as unread</button></form>
+                        <form method="post" action="/admin/email-notifications/delete" onsubmit="return confirm('Delete this email record?')"><input type="hidden" name="back" value="<%= back %>"><input type="hidden" name="ids" value="<%= r.id %>"><button class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50"><i class="fa-regular fa-trash-can w-4 mr-1"></i>Delete</button></form>
+                      </div>
+                    </details>
+                  </td>
+                </tr>
+                <% }) %>
+                <% if (!rows.length) { %>
+                <tr><td colspan="7" class="p-6 text-center text-slate-400">
+                  <% if (filters.search || filters.type || filters.status || filters.date_from) { %>No emails match these filters.
+                  <% } else if (activeTab === 'scheduled') { %>No scheduled emails.
+                  <% } else if (activeTab === 'drafts') { %>No drafts.
+                  <% } else if (activeTab === 'failed') { %>No failed emails.
+                  <% } else { %>No emails yet.<% } %>
+                </td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 font-medium mt-auto">
+            <span>Showing <%= pagination.totalRows === 0 ? 0 : ((pagination.page - 1) * pagination.pageSize + 1) %> to <%= Math.min(pagination.page * pagination.pageSize, pagination.totalRows) %> of <%= pagination.totalRows %> emails</span>
+            <div class="flex items-center space-x-1">
+              <a href="<%= qs({ page: Math.max(1, pagination.page - 1), id: null }) %>" class="w-7 h-7 rounded border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition <%= pagination.page <= 1 ? 'pointer-events-none opacity-50' : '' %>"><i class="fa-solid fa-chevron-left text-[9px]"></i></a>
+              <% for (let p = 1; p <= pagination.totalPages; p++) { if (p===1 || p===pagination.totalPages || Math.abs(p-pagination.page)<=2) { %>
+                <a href="<%= qs({ page: p, id: null }) %>" class="w-7 h-7 rounded <%= p===pagination.page ? 'bg-blue-600 text-white font-bold shadow-sm' : 'border border-slate-200 bg-white hover:bg-slate-100 text-slate-700' %> flex items-center justify-center transition"><%= p %></a>
+              <% } else if (p===pagination.page-3 || p===pagination.page+3) { %><span class="px-1 text-slate-400">...</span><% } } %>
+              <a href="<%= qs({ page: Math.min(pagination.totalPages, pagination.page + 1), id: null }) %>" class="w-7 h-7 rounded border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:bg-slate-100 transition <%= pagination.page >= pagination.totalPages ? 'pointer-events-none opacity-50' : '' %>"><i class="fa-solid fa-chevron-right text-[9px]"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Preview Panel -->
+        <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5 sticky top-20">
+          <% if (!selected) { %>
+            <div class="py-16 text-center text-slate-400 text-sm">
+              <i class="fa-regular fa-envelope-open text-3xl mb-3 block"></i>
+              Select an email from the list to preview it here.
+            </div>
+          <% } else { %>
+          <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-bold text-base text-[#091e42]"><%= selected.subject || '(no subject)' %></h3>
+              <p class="text-xs text-slate-500 mt-0.5"><%= selected.related_title || selected.type %></p>
+            </div>
+            <span class="<%= STATUS_PILL[selected.status] || STATUS_PILL.Sent %> border px-3 py-1 rounded-full font-semibold text-xs"><%= selected.status %></span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-sm"><%= initials(brand.name) %></div>
+              <div>
+                <h4 class="font-bold text-slate-900"><%= brand.name %></h4>
+                <span class="text-[11px] text-slate-500"><%= selected.sender || '—' %></span>
+              </div>
+            </div>
+            <span class="text-[11px] text-slate-400 font-medium"><%= selected.status === 'Scheduled' ? 'Scheduled: ' : '' %><%= selected.when.full %></span>
+          </div>
+
+          <div class="text-xs text-slate-600 font-medium px-1">
+            To: <span class="text-slate-900 font-bold"><%= selected.recipient_name %> (<%= selected.recipient_email %>)</span>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-5 space-y-4 bg-gradient-to-b from-slate-50/50 to-white">
+            <div class="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
+              <div class="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs"><i class="fa-solid fa-graduation-cap"></i></div>
+              <div>
+                <h5 class="font-bold text-xs text-slate-900 leading-tight"><%= brand.name %></h5>
+                <span class="text-[9px] text-slate-400"><%= brand.tagline %></span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <% if (!hasHeading) { %><h4 class="font-bold text-sm text-[#091e42]"><%= selected.subject %></h4><% } %>
+              <iframe id="mailFrame" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" srcdoc="<%= frameDoc %>" onload="this.style.height=(this.contentDocument.documentElement.scrollHeight+4)+'px'" class="w-full border-0 block" style="min-height:120px" title="Email body"></iframe>
+
+              <% if (selected.error_message && selected.raw_status !== 'sent') { %>
+              <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 text-[11px] text-rose-700">
+                <span class="font-semibold">Not delivered:</span> <%= selected.error_message %>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Bottom Email Actions Toolbar -->
+          <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-1.5">
+              <% if (!selected.sensitive) { %>
+              <button type="button" data-compose="reply" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5"><i class="fa-solid fa-reply text-[10px]"></i><span>Reply</span></button>
+              <button type="button" data-compose="forward" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5"><i class="fa-solid fa-share text-[10px]"></i><span>Forward</span></button>
+              <form method="post" action="/admin/email-notifications/resend" class="bulk-form" data-selected="<%= selected.id %>">
+                <input type="hidden" name="back" value="<%= back %>">
+                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5"><i class="fa-solid fa-rotate-right text-[10px]"></i><span><%= ['Draft','Scheduled'].includes(selected.status) ? 'Send' : 'Resend' %></span></button>
+              </form>
+              <% } %>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <form method="post" action="/admin/email-notifications/mark-unread" class="bulk-form" data-selected="<%= selected.id %>">
+                <input type="hidden" name="back" value="<%= back %>">
+                <button class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs transition" title="Mark as Unread"><i class="fa-regular fa-envelope"></i></button>
+              </form>
+              <form method="post" action="/admin/email-notifications/delete" class="bulk-form" data-selected="<%= selected.id %>" data-confirm="Delete the selected email record(s)?">
+                <input type="hidden" name="back" value="<%= back %>">
+                <button class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs transition" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+              </form>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 -mt-2">Tick rows in the table to apply Resend, Mark as Unread or Delete to several emails at once.</p>
+          <% } %>
+        </div>
+
+      </div>
+
+      <footer class="pt-6 pb-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium">
+        <p>&copy; 2026 AUS Academy. All rights reserved.</p>
+        <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+          <a href="#" class="hover:text-blue-600 transition">Privacy</a>
+          <a href="#" class="hover:text-blue-600 transition">Terms</a>
+          <a href="/admin/help" class="hover:text-blue-600 transition">Help</a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<% if (selected && !selected.sensitive) { %>
+<!-- Reply / Forward dialog -->
+<dialog id="composeDialog" class="rounded-2xl p-0 w-full max-w-lg border border-slate-200 shadow-2xl backdrop:bg-slate-900/40">
+  <form method="post" action="/admin/email-notifications/compose" class="p-6 space-y-4 text-xs">
+    <input type="hidden" name="back" value="<%= back %>">
+    <input type="hidden" name="source_id" value="<%= selected.id %>">
+    <input type="hidden" name="mode" id="composeMode" value="reply">
+    <div class="flex items-center justify-between">
+      <h3 class="font-bold text-base text-[#091e42]" id="composeTitle">Reply</h3>
+      <button type="button" onclick="document.getElementById('composeDialog').close()" class="p-1.5 text-slate-400 hover:bg-slate-100 rounded-lg"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div>
+      <label class="block font-semibold text-slate-600 mb-1">To</label>
+      <input type="email" name="to" id="composeTo" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 read-only:opacity-70">
+    </div>
+    <div>
+      <label class="block font-semibold text-slate-600 mb-1">Subject</label>
+      <input type="text" name="subject" id="composeSubject" required maxlength="200" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div>
+      <label class="block font-semibold text-slate-600 mb-1">Message</label>
+      <textarea name="message" id="composeMessage" rows="6" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+    </div>
+    <div>
+      <label class="block font-semibold text-slate-600 mb-1">Schedule for (optional)</label>
+      <input type="datetime-local" name="scheduled_for" id="composeWhen" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
+      <button name="send_action" value="draft" formnovalidate class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition">Save Draft</button>
+      <button name="send_action" value="schedule" onclick="if(!document.getElementById('composeWhen').value){alert('Choose a date and time first.');return false;}" class="px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg font-semibold transition">Schedule</button>
+      <button name="send_action" value="send" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition shadow-md shadow-blue-600/30">Send</button>
+    </div>
+  </form>
+</dialog>
+<% } %>
+
+<%- include('../partials/tw_scripts') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script>
+(function () {
+  // Select-all checkbox
+  var checkAll = document.getElementById('checkAll');
+  if (checkAll) checkAll.addEventListener('change', function () {
+    document.querySelectorAll('.row-check').forEach(function (c) { c.checked = checkAll.checked; });
+  });
+
+  // Toolbar buttons act on ticked rows; with nothing ticked they act on the open email.
+  document.querySelectorAll('.bulk-form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      var msg = form.getAttribute('data-confirm');
+      if (msg && !confirm(msg)) { e.preventDefault(); return; }
+      form.querySelectorAll('input[name="ids"]').forEach(function (n) { n.remove(); });
+      var ticked = Array.prototype.map.call(document.querySelectorAll('.row-check:checked'), function (c) { return c.value; });
+      (ticked.length ? ticked : [form.getAttribute('data-selected')]).forEach(function (id) {
+        var i = document.createElement('input'); i.type = 'hidden'; i.name = 'ids'; i.value = id; form.appendChild(i);
+      });
+    });
+  });
+
+  // Reply / Forward dialog
+  var dlg = document.getElementById('composeDialog');
+  <% if (selected && !selected.sensitive) { %>
+  var original = { subject: <%- JSON.stringify(selected.subject || '').replace(/</g, '\\u003c') %>, to: <%- JSON.stringify(selected.recipient_email || '').replace(/</g, '\\u003c') %> };
+  <% } else { %>
+  var original = { subject: '', to: '' };
+  <% } %>
+  document.querySelectorAll('[data-compose]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var mode = btn.getAttribute('data-compose');
+      var prefix = mode === 'reply' ? 'Re: ' : 'Fwd: ';
+      document.getElementById('composeMode').value = mode;
+      document.getElementById('composeTitle').textContent = mode === 'reply' ? 'Reply' : 'Forward';
+      var to = document.getElementById('composeTo');
+      to.value = mode === 'reply' ? original.to : '';
+      to.readOnly = mode === 'reply';
+      document.getElementById('composeSubject').value = original.subject.indexOf(prefix) === 0 ? original.subject : prefix + original.subject;
+      document.getElementById('composeMessage').value = '';
+      document.getElementById('composeWhen').value = '';
+      if (dlg && dlg.showModal) dlg.showModal();
+    });
+  });
+
+  // Date range: one field (as in the design), mapped onto date_from / date_to.
+  var form = document.getElementById('filterForm');
+  var range = document.getElementById('dateRange');
+  var from = document.getElementById('dateFrom');
+  var to = document.getElementById('dateTo');
+  function applyText() {
+    var parts = range.value.split(/\s+(?:to|–|-)\s+(?=\d{4}-)/i).map(function (s) { return s.trim(); }).filter(Boolean);
+    from.value = /^\d{4}-\d{2}-\d{2}$/.test(parts[0] || '') ? parts[0] : '';
+    to.value = /^\d{4}-\d{2}-\d{2}$/.test(parts[1] || '') ? parts[1] : from.value;
+  }
+  form.addEventListener('submit', applyText);
+  if (window.flatpickr) {
+    flatpickr(range, {
+      mode: 'range', dateFormat: 'Y-m-d', allowInput: true,
+      onClose: function (sel) {
+        if (sel.length === 2 || (sel.length === 1 && false)) { applyText(); form.submit(); }
+        if (sel.length === 0 && (from.value || to.value)) { from.value = ''; to.value = ''; form.submit(); }
+      },
+    });
+  } else {
+    range.placeholder = 'YYYY-MM-DD to YYYY-MM-DD';
+  }
+})();
+</script>
+</body>
+</html>

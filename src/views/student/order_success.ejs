@@ -1,0 +1,31 @@
+<%- include('../partials/portal_top', { title: 'Order Successful', crumb: 'Student / Order Successful', active: 'mcqmy' }) %>
+
+<div class="card" style="max-width:720px;margin:10px auto;padding:0;overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#0d234c,#1e6fe0);color:#fff;padding:34px 32px;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;margin:0 auto 14px;font-size:28px;">✓</div>
+    <h1 style="margin:0 0 6px;font-size:26px;">Payment Successful</h1>
+    <p style="margin:0;color:#cfe0ff;">Thank you, <%= order.studentName %> — your order is confirmed.</p>
+  </div>
+
+  <div style="padding:28px 32px;">
+    <div class="modal-info" style="grid-template-columns:1fr 1fr;gap:14px;">
+      <div><small>Order ID</small><b style="word-break:break-all;"><%= order.orderId %></b></div>
+      <div><small>Purchase Date</small><b><%= new Date(order.purchaseDate).toLocaleString('en-AU') %></b></div>
+      <div><small>Product</small><b><%= order.product %></b></div>
+      <div><small>Plan</small><b><%= order.planName %></b></div>
+      <div><small>Amount Paid</small><b>AU$<%= Number(order.amount).toFixed(2) %></b></div>
+      <div><small>Payment Status</small><b><span class="pill green"><%= order.paymentStatus %></span></b></div>
+      <div><small>Order Status</small><b><span class="pill blue"><%= order.orderStatus %></span></b></div>
+      <div><small>Student</small><b><%= order.studentName %> (<%= order.studentEmail %>)</b></div>
+    </div>
+
+    <p class="muted small" style="margin:20px 0 0;">A confirmation email with these details has been sent to <%= order.studentEmail %>. This order also now appears in your dashboard.</p>
+
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <a class="btn btn-primary" href="/student/mcq/my">Go to My MCQs →</a>
+      <a class="btn btn-light" href="/student/dashboard">Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/portal_bottom') %>

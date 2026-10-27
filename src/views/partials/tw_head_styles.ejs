@@ -1,0 +1,50 @@
+<style>
+  body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1e293b}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+
+  /* Sidebar */
+  .sidebar-gradient{background:linear-gradient(180deg,#091e42 0%,#0d2a5c 100%)}
+  .nav-link.active{background:rgba(255,255,255,0.12);color:#fff;font-weight:700}
+
+  /* Reusable select arrow */
+  .custom-select,select.form-input{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right .75rem center;background-repeat:no-repeat;background-size:1.1em 1.1em;padding-right:2.2rem;-webkit-appearance:none;appearance:none}
+
+  /* form-input: the base style for every input/select/textarea across new-design pages */
+  .form-input{display:block;width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:.5rem .75rem;font-size:.75rem;font-weight:500;color:#1e293b;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
+  .form-input:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+  .form-input::placeholder{color:#94a3b8}
+  .form-input:read-only{opacity:.7}
+  textarea.form-input{resize:vertical}
+
+  /* card-shadow: subtle card elevation used by paper_new.ejs */
+  .card-shadow{box-shadow:0 1px 3px 0 rgba(0,0,0,.07),0 1px 2px -1px rgba(0,0,0,.04)}
+
+  /* tab-btn: section tabs in the add-questions form */
+  .tab-btn{border:1px solid #e2e8f0;background:#f8fafc;color:#475569;border-radius:.5rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+  .tab-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+
+  /* radio-option: MCQ answer choice buttons */
+  .radio-option{display:flex;align-items:center;gap:.6rem;border:1px solid #e2e8f0;border-radius:.6rem;padding:.55rem .85rem;cursor:pointer;font-size:.75rem;font-weight:600;color:#475569;transition:all .15s}
+  .radio-option:has(input:checked){border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+
+  /* custom-checkbox: styled checkbox used on Assign Content and Orders list pages */
+  .custom-checkbox{appearance:none;-webkit-appearance:none;width:1rem;height:1rem;border:1.5px solid #cbd5e1;border-radius:.3rem;background:#fff;cursor:pointer;position:relative;flex-shrink:0;transition:all .15s}
+  .custom-checkbox:checked{background:#2563eb;border-color:#2563eb}
+  .custom-checkbox:checked::after{content:'';position:absolute;left:3px;top:0px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .custom-checkbox:focus{outline:none;box-shadow:0 0 0 2px rgba(59,130,246,.3)}
+
+  /* Generic "one of several panels, toggled by adding/removing .active" pattern — used by
+     Assign Content's content-type tabs, Settings' sub-panels, and Student Detail's profile tabs.
+     Each is hidden by default and shown only while its element carries the .active class. */
+  .content-page,.settings-panel,.tab-panel,.section-panel{display:none}
+  .content-page.active,.settings-panel.active,.tab-panel.active,.section-panel.active{display:block}
+
+  /* Pill / submenu / tab-link active-state highlight (Settings category pills, sub-nav links,
+     Student Detail profile tabs, and the exam-review section tabs). */
+  .pill.active{background:#2563eb;color:#fff;box-shadow:0 1px 2px 0 rgba(0,0,0,.05)}
+  .submenu-link.active{background:#eff6ff;color:#1d4ed8}
+  .submenu-link.active i{color:#2563eb}
+  .tab-link.active{background:#2563eb;color:#fff}
+  .section-tab.active{background:#2563eb;color:#fff;box-shadow:0 1px 2px 0 rgba(0,0,0,.05)}
+</style>

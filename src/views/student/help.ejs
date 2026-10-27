@@ -1,0 +1,19 @@
+<%- include('../partials/portal_top', { title: 'Help & Documentation', crumb: 'Student / Help', active: 'help' }) %>
+<div class="portal-title"><div><h1>Help & Documentation</h1><p>How the portal works — plans, exams, results, and more.</p></div></div>
+<div class="card card-pad doc-viewer">
+  <%- docHtml %>
+</div>
+<style>
+.doc-viewer h2{font-size:22px;margin:26px 0 10px;}
+.doc-viewer h3{font-size:17px;margin:24px 0 8px;border-top:1px solid var(--line);padding-top:18px;}
+.doc-viewer h4{font-size:14px;margin:16px 0 6px;}
+.doc-viewer p{font-size:13px;line-height:1.7;color:var(--muted);margin:6px 0;}
+.doc-viewer code{background:#f1f5fb;padding:1px 5px;border-radius:5px;font-size:12px;color:#2255c4;}
+.doc-viewer pre.doc-code{background:#101a2e;color:#d7e6ff;padding:14px;border-radius:10px;font-size:12px;overflow:auto;margin:10px 0;}
+.doc-viewer .doc-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0;}
+.doc-viewer .doc-table td{border:1px solid var(--line);padding:8px;}
+.doc-viewer .doc-quote{background:#eef3ff;border-left:3px solid var(--primary);padding:10px 14px;border-radius:8px;font-size:12px;margin:10px 0;}
+.doc-viewer .doc-hr{border:0;border-top:1px solid var(--line);margin:20px 0;}
+.doc-viewer ul{font-size:13px;color:var(--muted);line-height:1.7;}
+</style>
+<%- include('../partials/portal_bottom') %>

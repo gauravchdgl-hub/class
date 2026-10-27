@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachers — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<%
+  const initials = (name) => (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+%>
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'teachers' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search teachers...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <% if (typeof success !== 'undefined' && success.length) { %><div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3"><%= success[0] %></div><% } %>
+      <% if (typeof error !== 'undefined' && error.length) { %><div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl px-4 py-3"><%= error[0] %></div><% } %>
+
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+          <i class="fa-solid fa-chalkboard-user text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Teachers</h1>
+          <p class="text-[13px] text-slate-500 mt-0.5">Create Teacher logins and manage who has staff access to the portal.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <div class="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <h3 class="font-bold text-sm text-[#091e42]">Add Teacher</h3>
+          <form method="post" action="/admin/teachers" class="space-y-4 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Name</label>
+              <input type="text" name="name" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Email</label>
+              <input type="email" name="email" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 mb-1">Password</label>
+              <input type="password" name="password" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-lg transition shadow-md shadow-blue-600/30">Create Teacher Login</button>
+          </form>
+        </div>
+
+        <div class="lg:col-span-8 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100"><h3 class="font-bold text-sm text-[#091e42]">All Teachers (<%= teachers.length %>)</h3></div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th class="p-3.5">Teacher</th>
+                  <th class="p-3.5">Email</th>
+                  <th class="p-3.5 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <% teachers.forEach(t => { %>
+                <tr class="hover:bg-slate-50 transition">
+                  <td class="p-3.5">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0"><%= initials(t.name) %></div>
+                      <span class="font-bold text-slate-900"><%= t.name %></span>
+                    </div>
+                  </td>
+                  <td class="p-3.5 text-slate-500"><%= t.email %></td>
+                  <td class="p-3.5 text-center">
+                    <form method="post" action="/admin/teachers/<%= t.id %>/delete" onsubmit="return confirm('Remove this teacher? They will no longer be able to log in.')">
+                      <button class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-semibold transition">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }) %>
+                <% if (!teachers.length) { %>
+                <tr><td colspan="3" class="p-6 text-center text-slate-400">No teachers yet.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

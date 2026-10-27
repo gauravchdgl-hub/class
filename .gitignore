@@ -1,0 +1,9 @@
+node_modules/
+src/db/data.sqlite
+src/db/data.sqlite-*
+src/db/sessions/
+.env
+src/public/uploads/*
+!src/public/uploads/.gitkeep
+src/private/materials/*
+!src/private/materials/.gitkeep

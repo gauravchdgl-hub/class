@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assign MCQs to Plan — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'mcq-plan-questions' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-50">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search students, subjects, MCQs, or anything...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1500px] mx-auto w-full flex-1 flex flex-col space-y-6">
+
+      <div class="flex items-center space-x-3">
+        <a href="/admin/mcq-plans" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 flex items-center justify-center transition shadow-sm shrink-0"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shrink-0 shadow-md"><i class="fa-solid fa-link"></i></div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#091e42] tracking-tight">Assign MCQs to Plan</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Select which MCQs will be included in <%= plan.name %> based on subject, year and search.</p>
+        </div>
+      </div>
+
+      <!-- Selected Plan Strip -->
+      <div class="bg-blue-50/60 border border-blue-200/80 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-xs">
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Plan Name</span><span class="font-bold text-slate-900 text-sm"><%= plan.name %></span></div>
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Class</span><span class="font-bold text-slate-800 text-sm"><%= plan.class_name || '—' %></span></div>
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Year Level</span><span class="font-bold text-slate-800 text-sm"><%= plan.year_level || '—' %></span></div>
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Total MCQs</span><span class="font-bold text-slate-900 text-sm"><%= plan.mcq_count %></span></div>
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Valid For</span><span class="font-bold text-slate-800 text-sm"><%= Math.round(plan.validity_days/30) %> Months</span></div>
+        <div><span class="text-[10px] uppercase font-bold text-slate-400 block">Currently Selected</span><span class="font-bold text-blue-600 text-sm"><%= selectedIds.size %> MCQs</span></div>
+      </div>
+
+      <form method="get" class="bg-white rounded-2xl border border-slate-200 card-shadow p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Subject</label>
+          <select name="subject_id" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 custom-select w-full">
+            <option value="">All Subjects</option>
+            <% subjects.forEach(s => { %><option value="<%= s.id %>" <%= String(filters.subject_id)===String(s.id)?'selected':'' %>><%= s.name %> (<%= s.year %>)</option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Year</label>
+          <select name="year" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium text-slate-700 custom-select w-full">
+            <option value="">All Years</option>
+            <option value="Year 11" <%= filters.year==='Year 11'?'selected':'' %>>Year 11</option>
+            <option value="Year 12" <%= filters.year==='Year 12'?'selected':'' %>>Year 12</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">&nbsp;</label>
+          <div class="flex items-center space-x-1.5">
+            <div class="relative w-full">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+              <input type="text" name="q" value="<%= filters.q %>" placeholder="Search MCQs by title or keyword..." class="bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-2 py-1.5 text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow-sm flex items-center space-x-1" type="submit">
+              <i class="fa-solid fa-magnifying-glass text-[10px]"></i><span>Search</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Questions Table & Sidebar Summary -->
+      <form method="post" action="/admin/mcq-plans/<%= plan.id %>/questions?page=<%= page %>">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div class="overflow-x-auto w-full border border-slate-200 rounded-xl bg-white card-shadow">
+              <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                    <th class="py-2.5 px-3 w-8 text-center"><input type="checkbox" onclick="document.querySelectorAll('.q-check').forEach(c=>c.checked=this.checked)"></th>
+                    <th class="py-2.5 px-3 w-8">#</th>
+                    <th class="py-2.5 px-3">Question</th>
+                    <th class="py-2.5 px-3">Subject</th>
+                    <th class="py-2.5 px-3">Module / Topic</th>
+                    <th class="py-2.5 px-3">Difficulty</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs text-slate-700 font-medium">
+                  <% questions.forEach((m, i) => { %>
+                    <tr class="<%= selectedIds.has(m.id) ? 'bg-blue-50/50 hover:bg-blue-50/80' : 'hover:bg-slate-50' %> transition">
+                      <td class="py-2.5 px-3 text-center">
+                        <input type="hidden" name="page_mcq_ids" value="<%= m.id %>">
+                        <input class="q-check" type="checkbox" name="mcq_ids" value="<%= m.id %>" <%= selectedIds.has(m.id) ? 'checked' : '' %>>
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-400 font-bold"><%= (page - 1) * 25 + i + 1 %></td>
+                      <td class="py-2.5 px-3 font-semibold text-slate-800" style="white-space:normal;max-width:400px;"><%= m.question %></td>
+                      <td class="py-2.5 px-3 text-slate-600"><%= m.subject_name %></td>
+                      <td class="py-2.5 px-3 text-blue-600"><%= m.topic || '—' %></td>
+                      <td class="py-2.5 px-3">
+                        <% const diffColor = m.difficulty === 'easy' ? 'emerald' : (m.difficulty === 'hard' ? 'rose' : 'amber'); %>
+                        <span class="text-<%= diffColor %>-700 font-bold"><i class="fa-solid fa-circle text-[8px] text-<%= diffColor %>-500"></i> <%= m.difficulty %></span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (!questions.length) { %><tr><td colspan="6" class="py-8 px-3 text-center text-slate-400">No questions match these filters.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1 text-xs font-semibold text-slate-500">
+              <span class="text-slate-400 text-xs">Showing page <%= page %> of <%= totalPages %> · <%= total %> questions match your filters</span>
+              <div class="flex items-center space-x-1">
+                <% for (let p = 1; p <= totalPages; p++) { %>
+                  <% if (p === page) { %>
+                    <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold"><%= p %></span>
+                  <% } else { %>
+                    <a class="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600" href="?page=<%= p %>&subject_id=<%= filters.subject_id %>&year=<%= filters.year %>&q=<%= filters.q %>"><%= p %></a>
+                  <% } %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCQs in This Plan summary -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 h-fit">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2"><i class="fa-regular fa-circle-check text-blue-600"></i><span>MCQs in This Plan</span></h3>
+              <span class="bg-blue-100 text-blue-700 font-bold text-xs px-2.5 py-0.5 rounded-full"><%= selectedIds.size %></span>
+            </div>
+            <ul class="space-y-2 text-xs text-slate-700 font-medium">
+              <% topicSummary.forEach(t => { %>
+                <li class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200">
+                  <span><%= t.topic %></span><span class="font-bold"><%= t.count %></span>
+                </li>
+              <% }) %>
+              <% if (!topicSummary.length) { %><li class="text-slate-400 text-center py-2">No MCQs selected yet.</li><% } %>
+            </ul>
+            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition">Save Assigned MCQs</button>
+            <p class="text-[10px] text-slate-400 leading-relaxed">Selections save per page — move through the pages and check/uncheck as needed; nothing is lost when you change pages.</p>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>

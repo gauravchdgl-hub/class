@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#f4f6fa]">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Documentation — AUS Academy</title>
+<link rel="stylesheet" href="/assets/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<%- include('../partials/tw_head_styles') %>
+<style>
+  .doc-viewer h2{font-size:22px;margin:26px 0 10px;color:#091e42;font-weight:800}
+  .doc-viewer h3{font-size:17px;margin:24px 0 8px;color:#1e293b;border-top:1px solid #e2e8f0;padding-top:18px;font-weight:700}
+  .doc-viewer h4{font-size:14px;margin:16px 0 6px;color:#334155;font-weight:700}
+  .doc-viewer p{font-size:13px;line-height:1.7;color:#475569;margin:6px 0}
+  .doc-viewer code{background:#f1f5f9;padding:1px 5px;border-radius:5px;font-size:12px;color:#1d4ed8}
+  .doc-viewer pre.doc-code{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:10px;font-size:12px;overflow:auto;margin:10px 0}
+  .doc-viewer .doc-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+  .doc-viewer .doc-table td{border:1px solid #e2e8f0;padding:8px}
+  .doc-viewer .doc-quote{background:#eff6ff;border-left:3px solid #2563eb;padding:10px 14px;border-radius:8px;font-size:12px;color:#1e40af;margin:10px 0}
+  .doc-viewer .doc-hr{border:0;border-top:1px solid #e2e8f0;margin:20px 0}
+  .doc-viewer ul{font-size:13px;color:#475569;line-height:1.7}
+</style>
+</head>
+<body class="h-full antialiased flex flex-col text-slate-800">
+<div class="flex flex-1 min-h-screen overflow-hidden">
+  <%- include('../partials/tw_sidebar', { active: 'help' }) %>
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <%- include('../partials/tw_header', { searchPlaceholder: 'Search help...' }) %>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-[1700px] mx-auto w-full flex-1 space-y-6">
+
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-blue-600/30">
+          <i class="fa-solid fa-circle-question text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-bold text-[#091e42] tracking-tight">Help &amp; Documentation</h1>
+          <p class="text-[13px] text-slate-500 mt-0.5">Everything about how this system works — payments, assignments, security, and more.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 doc-viewer">
+        <%- docHtml %>
+      </div>
+
+    </div>
+  </main>
+</div>
+<%- include('../partials/tw_scripts') %>
+</body>
+</html>
